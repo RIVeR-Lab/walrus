@@ -1,27 +1,38 @@
 extern "C"
 {
   #include "event_gpio.h"
+  #include "c_pwm.h"
+  #include "c_adc.h"
 }
 #include <unistd.h>
 #include <stdio.h>
+#include "servo_pin.h"
 
 int main(){
-  printf("export %d\n", gpio_export(48));
-    usleep(500000);
-  printf("direction %d\n", gpio_set_direction(48, OUTPUT));
-  for(int i = 0; i<10; ++i){
-    usleep(500000);
-    printf("high %d\n", gpio_set_value(48, HIGH));
-    unsigned int val;
-    //gpio_get_value(48, &val);
-    printf("val %d\n", val);
-    usleep(500000);
-    printf("low %d\n", gpio_set_value(48, LOW));
-    //gpio_get_value(48, &val);
-    printf("val %d\n", val);
+  ServoPin servoA("P8_13");
+  usleep(200*1000);
+  ServoPin servoB("P8_34");
+  usleep(200*1000);
+  ServoPin servoC("P8_45");
+  usleep(200*1000);
+  ServoPin servoD("P8_46");
+  usleep(200*1000);
+  ServoPin servoE("P9_14");
+  usleep(200*1000);
+  ServoPin servoF("P9_21");
+  usleep(200*1000);
+  ServoPin servoG("P9_22");
+  usleep(200*1000);
+  ServoPin servoH("P9_29");
+  usleep(200*1000);
+  ServoPin servoI("P9_42");
+
+  printf("adc: %d\n", adc_setup());
+  for(int i = 0; i<8; ++i){
+    float val;
+    read_value(i, &val);
+    printf("\t adc: %f\n", val);
   }
-  printf("direction %d\n", gpio_set_direction(48, INPUT));
-  printf("unexport %d\n", gpio_unexport(50));
 
   exports_cleanup();
   return 0;

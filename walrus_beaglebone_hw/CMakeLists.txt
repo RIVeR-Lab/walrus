@@ -82,7 +82,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES walrus_beaglebone_hw
   CATKIN_DEPENDS beaglebone_io_ros control_toolbox controller_manager hardware_interface roscpp
 #  DEPENDS system_lib
@@ -97,6 +97,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  include
 )
 
 ## Declare a cpp library
@@ -105,7 +106,9 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(walrus_beaglebone_hw_node src/walrus_beaglebone_hw_node.cpp)
+add_executable(walrus_beaglebone_hw_node
+	src/walrus_beaglebone_hw_node.cpp
+	src/servo_pin.cpp)
 target_link_libraries(walrus_beaglebone_hw_node
   ${catkin_LIBRARIES}
   beaglebone_io_ros
