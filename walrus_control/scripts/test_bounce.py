@@ -25,8 +25,8 @@ def talker():
         front_right_pub.publish(val)
         back_left_pub.publish(-val)
         back_right_pub.publish(-val)
-        left_drive_pub.publish(sin(i/40))
-        right_drive_pub.publish(sin(i/40))
+        left_drive_pub.publish(sin(i/40)*3)
+        right_drive_pub.publish(sin(i/40)*3)
         r.sleep()
 
 if __name__ == '__main__':

@@ -55,16 +55,16 @@
     <property name="center_tread_iyz_com_cs" value="0"/>
     <property name="center_tread_izz_com_cs" value="1"/>
 
-    <property name="tread_cylinder_mass" value="0.5" />
+    <property name="tread_cylinder_mass" value="1"/>
     <property name="tread_cylinder_x_com" value="0"/>
     <property name="tread_cylinder_y_com" value="0"/>
     <property name="tread_cylinder_z_com" value="0"/>
-    <property name="tread_cylinder_ixx_com_cs" value="0.001"/>
+    <property name="tread_cylinder_ixx_com_cs" value="1"/>
     <property name="tread_cylinder_ixy_com_cs" value="0"/>
     <property name="tread_cylinder_ixz_com_cs" value="0"/>
-    <property name="tread_cylinder_iyy_com_cs" value="0.001"/>
+    <property name="tread_cylinder_iyy_com_cs" value="1"/>
     <property name="tread_cylinder_iyz_com_cs" value="0"/>
-    <property name="tread_cylinder_izz_com_cs" value="0.001"/>
+    <property name="tread_cylinder_izz_com_cs" value="1"/>
 
     <xacro:include filename="$(find walrus_description)/urdf/simple_transform.urdf.xacro" />
     <xacro:include filename="$(find walrus_description)/urdf/pod.urdf.xacro" />

@@ -66,13 +66,14 @@ public:
     }
 
     drive_names = boost::assign::list_of("left")("right");
-    other_drive_names = boost::assign::list_of("$name_center_tread_front_cylinder_joint")("$name_center_tread_back_cylinder_joint")("front_$name_pod_extended_cylinder_joint")("front_$name_pod_joint_cylinder_joint")("back_$name_pod_extended_cylinder_joint")("back_$name_pod_joint_cylinder_joint");
+    other_drive_names = boost::assign::list_of("$name_center_tread_back_cylinder_joint")("front_$name_pod_extended_cylinder_joint")("front_$name_pod_joint_cylinder_joint")("back_$name_pod_extended_cylinder_joint")("back_$name_pod_joint_cylinder_joint");
     drive_cmds = std::vector<double>(drive_names.size());
     drive_states = std::vector<JointState>(drive_names.size());
     drive_joints = std::vector<std::vector<gazebo::physics::JointPtr> >(drive_names.size());
     for(int i = 0; i<drive_names.size(); ++i){
       std::string& drive_name = drive_names[i];
       std::string joint_name = urdf_namespace+"/"+drive_name+"_drive_joint";
+      drive_joints[i].push_back(parent_model->GetJoint(joint_name));
       BOOST_FOREACH(std::string other_drive_name, other_drive_names){
 	std::string expanded_drive_name(urdf_namespace+"/"+other_drive_name);
 	size_t pos = expanded_drive_name.find("$name");
@@ -96,6 +97,7 @@ public:
 
   void readSim(ros::Time time, ros::Duration period)
   {
+    static int j = 0;
     for(int i = 0; i<pod_names.size(); ++i){
       gazebo::physics::JointPtr joint = pod_joints[i];
       pod_states[i].pos += angles::shortest_angular_distance(pod_states[i].pos, joint->GetAngle(0).Radian());
@@ -105,7 +107,7 @@ public:
     for(int i = 0; i<drive_names.size(); ++i){
       gazebo::physics::JointPtr joint = drive_joints[i][0];//just use the first joint
       drive_states[i].pos += angles::shortest_angular_distance(drive_states[i].pos, joint->GetAngle(0).Radian());
-      drive_states[i].vel = joint->GetVelocity(0); //Causes model to not initialize...
+      drive_states[i].vel = joint->GetVelocity(0);
       drive_states[i].eff = joint->GetForce((unsigned int)(0));
     }
   }
