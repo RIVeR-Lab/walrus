@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <name>walrus_bringup</name>
+  <version>0.0.0</version>
+  <description>The walrus_bringup package</description>
+
+  <maintainer email="mitchell@todo.todo">mitchell</maintainer>
+
+
+  <license>TODO</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>walrus_description</build_depend>
+  <build_depend>walrus_gazebo</build_depend>
+  <run_depend>walrus_description</run_depend>
+  <run_depend>walrus_gazebo</run_depend>
+
+
+  <export>
+  </export>
+</package>

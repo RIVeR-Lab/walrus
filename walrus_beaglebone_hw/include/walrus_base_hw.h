@@ -1,62 +1,34 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
+#include <hardware_interface/actuator_command_interface.h>
+#include <hardware_interface/actuator_state_interface.h>
 #include <hardware_interface/robot_hw.h>
+#include <transmission_interface/transmission_info.h>
+#include <transmission_interface/transmission_parser.h>
 #include <boost/shared_ptr.hpp>
 #include "pwm_effort_channel.h"
+#include <river_ros_util/ros_util.h>
+#include <river_ros_util/ros_control_util.h>
 
-class WalrusBaseRobot : public hardware_interface::RobotHW
+using namespace transmission_interface;
+
+class WalrusBaseRobot : public river_ros_util::AbstractRobotHW
 {
 public:
-  WalrusBaseRobot() 
- { 
-   front_left_joint = PWMPositionEffortChannelPtr(new PWMPositionEffortChannel("front_left_joint", jsi, jei));
-   back_left_joint = PWMPositionEffortChannelPtr(new PWMPositionEffortChannel("back_left_joint", jsi, jei));
-   front_right_joint = PWMPositionEffortChannelPtr(new PWMPositionEffortChannel("front_right_joint", jsi, jei));
-   back_right_joint = PWMPositionEffortChannelPtr(new PWMPositionEffortChannel("back_right_joint", jsi, jei));
+  WalrusBaseRobot(ros::NodeHandle n = ros::NodeHandle(), std::string robot_ns="walrus/"){
+   add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"front_left_pod_joint_actuator", as_interface, ae_interface)));
+   add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"back_left_pod_joint_actuator", as_interface, ae_interface)));
+   add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"front_right_pod_joint_actuator", as_interface, ae_interface)));
+   add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"back_right_pod_joint_actuator", as_interface, ae_interface)));
 
-   front_left_drive = PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel("front_left_drive", jsi, jei));
-   back_left_drive = PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel("back_left_drive", jsi, jei));
-   front_right_drive = PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel("front_right_drive", jsi, jei));
-   back_right_drive = PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel("back_right_drive", jsi, jei));
+   add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns+"left_drive_actuator", as_interface, ae_interface)));
+   add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns+"right_drive_actuator", as_interface, ae_interface)));
 
-   registerInterface(&jsi);
-   registerInterface(&jei);
+   std::vector<transmission_interface::TransmissionInfo> transmissions;
+   std::string urdf_string = river_ros_util::wait_for_param(n, "robot_description");
+   TransmissionParser::parse(urdf_string, transmissions);
+   build_transmissions(transmissions);
+
   }
-
-  void write(){
-    front_left_joint->write();
-    back_left_joint->write();
-    front_right_joint->write();
-    back_right_joint->write();
-
-    front_left_drive->write();
-    back_left_drive->write();
-    front_right_drive->write();
-    back_right_drive->write();
-  }
-  void read(){
-    front_left_joint->read();
-    back_left_joint->read();
-    front_right_joint->read();
-    back_right_joint->read();
-
-    front_left_drive->read();
-    back_left_drive->read();
-    front_right_drive->read();
-    back_right_drive->read();
-  }
-
-private:
-  PWMPositionEffortChannelPtr front_left_joint;
-  PWMPositionEffortChannelPtr back_left_joint;
-  PWMPositionEffortChannelPtr front_right_joint;
-  PWMPositionEffortChannelPtr back_right_joint;
-
-  PWMVelocityEffortChannelPtr front_left_drive;
-  PWMVelocityEffortChannelPtr back_left_drive;
-  PWMVelocityEffortChannelPtr front_right_drive;
-  PWMVelocityEffortChannelPtr back_right_drive;
-
-  hardware_interface::JointStateInterface jsi;
-  hardware_interface::EffortJointInterface jei;
+  
 };

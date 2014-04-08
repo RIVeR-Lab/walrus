@@ -1,34 +1,40 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(walrus_beaglebone_hw)
+project(walrus_gazebo)
 
 find_package(catkin REQUIRED COMPONENTS
-  control_toolbox
   controller_manager
-  hardware_interface
+  gazebo_ros
+  gazebo_ros_control
+  joint_limits_interface
+  urdf
+  pluginlib
   roscpp
-  river_ros_util
   transmission_interface
 )
 
+
+find_package(Gazebo REQUIRED)
+
+
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES 
-  CATKIN_DEPENDS control_toolbox controller_manager hardware_interface roscpp river_ros_util transmission_interface
-  DEPENDS 
+#  LIBRARIES walrus_gazebo
+  CATKIN_DEPENDS controller_manager gazebo_ros gazebo_ros_control joint_limits_interface urdf pluginlib roscpp transmission_interface
+  DEPENDS gazebo
 )
+
+###########
+## Build ##
+###########
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  include
+  ${GAZEBO_INCLUDE_DIRS}
 )
 
 
-add_executable(walrus_base_hw_node
-	src/walrus_base_hw_node.cpp)
-target_link_libraries(walrus_base_hw_node
-  ${catkin_LIBRARIES}
-)
-
+add_library(walrus_hw_sim src/walrus_hw_sim.cpp)
+target_link_libraries(walrus_hw_sim ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 #############
 ## Install ##
@@ -45,7 +51,7 @@ target_link_libraries(walrus_base_hw_node
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS walrus_beaglebone_hw walrus_beaglebone_hw_node
+# install(TARGETS walrus_gazebo walrus_gazebo_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -70,7 +76,7 @@ target_link_libraries(walrus_base_hw_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_walrus_beaglebone_hw.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_walrus_gazebo.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

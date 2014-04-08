@@ -1,0 +1,31 @@
+walrus:
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50
+
+  front_left_pod_joint_controller:
+    type: effort_controllers/JointPositionController
+    joint: walrus/front_left_pod_joint
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  back_left_pod_joint_controller:
+    type: effort_controllers/JointPositionController
+    joint: walrus/back_left_pod_joint
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  front_right_pod_joint_controller:
+    type: effort_controllers/JointPositionController
+    joint: walrus/front_right_pod_joint
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+  back_right_pod_joint_controller:
+    type: effort_controllers/JointPositionController
+    joint: walrus/back_right_pod_joint
+    pid: {p: 100.0, i: 0.01, d: 10.0}
+
+  left_drive_controller:
+    type: effort_controllers/JointVelocityController
+    joint: walrus/left_drive_joint
+    pid: {p: 1, i: 0.0, d: 0.0}
+  right_drive_controller:
+    type: effort_controllers/JointVelocityController
+    joint: walrus/right_drive_joint
+    pid: {p: 1, i: 0.0, d: 0.0}

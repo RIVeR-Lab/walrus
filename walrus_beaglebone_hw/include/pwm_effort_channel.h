@@ -1,20 +1,20 @@
-#include <hardware_interface/joint_command_interface.h>
-#include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <boost/shared_ptr.hpp>
+#include <transmission_interface/transmission_interface.h>
+#include <river_ros_util/ros_control_util.h>
 
-
-class PWMEffortChannelBase{
+using namespace transmission_interface;
+class PWMEffortChannelBase : public river_ros_util::RobotHWComponent{
  public:
   PWMEffortChannelBase(std::string name,
-			   hardware_interface::JointStateInterface& jsi,
-		       hardware_interface::EffortJointInterface& jei):
+			   hardware_interface::ActuatorStateInterface& jsi,
+		       hardware_interface::EffortActuatorInterface& jei):
   cmd(0), pos(0), vel(0), eff(0){
  
-    hardware_interface::JointStateHandle state_handle(name, &pos, &vel, &eff);
+    hardware_interface::ActuatorStateHandle state_handle(name, &pos, &vel, &eff);
     jsi.registerHandle(state_handle);
 
-    hardware_interface::JointHandle effort_handle(state_handle, &cmd);
+    hardware_interface::ActuatorHandle effort_handle(state_handle, &cmd);
     jei.registerHandle(effort_handle);
   }
 
@@ -24,19 +24,28 @@ class PWMEffortChannelBase{
     //TODO actually write to device
   }
 
+  ActuatorData transmissionData(){
+    ActuatorData data;
+    data.position.push_back(&pos);
+    data.velocity.push_back(&vel);
+    data.effort.push_back(&eff);
+    return data;
+  }
+
  protected:
   double cmd;
   double pos;
   double vel;
   double eff;
 };
+typedef boost::shared_ptr<PWMEffortChannelBase> PWMEffortChannelBasePtr;
 
 
 class PWMPositionEffortChannel : public PWMEffortChannelBase{
  public:
   PWMPositionEffortChannel(std::string name,
-			   hardware_interface::JointStateInterface& jsi,
-			       hardware_interface::EffortJointInterface& jei):
+			   hardware_interface::ActuatorStateInterface& jsi,
+			       hardware_interface::EffortActuatorInterface& jei):
   PWMEffortChannelBase(name, jsi, jei)
 { }
 
@@ -50,8 +59,8 @@ typedef boost::shared_ptr<PWMPositionEffortChannel> PWMPositionEffortChannelPtr;
 class PWMVelocityEffortChannel : public PWMEffortChannelBase{
  public:
   PWMVelocityEffortChannel(std::string name,
-			   hardware_interface::JointStateInterface& jsi,
-			       hardware_interface::EffortJointInterface& jei):
+			   hardware_interface::ActuatorStateInterface& jsi,
+			       hardware_interface::EffortActuatorInterface& jei):
   PWMEffortChannelBase(name, jsi, jei)
 { }
 
