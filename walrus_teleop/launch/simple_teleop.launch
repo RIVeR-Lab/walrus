@@ -1,0 +1,12 @@
+<launch>
+
+  <node name="simple_teleop" pkg="walrus_teleop" type="simple_teleop.py"
+    respawn="false" output="screen" ns="/walrus">
+  </node>
+  <node name="joy" pkg="joy" type="joy_node" respawn="false" output="screen" ns="/walrus">
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+    <param name="autorepeat_rate" value="5" />
+  </node>
+
+</launch>
