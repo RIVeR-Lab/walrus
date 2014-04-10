@@ -22,6 +22,7 @@ class PWMEffortChannelBase : public river_ros_util::RobotHWActuator{
 
   void write(){
     ROS_INFO_STREAM_THROTTLE(5, "output[" << name<<"] = "<<cmd);
+    eff = cmd;
     //TODO actually write to device
   }
 
