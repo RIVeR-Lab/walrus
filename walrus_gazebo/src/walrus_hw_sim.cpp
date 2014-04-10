@@ -30,6 +30,7 @@ typedef struct {
   double eff;
 } JointState;
 
+static const double max_pod_torque = 100;
 class WalrusHWSim : public gazebo_ros_control::RobotHWSim
 {
 private:
@@ -116,7 +117,12 @@ public:
   {
     for(int i = 0; i<pod_names.size(); ++i){
       gazebo::physics::JointPtr joint = pod_joints[i];
-      joint->SetForce(0, pod_cmds[i]);
+      double cmd = pod_cmds[i];
+      if(cmd > max_pod_torque)
+	cmd = max_pod_torque;
+      if(cmd < -max_pod_torque)
+	cmd = -max_pod_torque;
+      joint->SetForce(0, cmd);
     }
     for(int i = 0; i<drive_names.size(); ++i){
       BOOST_FOREACH(gazebo::physics::JointPtr joint, drive_joints[i]){

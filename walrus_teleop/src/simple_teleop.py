@@ -2,6 +2,8 @@
 import rospy
 from std_msgs.msg import Float64
 from sensor_msgs.msg import Joy
+import math
+from operator import add
 
 def joystick_callback(data):
         print data
@@ -27,29 +29,32 @@ def joystick_callback(data):
         
         reset_joints = data.buttons[0];
         normalize_joints = data.buttons[1];
+        drive_joints = data.buttons[2];
 
-        mod_front_left = data.buttons[4];
-        mod_front_right = data.buttons[5];
-        mod_back_left = data.buttons[6];
-        mod_back_right = data.buttons[7];
-        if mod_front_left or mod_front_right or mod_back_left or mod_back_right:
+        mod_joints = [data.buttons[4], data.buttons[5], data.buttons[6], data.buttons[7]];
+
+        if any(mod_joints):
                 joint_delta = left/2; #rad/s
-                joint_state[0] += mod_front_left*joint_delta*dt
-                joint_state[1] += mod_front_right*joint_delta*dt
-                joint_state[2] += mod_back_left*joint_delta*dt
-                joint_state[3] += mod_back_right*joint_delta*dt
+                joint_state = map(add, joint_state, [mod*joint_delta*dt for mod in mod_joints])
                 left_drive_pub.publish(0)
                 right_drive_pub.publish(0)
         else:
-                left_drive_pub.publish(-10*left)
-                right_drive_pub.publish(-10*right)
+                left_drive_pub.publish(-20*left)
+                right_drive_pub.publish(-20*right)
 
+        if not any(mod_joints):
+                mod_joints = [1, 1, 1, 1]
+                
         if reset_joints:
-                joint_state[0:4] = [0, 0, 0, 0]
+                joint_state = map(lambda state, mod: 0 if mod else state, joint_state, mod_joints)
+                
+        if drive_joints:
+                joint_state = [-math.pi/4, -math.pi/4, -math.pi+0.05, -math.pi+0.05]
                 
         if normalize_joints:
-                avg = sum(joint_state)/len(joint_state);
-                joint_state[0:4] = [avg, avg, avg, avg]
+                values = map(lambda state, mod: mod*state, joint_state, mod_joints)
+                avg = sum(values)/mod_joints.count(1);
+                joint_state = map(lambda state, mod: avg if mod else state, joint_state, mod_joints)
 
         front_left_pub.publish(joint_state[0])
         front_right_pub.publish(joint_state[1])

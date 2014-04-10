@@ -35,7 +35,6 @@
 			<child link="${robot_ns}/${fb}_${lr}_pod"/>
 			<origin xyz="${translateX * center_tread_inner_length/2} ${translateY * (base_y_size/2+tread_width/2+tread_width)} ${-base_z_to_pod_origin}" rpy="0 ${M_PI/2-M_PI/2*translateX} 0" /> 
 			<axis xyz="0 1 0" rpy="0 0 0" />
-			<limit effort="100" velocity="100"/>
 			<joint_properties damping="0.0" friction="0.0"/>
 		</joint>
 		<transmission name="${robot_ns}/${fb}_${lr}_pod_joint_trans">
