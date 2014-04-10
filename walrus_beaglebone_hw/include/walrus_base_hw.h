@@ -29,6 +29,7 @@ public:
    TransmissionParser::parse(urdf_string, transmissions);
    build_transmissions(transmissions);
 
+   register_interfaces();
   }
   
 };

@@ -1,0 +1,3 @@
+<launch>
+	<node name="robot_hw" pkg="walrus_beaglebone_hw" type="walrus_base_hw_node" ns="/walrus" output="screen"/>
+</launch>

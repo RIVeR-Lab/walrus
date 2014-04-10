@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <ros/spinner.h>
 #include "walrus_base_hw.h"
 #include <controller_manager/controller_manager.h>
 
@@ -7,9 +8,11 @@ int main( int argc, char** argv ){
   ros::NodeHandle nh;
 
   WalrusBaseRobot robot;
-  controller_manager::ControllerManager cm(&robot);
+  controller_manager::ControllerManager cm(&robot, nh);
 
-  ROS_INFO("Starting Control Loop");
+  ros::AsyncSpinner spinner(1);
+  spinner.start();
+
   //won't run this is simulation so regular time is ok
   ros::Rate controller_rate(50);
   ros::Time last = ros::Time::now();
@@ -20,9 +23,8 @@ int main( int argc, char** argv ){
     cm.update(now, now-last);
     robot.write();
     last = now;
-    ROS_DEBUG_STREAM_THROTTLE(5, "Controller Cycle Time: " << controller_rate.cycleTime().toSec());
+    ROS_INFO_STREAM_THROTTLE(5, "Controller Cycle Time: " << controller_rate.cycleTime().toSec());
     controller_rate.sleep();
-
   }
 
 }

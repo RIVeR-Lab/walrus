@@ -4,12 +4,12 @@
 #include <river_ros_util/ros_control_util.h>
 
 using namespace transmission_interface;
-class PWMEffortChannelBase : public river_ros_util::RobotHWComponent{
+class PWMEffortChannelBase : public river_ros_util::RobotHWActuator{
  public:
   PWMEffortChannelBase(std::string name,
 			   hardware_interface::ActuatorStateInterface& jsi,
 		       hardware_interface::EffortActuatorInterface& jei):
-  cmd(0), pos(0), vel(0), eff(0){
+  cmd(0), pos(0), vel(0), eff(0), name(name){
  
     hardware_interface::ActuatorStateHandle state_handle(name, &pos, &vel, &eff);
     jsi.registerHandle(state_handle);
@@ -21,10 +21,11 @@ class PWMEffortChannelBase : public river_ros_util::RobotHWComponent{
   virtual void read() = 0;
 
   void write(){
+    ROS_INFO_STREAM_THROTTLE(5, "output[" << name<<"] = "<<cmd);
     //TODO actually write to device
   }
 
-  ActuatorData transmissionData(){
+  virtual ActuatorData transmissionData(){
     ActuatorData data;
     data.position.push_back(&pos);
     data.velocity.push_back(&vel);
@@ -37,6 +38,7 @@ class PWMEffortChannelBase : public river_ros_util::RobotHWComponent{
   double pos;
   double vel;
   double eff;
+  std::string name;
 };
 typedef boost::shared_ptr<PWMEffortChannelBase> PWMEffortChannelBasePtr;
 
