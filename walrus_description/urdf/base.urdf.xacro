@@ -18,15 +18,15 @@
     <property name="base_iyz_com_cs" value="0"/>
     <property name="base_izz_com_cs" value="1"/>
 
-    <property name="base_x_size" value="0.6"/>
-    <property name="base_y_size" value="0.4"/>
-    <property name="base_z_size" value="0.08"/>
+    <property name="base_x_size" value="0.1375"/>
+    <property name="base_y_size" value="0.13"/>
+    <property name="base_z_size" value="0.031"/>
 
-    <property name="tread_radius" value="0.04"/>
-    <property name="tread_width" value="0.05"/>
-    <property name="pod_inner_length" value="0.2"/>
-    <property name="center_tread_inner_length" value="0.5"/>
-    <property name="base_z_to_pod_origin" value="0.02" />
+    <property name="tread_radius" value="0.044"/>
+    <property name="tread_width" value="0.0381"/>
+    <property name="pod_inner_length" value="0.1041"/>
+    <property name="center_tread_inner_length" value="0.2794"/>
+    <property name="base_z_to_pod_origin" value="0.006" />
     <property name="tread_body_inset" value="0.03" />
     <property name="tread_cylinder_mu1" value="1.0" />
     <property name="tread_cylinder_mu2" value="1.0" />
