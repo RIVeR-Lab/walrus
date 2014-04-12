@@ -8,12 +8,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   river_ros_util
   transmission_interface
+  device_driver_base
 )
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES 
-  CATKIN_DEPENDS control_toolbox controller_manager hardware_interface roscpp river_ros_util transmission_interface
+  CATKIN_DEPENDS control_toolbox controller_manager hardware_interface roscpp river_ros_util transmission_interface device_driver_base
   DEPENDS 
 )
 

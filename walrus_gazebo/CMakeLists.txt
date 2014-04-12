@@ -17,7 +17,7 @@ find_package(Gazebo REQUIRED)
 
 
 catkin_package(
-  INCLUDE_DIRS include
+#  INCLUDE_DIRS include
 #  LIBRARIES walrus_gazebo
   CATKIN_DEPENDS controller_manager gazebo_ros gazebo_ros_control joint_limits_interface urdf pluginlib roscpp transmission_interface
   DEPENDS gazebo
