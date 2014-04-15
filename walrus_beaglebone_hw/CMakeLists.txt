@@ -30,6 +30,12 @@ target_link_libraries(walrus_base_hw_node
   ${catkin_LIBRARIES}
 )
 
+add_executable(teensy_test
+	src/walrus_teensy_test.cpp)
+target_link_libraries(teensy_test
+  ${catkin_LIBRARIES}
+)
+
 
 #############
 ## Install ##

@@ -5,27 +5,21 @@ walrus:
     publish_rate: 50
 
   front_left_pod_joint_controller:
-    type: effort_controllers/JointPositionController
+    type: effort_controllers/JointEffortController
     joint: walrus/front_left_pod_joint
-    pid: {p: 10.0, i: 0.0, d: 0.0}
   back_left_pod_joint_controller:
-    type: effort_controllers/JointPositionController
+    type: effort_controllers/JointEffortController
     joint: walrus/back_left_pod_joint
-    pid: {p: 10.0, i: 0.0, d: 0.0}
   front_right_pod_joint_controller:
-    type: effort_controllers/JointPositionController
+    type: effort_controllers/JointEffortController
     joint: walrus/front_right_pod_joint
-    pid: {p: 10.0, i: 0.0, d: 0.0}
   back_right_pod_joint_controller:
-    type: effort_controllers/JointPositionController
+    type: effort_controllers/JointEffortController
     joint: walrus/back_right_pod_joint
-    pid: {p: 10.0, i: 0.0, d: 0.0}
 
   left_drive_controller:
-    type: effort_controllers/JointVelocityController
+    type: effort_controllers/JointEffortController
     joint: walrus/left_drive_joint
-    pid: {p: -10, i: 0.0, d: 0.0}
   right_drive_controller:
-    type: effort_controllers/JointVelocityController
+    type: effort_controllers/JointEffortController
     joint: walrus/right_drive_joint
-    pid: {p: 10, i: 0.0, d: 0.0}

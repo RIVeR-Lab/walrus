@@ -25,13 +25,13 @@ public:
     teensy(new WalrusTeensyInterface(10)){
     teensy->open();
 
-    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"front_left_pod_joint_actuator", 0, 0, 10, as_interface, ae_interface, teensy)));
-    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"back_left_pod_joint_actuator", 1, 1, 10, as_interface, ae_interface, teensy)));
-    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"front_right_pod_joint_actuator", 2, 2, 10, as_interface, ae_interface, teensy)));
-    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"back_right_pod_joint_actuator", 3, 3, 10, as_interface, ae_interface, teensy)));
+    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"front_left_pod_joint_actuator", 24, 42, 10, as_interface, ae_interface, teensy)));
+    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"back_left_pod_joint_actuator", 15, 45, 10, as_interface, ae_interface, teensy)));
+    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"front_right_pod_joint_actuator", 14, 43, 10, as_interface, ae_interface, teensy)));
+    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"back_right_pod_joint_actuator", 16, 44, 10, as_interface, ae_interface, teensy)));
 
-    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns+"left_drive_actuator", 4, 4, 10, as_interface, ae_interface, teensy)));
-    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns+"right_drive_actuator", 5, 5, 10, as_interface, ae_interface, teensy)));
+    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns+"left_drive_actuator", 26, 4, 10, as_interface, ae_interface, teensy)));
+    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns+"right_drive_actuator", 25, 5, 10, as_interface, ae_interface, teensy)));
 
     std::vector<transmission_interface::TransmissionInfo> transmissions;
     std::string urdf_string = river_ros_util::wait_for_param(n, "robot_description");

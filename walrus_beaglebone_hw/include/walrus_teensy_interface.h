@@ -26,8 +26,8 @@ class WalrusTeensyInterface
   serial_port(new DriverSerialPort()), timeout(timeout){
   }
   void open(){
-    serial_port->open("/dev/walrus_teensy", 115200, 8, serial_parity_none);
-    try{
+    serial_port->open("/dev/ttyACM0", 115200, 8, serial_parity_none);
+    /*try{
       int result = ping();
       if(result != 0){
         ROS_ERROR("Error reading pingback from teensy");
@@ -36,15 +36,16 @@ class WalrusTeensyInterface
     } catch(...){
       ROS_ERROR("Could not ping teensy");
       serial_port->close();
-    }
+      }*/
   }
   
   void send_command(uint8_t command, uint8_t data_length, uint8_t* data){
     serial_port->write(&TEENSY_START_BYTE, 1, timeout);
     uint8_t length = data_length + 1 + 1;
     serial_port->write(&length, 1, timeout);
+    serial_port->write(&command, 1, timeout);
     serial_port->write(data, data_length, timeout);
-    uint8_t sum = TEENSY_START_BYTE+length;
+    uint8_t sum = TEENSY_START_BYTE+command+length;
     for(int i = 0; i<data_length; ++i)
       sum += data[i];
     uint8_t checksum = 0xFF - sum;
@@ -52,9 +53,9 @@ class WalrusTeensyInterface
   }
   int receive_result(uint8_t buffer_size, uint8_t* buffer){
     uint8_t message_beginning[2];
+    serial_port->read_from_header(&TEENSY_START_BYTE, 1, message_beginning, 2, timeout);
     uint8_t length = message_beginning[1];
-    serial_port->read_from_header(message_beginning, 2, &length, 1, timeout);
-    uint8_t data_length = length - 1 - 1;
+    uint8_t data_length = length - 1;
     if(buffer_size < data_length){
       ROS_WARN("Receive buffer not big enough... was %d, needed %d", buffer_size, data_length);
       return -1;
@@ -63,11 +64,10 @@ class WalrusTeensyInterface
     uint8_t checksum;
     serial_port->read(&checksum, 1, timeout);
 
-    uint8_t sum = TEENSY_START_BYTE+length;
+    uint8_t sum = TEENSY_START_BYTE+length+checksum;
     for(int i = 0; i<data_length; ++i)
       sum += buffer[i];
-    uint8_t expected_checksum = 0xFF - sum;
-    if(checksum == expected_checksum)
+    if(sum == 0xFF)
       return data_length;
     return -1;
   }

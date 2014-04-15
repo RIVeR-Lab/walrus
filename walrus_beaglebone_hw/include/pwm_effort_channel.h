@@ -13,7 +13,7 @@
 using namespace transmission_interface;
 using namespace device_driver;
 
-static const double us_per_torque = 10;
+static const double us_per_torque = 100;
 static const double ticks_per_rotation = 10000;
 
 class PWMEffortChannelBase : public river_ros_util::RobotHWComponent{
@@ -33,6 +33,7 @@ class PWMEffortChannelBase : public river_ros_util::RobotHWComponent{
   virtual void read() = 0;
 
   void write(){
+    ROS_INFO_THROTTLE(0.5, "%f", cmd);
     double actual_cmd = std::min(max_effort, std::max(cmd, -max_effort));
     uint16_t period_us = 1500 + us_per_torque*actual_cmd;
     teensy->set_pwm(channel, period_us);
@@ -83,10 +84,10 @@ class PWMVelocityEffortChannel : public PWMEffortChannelBase{
 {}
 
   virtual void read(){
-    uint16_t raw_position = teensy->get_position(encoder_channel);
-    uint16_t raw_velocity = teensy->get_velocity(encoder_channel);
-    pos =  2*M_PI * raw_position / ticks_per_rotation;
-    vel =  2*M_PI * raw_velocity / ticks_per_rotation;
+    //uint16_t raw_position = teensy->get_position(encoder_channel);
+    //uint16_t raw_velocity = teensy->get_velocity(encoder_channel);
+    //pos =  2*M_PI * raw_position / ticks_per_rotation;
+    //vel =  2*M_PI * raw_velocity / ticks_per_rotation;
   }
  protected:
   uint8_t encoder_channel;
