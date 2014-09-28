@@ -6,9 +6,12 @@
 #include <hardware_interface/actuator_command_interface.h>
 #include <hardware_interface/actuator_state_interface.h>
 #include <hardware_interface/robot_hw.h>
+#include <transmission_interface/robot_transmissions.h>
 #include <transmission_interface/transmission_info.h>
+#include <transmission_interface/transmission_interface_loader.h>
 #include <transmission_interface/transmission_parser.h>
 #include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 #include "pwm_effort_channel.h"
 #include <river_ros_util/ros_util.h>
 #include <river_ros_util/ros_control_util.h>
@@ -18,32 +21,58 @@
 using namespace transmission_interface;
 using namespace device_driver;
 
-class WalrusBaseRobot : public river_ros_util::AbstractRobotHW
+class WalrusBaseRobot : public hardware_interface::RobotHW
 {
-public:
- WalrusBaseRobot(ros::NodeHandle n = ros::NodeHandle(), std::string robot_ns="walrus/"):
-    teensy(new WalrusTeensyInterface(10)){
+ public:
+ WalrusBaseRobot(ros::NodeHandle nh = ros::NodeHandle(), std::string robot_ns="walrus/"):
+  teensy(new WalrusTeensyInterface(10)), nh_(nh), robot_ns_(robot_ns){
     teensy->open();
-
-    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"front_left_pod_joint_actuator", 24, 42, 10, as_interface, ae_interface, teensy)));
-    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"back_left_pod_joint_actuator", 15, 45, 10, as_interface, ae_interface, teensy)));
-    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"front_right_pod_joint_actuator", 14, 43, 10, as_interface, ae_interface, teensy)));
-    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns+"back_right_pod_joint_actuator", 16, 44, 10, as_interface, ae_interface, teensy)));
-
-    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns+"left_drive_actuator", 26, 4, 10, as_interface, ae_interface, teensy)));
-    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns+"right_drive_actuator", 25, 5, 10, as_interface, ae_interface, teensy)));
-
-    std::vector<transmission_interface::TransmissionInfo> transmissions;
-    std::string urdf_string = river_ros_util::wait_for_param(n, "robot_description");
-    TransmissionParser::parse(urdf_string, transmissions);
-    build_transmissions(transmissions);
-
-    register_interfaces();
   }
 
+  bool init() {
+    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns_+"front_left_pod_joint_actuator", 24, 42, 10, as_interface_, ae_interface_, teensy)));
+    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns_+"back_left_pod_joint_actuator", 15, 45, 10, as_interface_, ae_interface_, teensy)));
+    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns_+"front_right_pod_joint_actuator", 14, 43, 10, as_interface_, ae_interface_, teensy)));
+    add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns_+"back_right_pod_joint_actuator", 16, 44, 10, as_interface_, ae_interface_, teensy)));
+
+    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns_+"left_drive_actuator", 26, 4, 10, as_interface_, ae_interface_, teensy)));
+    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns_+"right_drive_actuator", 25, 5, 10, as_interface_, ae_interface_, teensy)));
+
+    registerInterface(&as_interface_);
+    registerInterface(&ae_interface_);
+
+
+    std::string urdf_string = river_ros_util::wait_for_param(nh_, "robot_description");
+    if (!transmission_loader_->load(urdf_string)) {return false;}
+  }
+
+  void write(){
+    robot_transmissions_.get<transmission_interface::JointToActuatorEffortInterface>()->propagate();
+    for(unsigned int i = 0; i<actuators.size(); ++i){
+      actuators[i]->write();
+    }
+  }
+  void read(){
+    for(unsigned int i = 0; i<actuators.size(); ++i){
+      actuators[i]->read();
+    }
+    robot_transmissions_.get<transmission_interface::ActuatorToJointStateInterface>()->propagate();
+  }
+
+
  private:
+  void add_actuator(river_ros_util::RobotHWComponentPtr component){
+    actuators.push_back(component);
+  }
+
   WalrusTeensyInterfacePtr teensy;
-  
+  ros::NodeHandle nh_;
+  std::string robot_ns_;
+  transmission_interface::RobotTransmissions robot_transmissions_;
+  boost::scoped_ptr<transmission_interface::TransmissionInterfaceLoader> transmission_loader_;
+  std::vector<river_ros_util::RobotHWComponentPtr> actuators;
+  hardware_interface::ActuatorStateInterface as_interface_;
+  hardware_interface::EffortActuatorInterface ae_interface_;
 };
 
 #endif

@@ -13,6 +13,8 @@ int main( int argc, char** argv ){
   ros::AsyncSpinner spinner(1);
   spinner.start();
 
+  robot.init();
+
   //won't run this is simulation so regular time is ok
   ros::Rate controller_rate(50);
   ros::Time last = ros::Time::now();
