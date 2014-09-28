@@ -1,4 +1,4 @@
 <launch>
   <include file="$(find walrus_beaglebone_hw)/launch/robot.launch"/>
-  <include file="$(find walrus_bringup)/launch/_walrus_common.launch"/>
+  <include file="$(find walrus_bringup)/launch/common.launch.xml"/>
 </launch>
