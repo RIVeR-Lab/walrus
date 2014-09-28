@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package>
+  <name>calf_bringup</name>
+  <version>0.0.0</version>
+  <description>The calf_bringup package</description>
+
+  <maintainer email="mitchell@todo.todo">mitchell</maintainer>
+
+
+  <license>TODO</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>calf_description</run_depend>
+  <run_depend>calf_gazebo</run_depend>
+
+
+  <export>
+  </export>
+</package>

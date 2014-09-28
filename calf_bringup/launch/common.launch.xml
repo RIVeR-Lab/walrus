@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find calf_description)/launch/calf_base.launch"/>
+  <include file="$(find calf_control)/launch/calf_control.launch"/>
+</launch>

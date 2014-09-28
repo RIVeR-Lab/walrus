@@ -1,0 +1,3 @@
+<launch>
+	<node name="robot_hw" pkg="calf_beaglebone_hw" type="calf_base_hw_node" ns="/calf" output="screen"/>
+</launch>

@@ -1,4 +1,0 @@
-<launch>
-  <include file="$(find walrus_gazebo)/launch/walrus_base_world.launch"/>
-  <include file="$(find walrus_bringup)/launch/common.launch.xml"/>
-</launch>

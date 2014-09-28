@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find calf_gazebo)/launch/calf_base_world.launch"/>
+  <include file="$(find calf_bringup)/launch/common.launch.xml"/>
+</launch>
