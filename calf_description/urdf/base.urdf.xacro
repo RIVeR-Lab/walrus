@@ -132,17 +132,19 @@
 
       <transmission name="${robot_ns}/left_drive_trans">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="${robot_ns}/left_drive_joint"/>
-        <actuator name="${robot_ns}/left_drive_actuator">
+        <joint name="${robot_ns}/left_drive_joint">
           <hardwareInterface>EffortJointInterface</hardwareInterface>
+	</joint>
+        <actuator name="${robot_ns}/left_drive_actuator">
           <mechanicalReduction>1</mechanicalReduction>
         </actuator>
       </transmission>
       <transmission name="${robot_ns}/right_drive_trans">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="${robot_ns}/right_drive_joint"/>
-        <actuator name="${robot_ns}/right_drive_actuator">
+        <joint name="${robot_ns}/right_drive_joint">
           <hardwareInterface>EffortJointInterface</hardwareInterface>
+	</joint>
+        <actuator name="${robot_ns}/right_drive_actuator">
           <mechanicalReduction>1</mechanicalReduction>
         </actuator>
       </transmission>

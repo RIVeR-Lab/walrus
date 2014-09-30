@@ -39,9 +39,10 @@
 		</joint>
 		<transmission name="${robot_ns}/${fb}_${lr}_pod_joint_trans">
 			<type>transmission_interface/SimpleTransmission</type>
-			<joint name="${robot_ns}/${fb}_${lr}_pod_joint"/>
-			<actuator name="${robot_ns}/${fb}_${lr}_pod_joint_actuator">
+			<joint name="${robot_ns}/${fb}_${lr}_pod_joint">
 				<hardwareInterface>EffortJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="${robot_ns}/${fb}_${lr}_pod_joint_actuator">
 				<mechanicalReduction>1</mechanicalReduction>
 			</actuator>
 		</transmission>
