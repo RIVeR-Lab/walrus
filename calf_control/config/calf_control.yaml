@@ -24,7 +24,7 @@ calf:
   left_drive_controller:
     type: effort_controllers/JointVelocityController
     joint: calf/left_drive_joint
-    pid: {p: -10, i: 0.0, d: 0.0}
+    pid: {p: 10, i: 0.0, d: 0.0}
   right_drive_controller:
     type: effort_controllers/JointVelocityController
     joint: calf/right_drive_joint
