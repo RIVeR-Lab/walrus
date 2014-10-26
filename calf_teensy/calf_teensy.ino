@@ -1,3 +1,4 @@
+#include <Wire.h>
 #include <Servo.h>
 #include "AnalogChannel.h"
 #include "PWMChannel.h"
