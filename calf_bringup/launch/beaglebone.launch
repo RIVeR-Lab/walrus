@@ -1,4 +1,4 @@
 <launch>
-  <include file="$(find calf_beaglebone_hw)/launch/robot.launch"/>
+  <include file="$(find calf_teensy_hw)/launch/robot.launch"/>
   <include file="$(find calf_bringup)/launch/common.launch.xml"/>
 </launch>
