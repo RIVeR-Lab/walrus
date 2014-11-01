@@ -1,0 +1,10 @@
+<launch>
+  <node name="server_bullet" pkg="ubiquiti_bullet" type="bullet_monitor.py">
+    <param name="device_name" value="Access Point"/>
+    <param name="ip_address" value="192.168.1.20"/>
+  </node>
+  <node name="client_bullet" pkg="ubiquiti_bullet" type="bullet_monitor.py">
+    <param name="device_name" value="Station"/>
+    <param name="ip_address" value="192.168.1.21"/>
+  </node>
+</launch>
