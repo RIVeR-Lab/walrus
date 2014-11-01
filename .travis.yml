@@ -21,6 +21,7 @@ install:
   - touch river_util/robot_teleop/CATKIN_IGNORE
   - git clone https://github.com/ros-controls/ros_control.git
   - touch ros_control/rqt_controller_manager/CATKIN_IGNORE
+  - touch ros_control/joint_limits_interface/CATKIN_IGNORE
   - cd /tmp/ws
   - rosdep install --from-paths src --ignore-src --rosdistro hydro -y
 
