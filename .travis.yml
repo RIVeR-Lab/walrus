@@ -18,9 +18,9 @@ install:
   - ln -s `pwd` /tmp/ws/src/package
   - cd /tmp/ws
   - git clone https://github.com/RIVeR-Lab/river_util.git
-  - touch touch src/river_util/robot_teleop/CATKIN_IGNORE
+  - touch src/river_util/robot_teleop/CATKIN_IGNORE
   - git clone https://github.com/ros-controls/ros_control.git
-  - touch touch src/ros_control/rqt_controller_manager/CATKIN_IGNORE
+  - touch src/ros_control/rqt_controller_manager/CATKIN_IGNORE
   - rosdep install --from-paths src --ignore-src --rosdistro hydro -y
 
 script:
