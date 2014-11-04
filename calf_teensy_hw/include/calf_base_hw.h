@@ -25,18 +25,34 @@ class CalfBaseRobot : public hardware_interface::RobotHW
 {
  public:
  CalfBaseRobot(ros::NodeHandle nh = ros::NodeHandle(), std::string robot_ns="calf/"):
-  teensy(new CalfTeensyInterface(10)), nh_(nh), robot_ns_(robot_ns){
+  teensy(new CalfTeensyInterface(10)), nh_(nh), robot_ns_(robot_ns) {
     teensy->open();
   }
 
   bool init() {
+    try {
+      transmission_loader_.reset(new TransmissionInterfaceLoader(this, &robot_transmissions_));
+    }
+    catch(const std::invalid_argument& ex){
+      ROS_ERROR_STREAM("Failed to create transmission interface loader. " << ex.what());
+      return false;
+    }
+    catch(const pluginlib::LibraryLoadException& ex){
+      ROS_ERROR_STREAM("Failed to create transmission interface loader. " << ex.what());
+      return false;
+    }
+    catch(...){
+      ROS_ERROR_STREAM("Failed to create transmission interface loader. ");
+      return false;
+    }
+
     add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns_+"front_left_pod_joint_actuator", 24, 42, 10, as_interface_, ae_interface_, teensy)));
     add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns_+"back_left_pod_joint_actuator", 15, 45, 10, as_interface_, ae_interface_, teensy)));
     add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns_+"front_right_pod_joint_actuator", 14, 43, 10, as_interface_, ae_interface_, teensy)));
     add_actuator(PWMPositionEffortChannelPtr(new PWMPositionEffortChannel(robot_ns_+"back_right_pod_joint_actuator", 16, 44, 10, as_interface_, ae_interface_, teensy)));
 
-    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns_+"left_drive_actuator", 26, 4, 10, as_interface_, ae_interface_, teensy)));
-    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns_+"right_drive_actuator", 25, 5, 10, as_interface_, ae_interface_, teensy)));
+    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns_+"left_drive_actuator", 13, 4, 10, as_interface_, ae_interface_, teensy)));
+    add_actuator(PWMVelocityEffortChannelPtr(new PWMVelocityEffortChannel(robot_ns_+"right_drive_actuator", 12, 5, 10, as_interface_, ae_interface_, teensy)));
 
     registerInterface(&as_interface_);
     registerInterface(&ae_interface_);
