@@ -5,8 +5,8 @@ include_directories(${ROS_LIB_DIR})
 # Remove this if using an Arduino without native USB (eg, other than Leonardo)
 #add_definitions(-DUSB_CON)
 
-generate_arduino_firmware(hello
-  SRCS hello.cpp ${ROS_LIB_DIR}/time.cpp
-  BOARD leonardo
+generate_arduino_firmware(thigh_firmware
+  SRCS hello_world.cpp ${ROS_LIB_DIR}/time.cpp
+  BOARD mega2560
   PORT /dev/ttyACM0
 )

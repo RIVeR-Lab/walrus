@@ -100,8 +100,8 @@ rosserial_configure_client(
 	TOOLCHAIN_FILE ${ROSSERIAL_ARDUINO_TOOLCHAIN}
 )
 
-rosserial_add_client_target(firmware thigh_firmware ALL)
-rosserial_add_client_target(firmware thigh_firmware-upload)
+r	osserial_add_client_target(firmware thigh_arduino ALL)
+rosserial_add_client_target(firmware thigh_arduino-upload)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
