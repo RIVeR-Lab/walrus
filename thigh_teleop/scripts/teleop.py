@@ -36,12 +36,12 @@ def joystick_callback(data):
 		bl_pod = 1500
 		br_pod = 1500
 
-        left_drive_pub.publish(left)
-	right_drive_pub.publish(right) 
-        front_left_pub.publish(fl_pod)
-        front_right_pub.publish(fr_pod)
-        back_left_pub.publish(bl_pod)
-        back_right_pub.publish(br_pod)
+        left_drive_pub.publish(UInt16(data=left))
+	right_drive_pub.publish(UInt16(data=right)) 
+        front_left_pub.publish(UInt16(data=fl_pod))
+        front_right_pub.publish(UInt16(data=fr_pod))
+        back_left_pub.publish(UInt16(data=bl_pod))
+        back_right_pub.publish(UInt16(data=br_pod))
 
     
 def main():
@@ -56,13 +56,13 @@ def main():
         global back_right_pub
         global left_drive_pub
         global right_drive_pub
-        front_left_pub = rospy.Publisher('front_left_pod', UInt16, 10)
-        front_right_pub = rospy.Publisher('front_right_pod', UInt16, 10)
-        back_left_pub = rospy.Publisher('back_left_pod', UInt16, 10)
-        back_right_pub = rospy.Publisher('back_right_pod', UInt16, 10)
+        front_left_pub = rospy.Publisher('front_left_pod', UInt16, queue_size=10)
+        front_right_pub = rospy.Publisher('front_right_pod', UInt16, queue_size=10)
+        back_left_pub = rospy.Publisher('back_left_pod', UInt16, queue_size=10)
+        back_right_pub = rospy.Publisher('back_right_pod', UInt16, queue_size=10)
         
-        left_drive_pub = rospy.Publisher('left_drive', UInt16, 10)
-        right_drive_pub = rospy.Publisher('right_drive', UInt16, 10)
+        left_drive_pub = rospy.Publisher('left_drive', UInt16, queue_size=10)
+        right_drive_pub = rospy.Publisher('right_drive', UInt16, queue_size=10)
         
         rospy.Subscriber("joy", Joy, joystick_callback)
         
