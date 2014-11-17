@@ -18,8 +18,6 @@ install:
   - mkdir -p /tmp/ws/src
   - ln -s `pwd` /tmp/ws/src/package
   - cd /tmp/ws/src
-  - git clone https://github.com/RIVeR-Lab/river_util.git
-  - touch river_util/robot_teleop/CATKIN_IGNORE
   - git clone https://github.com/ros-controls/ros_control.git
   - touch ros_control/rqt_controller_manager/CATKIN_IGNORE
   - touch ros_control/joint_limits_interface/CATKIN_IGNORE
