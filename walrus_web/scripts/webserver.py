@@ -7,21 +7,18 @@ import threading
 import tornado.ioloop as ioloop
 import tornado.web as web
 
-class MainHandler(web.RequestHandler):
-    def get(self):
-        self.render("/index.html")
 
 def main():
-    rospy.init_node('walrus_web_server', anonymous=True)
+    rospy.init_node('walrus_web_server')
     rospack = rospkg.RosPack()
 
     web_dir = os.path.join(rospack.get_path('walrus_web'), 'web')
 
     application = web.Application([
-        (r"/(.*)", web.StaticFileHandler, {"path": web_dir}),
-        (r"/", MainHandler)
-    ])
-    application.listen(8000)
+        (r"/()", web.StaticFileHandler, {'path': os.path.join(web_dir, 'index.html')}),
+        (r"/(.*)", web.StaticFileHandler, {"path": web_dir})
+    ], debug=True)
+    application.listen(rospy.get_param("~port", 8080))
     server_thread = threading.Thread(target=ioloop.IOLoop.instance().start)
 
     server_thread.start()
