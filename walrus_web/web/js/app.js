@@ -1,4 +1,11 @@
-var app = angular.module('app', ['ngMaterial']);
+var app = angular.module('app', ['ros', 'gamepad', 'ngMaterial']);
+
+app.config(["roslibProvider", function(roslibProvider){
+    roslibProvider.setUrl('ws://localhost:9003');
+}]);
+
+app.controller('RootCtrl', function( $scope, roslib, gamepadService ) {
+});
 
 app.controller('SidepanelCtrl', function( $scope ) {
     $scope.tabs = {
@@ -7,6 +14,31 @@ app.controller('SidepanelCtrl', function( $scope ) {
 });
 
 app.controller('DiagnosticsCtrl', function( $scope, $mdDialog ) {
+    $scope.ros = {
+	connected: false
+    };
+
+    $scope.gamepad = {
+	connected: false,
+    };
+
+    $scope.$on('gamepad-connected', function() {
+	$scope.gamepad.connected = true;
+    });
+    $scope.$on('gamepad-disconnected', function() {
+	$scope.gamepad.connected = false;
+    });
+
+    $scope.$on('ros-connection', function() {
+	$scope.ros.connected = true;
+    });
+    $scope.$on('ros-error', function(error) {
+	$scope.ros.connected = false;
+    });
+    $scope.$on('ros-close', function() {
+	$scope.ros.connected = false;
+    });
+
     $scope.diagnostics = {
 	cpu: 0.7,
 	memory: 0.5,
@@ -86,16 +118,23 @@ function ControlsDialogController($scope, $mdDialog) {
 }
 
 
-function GamepadDialogController($scope, $mdDialog, $interval) {
-    $scope.Math = window.Math;
-    var pollTimer;
-    pollTimer = $interval(function() {
-	$scope.gamepad = navigator.getGamepads()[0];
-	console.log($scope.gamepad);
-    }, 100);
-    $scope.$on('$destroy', function() {
-        $interval.cancel(pollTimer);
+function GamepadDialogController($scope, $mdDialog, $interval, gamepadService) {
+    $scope.gamepad = {
+	connected: gamepadService.isConnected(),
+	data: gamepadService.getLastData()
+    };
+
+    $scope.$on('gamepad-connected', function() {
+	$scope.gamepad.connected = true;
     });
+    $scope.$on('gamepad-disconnected', function() {
+	$scope.gamepad.connected = false;
+    });
+    $scope.$on('gamepad-data', function(ev, data) {
+	$scope.gamepad.data = data;
+    });
+
+    $scope.Math = window.Math;
     $scope.hide = function() {
 	$mdDialog.hide();
     };
