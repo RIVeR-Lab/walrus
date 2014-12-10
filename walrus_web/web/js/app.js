@@ -1,12 +1,38 @@
 var app = angular.module('app', ['ros', 'gamepad', 'ngMaterial']);
 
-app.config(["roslibProvider", "gamepadServiceProvider", function(roslibProvider, gamepadServiceProvider){
+app.config(["roslibProvider", "gamepadServiceProvider", "webrtcRosServiceProvider",
+	    function(roslibProvider, gamepadServiceProvider, webrtcRosServiceProvider){
     roslibProvider.setUrl('ws://localhost:9003');
+
+    webrtcRosServiceProvider.setSignalingUrl('ws://localhost:9001/webrtc');
 
     gamepadServiceProvider.setPollRate(100);
 }]);
 
-app.controller('RootCtrl', function( $scope, roslib, gamepadService ) {
+app.controller('RootCtrl', function( $scope, roslib, gamepadService, webrtcRosService ) {
+    var joyPub = roslib.advertise('/joy', 'sensor_msgs/Joy');
+    $scope.$on('gamepad-data', function(ev, data) {
+	var currentTime = new Date();
+	var secs = Math.floor(currentTime.getTime()/1000);
+        var nsecs = Math.round(1000000000*(currentTime.getTime()/1000-secs));
+	var joyData = {
+	    header: { stamp: { secs: secs, nsecs: nsecs } },
+	    axes: data.axes,
+	    buttons: data.buttons.map(function(button){return button.pressed?1:0;})};
+	joyData.axes[0] = -joyData.axes[0];
+	joyData.axes[1] = -joyData.axes[1];
+	joyPub.publish(joyData);
+    });
+});
+
+app.directive('videoViewer', function() {
+  return {
+      scope: {
+	  topic: '=topic',
+	  label: '=label'
+      },
+    templateUrl: 'video-viewer.html.template'
+  };
 });
 
 app.controller('SidepanelCtrl', function( $scope ) {
