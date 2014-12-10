@@ -1,7 +1,9 @@
 var app = angular.module('app', ['ros', 'gamepad', 'ngMaterial']);
 
-app.config(["roslibProvider", function(roslibProvider){
+app.config(["roslibProvider", "gamepadServiceProvider", function(roslibProvider, gamepadServiceProvider){
     roslibProvider.setUrl('ws://localhost:9003');
+
+    gamepadServiceProvider.setPollRate(100);
 }]);
 
 app.controller('RootCtrl', function( $scope, roslib, gamepadService ) {
