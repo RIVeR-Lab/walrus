@@ -2,10 +2,13 @@ var rosModule = angular.module("gamepad", []);
 
 rosModule
     .provider('gamepadService',  {
+	pollRate: 100,
+	setPollRate: function(pollRate) {
+	    this.pollRate = pollRate;
+	},
 	$get: ['$rootScope', '$interval', function($rootScope, $interval) {
 	    var lastTimestamp = null;
 	    var lastData = null;
-	    console.log('Created gamepad service');
 	    var pollTimer = $interval(function() {
 		var gamepadData = navigator.getGamepads()[0];
 		if(gamepadData) {
@@ -23,7 +26,7 @@ rosModule
 		    lastData = null;
 		    lastTimestamp = null;
 		}
-	    }, 100);
+	    }, this.pollRate);
 	    return {
 		isConnected: function() { return lastTimestamp !== null; },
 		getLastData: function() { return lastData; }
