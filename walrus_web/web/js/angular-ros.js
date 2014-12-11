@@ -2,13 +2,17 @@ var rosModule = angular.module("ros", []);
 
 rosModule
     .provider('roslib',  {
-	url: 'ws://localhost:9090',
-	setUrl: function(url) {
-	    this.url = url;
+	rosbridgeWsUrl: 'ws://localhost:9090/',
+	packageUrl: 'http://localhost:8080/',
+	setRosbridgeWsUrl: function(url) {
+	    this.rosbridgeWsUrl = url;
+	},
+	setPackageUrl: function(url) {
+	    this.packageUrl = url;
 	},
 	$get: ['$rootScope', function($rootScope) {
 	    var ros = new ROSLIB.Ros({
-		url : this.url
+		url : this.rosbridgeWsUrl
 	    });
 	    ros.on('connection', function() {
 		$rootScope.$apply(function(){
@@ -28,6 +32,28 @@ rosModule
 		});
 	    });
 	    return {
+		ros: ros,
+		packageUrl: this.packageUrl,
+		tfClient: null,
+		getTfClient: function() {
+		    if(!this.tfClient){
+			this.tfClient = new ROSLIB.TFClient({
+			    ros : this.ros,
+			    angularThres : 0.01,
+			    transThres : 0.01,
+			    rate : 10.0
+			});
+		    }
+		    return this.tfClient;
+		},
+		createUrdfClient: function(scene) {
+		    return new ROS3D.UrdfClient({
+			ros : this.ros,
+			tfClient : this.getTfClient(),
+			path : this.packageUrl,
+			rootObject : scene
+		    });
+		},
 		advertise: function(name, messageType) {
 		    var topic = new ROSLIB.Topic({
 			ros : ros,
@@ -43,6 +69,41 @@ rosModule
 	    };
 	}]
     })
+    .directive('urdfViewer', ['roslib', function(roslib) {
+	function link(scope, element, attrs) {
+	    if(!element.attr('id')) {
+		throw 'A urdf viewer must define an id';
+	    }
+	    var viewer = new ROS3D.Viewer({
+		divID : element.attr('id'),
+		width : element[0].offsetWidth,
+		height : element[0].offsetWidth / scope.aspectRatio,
+		background: '#AAAAAA',
+		antialias : true
+	    });
+	    viewer.addObject(new ROS3D.Grid());
+	    roslib.createUrdfClient(viewer.scene);
+
+	    function updateViewer() {
+		var newWidth = element[0].offsetWidth;
+		var newHeight = element[0].offsetWidth / scope.aspectRatio;
+		viewer.renderer.setSize(newWidth, newHeight);
+		viewer.camera.updateProjectionMatrix();
+	    }
+
+	    window.addEventListener('resize', updateViewer);
+
+	}
+
+	return {
+	    scope: {
+		'aspectRatio': '=aspectRatio'
+	    },
+	    restrict: 'E',
+	    link: link
+	};
+    }])
+
     .provider('webrtcRosService',  {
 	signalingUrl: 'ws://localhost:8080/webrtc',
 	setSignalingUrl: function(signalingUrl) {

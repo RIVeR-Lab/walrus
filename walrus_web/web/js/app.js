@@ -2,7 +2,8 @@ var app = angular.module('app', ['ros', 'gamepad', 'ngMaterial']);
 
 app.config(["roslibProvider", "gamepadServiceProvider", "webrtcRosServiceProvider",
 	    function(roslibProvider, gamepadServiceProvider, webrtcRosServiceProvider){
-    roslibProvider.setUrl('ws://localhost:9003');
+    roslibProvider.setRosbridgeWsUrl('ws://localhost:9003');
+    roslibProvider.setPackageUrl('http://localhost:9002/');
 
     webrtcRosServiceProvider.setSignalingUrl('ws://localhost:9001/webrtc');
 
@@ -23,6 +24,7 @@ app.controller('RootCtrl', function( $scope, roslib, gamepadService, webrtcRosSe
 	joyData.axes[1] = -joyData.axes[1];
 	joyPub.publish(joyData);
     });
+
 });
 
 app.directive('videoViewer', function() {
@@ -35,7 +37,7 @@ app.directive('videoViewer', function() {
   };
 });
 
-app.controller('SidepanelCtrl', function( $scope ) {
+app.controller('SidepanelCtrl', function( $scope, roslib ) {
     $scope.tabs = {
 	selectedIndex : 0
     };
