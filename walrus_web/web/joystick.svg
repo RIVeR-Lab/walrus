@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="flex:1" viewBox="0 0 400 300" preserveAspectRatio="xMinYMid meet">
+
+  <circle cx="200" cy="150" r="130" style="fill:gray;" />
+  <circle cx="200" cy="150" r="60" style="fill:black;" />
+  <line x1="200" y1="150" x2="291.9" y2="241.9" style="stroke:black;stroke-width:3;"/>
+  <line x1="200" y1="150" x2="108.1" y2="241.9" style="stroke:black;stroke-width:3;"/>
+  <line x1="200" y1="150" x2="108.1" y2="58.1" style="stroke:black;stroke-width:3;"/>
+  <line x1="200" y1="150" x2="291.9" y2="58.1" style="stroke:black;stroke-width:3;"/>
+
+</svg>
