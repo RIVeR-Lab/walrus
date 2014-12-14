@@ -53,14 +53,10 @@
 	Autonomy
       </md-tab>
     </md-tabs>
-    <ng-switch on="tabs.selectedIndex" style="flex:1;">
-      <div ng-switch-when="0">
-	<ng-include src="'model_tab.html'"></ng-include>
-      </div>
-      <div ng-switch-when="1">
-	<ng-include src="'autonomy_tab.html'"></ng-include>
-      </div>
-    </ng-switch>
+    <div style="flex:1;">
+      <ng-include src="'model_tab.html'" ng-show="tabs.selectedIndex==0"></ng-include>
+      <ng-include src="'autonomy_tab.html'" ng-show="tabs.selectedIndex==1"></ng-include>
+    </div>
     <video-viewer style="flex:none;" topic="'/camera/depth/image_raw'" label="'Depth Camera'"></video-viewer>
   </div>
 </body>

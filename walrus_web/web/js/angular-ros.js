@@ -85,14 +85,19 @@ rosModule
 	    roslib.createUrdfClient(viewer.scene);
 
 	    function updateViewer() {
-		var newWidth = element[0].offsetWidth;
-		var newHeight = element[0].offsetWidth / scope.aspectRatio;
-		viewer.renderer.setSize(newWidth, newHeight);
-		viewer.camera.updateProjectionMatrix();
+		// only resize if the viewer is actually visible
+		if(element[0].offsetParent !== null) {
+		    var newWidth = element[0].offsetWidth;
+		    var newHeight = element[0].offsetWidth / scope.aspectRatio;
+		    viewer.renderer.setSize(newWidth, newHeight);
+		    viewer.camera.updateProjectionMatrix();
+		}
 	    }
 
 	    window.addEventListener('resize', updateViewer);
-
+	    scope.$on('tab-changed', function(ev, newIndex, oldIndex) {
+		updateViewer();
+	    });
 	}
 
 	return {
