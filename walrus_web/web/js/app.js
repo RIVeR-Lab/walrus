@@ -108,14 +108,15 @@ app.controller('DiagnosticsCtrl', function( $scope, $mdDialog, $mdBottomSheet ) 
 	$mdBottomSheet.show({
 	    templateUrl: 'bottom_sheet.html',
 	    controller: OptionsSheetController,
-	    targetEvent: ev
+	    targetEvent: ev,
+	    locals: { diagnostics: $scope.diagnostics },
 	});
     };
 
 
 });
 
-function OptionsSheetController($scope, $mdBottomSheet, $mdDialog) {
+function OptionsSheetController($scope, $mdBottomSheet, $mdDialog, diagnostics) {
     $scope.showControlsLayout = function(ev){
 	$mdBottomSheet.hide(ev);
 	$mdDialog.show({
@@ -129,7 +130,7 @@ function OptionsSheetController($scope, $mdBottomSheet, $mdDialog) {
         $mdDialog.show({
             targetEvent: ev,
 	    templateUrl: 'diagnostics_dialog.html',
-	    locals: { diagnostics: $scope.diagnostics },
+	    locals: { diagnostics: diagnostics },
 	    controller: DiagnosticsDialogController
         });
     };
