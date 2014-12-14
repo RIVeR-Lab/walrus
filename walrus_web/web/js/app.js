@@ -50,7 +50,7 @@ app.controller('SidepanelCtrl', function( $scope, roslib ) {
     });
 });
 
-app.controller('DiagnosticsCtrl', function( $scope, $mdDialog ) {
+app.controller('DiagnosticsCtrl', function( $scope, $mdDialog, $mdBottomSheet ) {
     $scope.ros = {
 	connected: false
     };
@@ -103,15 +103,29 @@ app.controller('DiagnosticsCtrl', function( $scope, $mdDialog ) {
 
     $scope.Math = window.Math;
 
+    $scope.showOptions = function(ev){
+	$scope.alert = '';
+	$mdBottomSheet.show({
+	    templateUrl: 'bottom_sheet.html',
+	    controller: OptionsSheetController,
+	    targetEvent: ev
+	});
+    };
 
+
+});
+
+function OptionsSheetController($scope, $mdBottomSheet, $mdDialog) {
     $scope.showControlsLayout = function(ev){
-        $mdDialog.show({
+	$mdBottomSheet.hide(ev);
+	$mdDialog.show({
             targetEvent: ev,
 	    templateUrl: 'controls_dialog.html',
 	    controller: ControlsDialogController
         });
     };
     $scope.showDiagnostics = function(ev){
+	$mdBottomSheet.hide(ev);
         $mdDialog.show({
             targetEvent: ev,
 	    templateUrl: 'diagnostics_dialog.html',
@@ -120,13 +134,14 @@ app.controller('DiagnosticsCtrl', function( $scope, $mdDialog ) {
         });
     };
     $scope.showGamepadDiagnostics = function(ev){
+	$mdBottomSheet.hide(ev);
         $mdDialog.show({
             targetEvent: ev,
 	    templateUrl: 'gamepad_dialog.html',
 	    controller: GamepadDialogController
         });
     };
-});
+}
 
 function DiagnosticsDialogController($scope, $mdDialog, diagnostics) {
   $scope.diagnostics = diagnostics;

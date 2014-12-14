@@ -2,7 +2,7 @@
   <node name="walrus_web_server" pkg="walrus_web" type="webserver.py">
     <param name="port" value="9000" />
   </node>
-  <node name="webrtc_ros_server" pkg="webrtc_ros" type="webrtc_ros_server_node">
+  <node name="webrtc_ros_server" pkg="webrtc_ros" type="webrtc_ros_server_node" launch-prefix="xterm -e gdb run --args">
     <param name="port" value="9001" />
   </node>
   <node name="ros_package_web_server" pkg="ros_package_web_server" type="server.py">
