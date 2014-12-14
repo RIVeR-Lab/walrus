@@ -41,6 +41,13 @@ app.controller('SidepanelCtrl', function( $scope, roslib ) {
     $scope.tabs = {
 	selectedIndex : 0
     };
+    $scope.$watch('tabs.selectedIndex', function(newIndex, oldIndex){
+	if(newIndex !== oldIndex) {
+	    setTimeout(function() { // Need to delay to allow for the tabs to actually change
+		$scope.$broadcast('tab-changed', newIndex, oldIndex);
+	    }, 100);
+	}
+    });
 });
 
 app.controller('DiagnosticsCtrl', function( $scope, $mdDialog ) {
