@@ -10,6 +10,7 @@ app.config(["roslibProvider", "gamepadServiceProvider", "webrtcRosServiceProvide
     gamepadServiceProvider.setPollRate(100);
 }]);
 
+
 app.controller('RootCtrl', function( $scope, roslib, gamepadService, webrtcRosService ) {
     var joyPub = roslib.advertise('/joy', 'sensor_msgs/Joy');
     $scope.$on('gamepad-data', function(ev, data) {
@@ -24,7 +25,9 @@ app.controller('RootCtrl', function( $scope, roslib, gamepadService, webrtcRosSe
 	joyData.axes[1] = -joyData.axes[1];
 	joyPub.publish(joyData);
     });
-
+    $scope.settings = {
+	'touch_joystick' : true
+    };
 });
 
 app.directive('videoViewer', function() {

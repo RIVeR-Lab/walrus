@@ -56,7 +56,7 @@
       <ng-include src="'autonomy_tab.html'" ng-show="tabs.selectedIndex==1"></ng-include>
     </div>
     <video-viewer style="flex:none;" topic="'/camera/depth/image_raw'" label="'Depth Camera'"></video-viewer>
-    <img src="joystick.svg" />
+    <img src="joystick.svg" ng-show="settings.touch_joystick"/>
   </div>
 </body>
 </html>
