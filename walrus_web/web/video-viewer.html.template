@@ -1,5 +1,5 @@
 <div style="display:flex;flex:none;position:relative;">
-  <video webrtc-ros-video topic="topic" style="max-width:100%;flex:0 1 auto;width:100%;height:100%;background-color:rgb(100,100,100);" poster="img/not-connected.svg"></video>
+  <video webrtc-ros-video topic="topic" style="max-width:100%;flex:0 1 auto;width:100%;height:100%;background-color:green;" poster="img/not-connected.svg"></video>
   <md-toolbar style="position:absolute;bottom:0px;right:0px;width:inherit;">
     <h2 class="md-toolbar-tools">
       <span>{{label}}</span>
