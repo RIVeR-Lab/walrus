@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 320 90" preserveAspectRatio="xMidYMin meet">
+  <rect x="0" y="0" width="320" height="90" style="fill:lightgray;" />
+  <image xlink:href="img/walrus_back.png" x="10" y="-5" width="140px" height="90px" transform="rotate(4,80,45)"/>
+  <line x1="5" y1="85" x2="155" y2="85" style="stroke:black;stroke-width:3" />
+
+  <image xlink:href="img/walrus_side.png" x="170" y="-5" width="140px" height="90px" transform="rotate(-8,240,45)"/>
+  <line x1="165" y1="85" x2="315" y2="85" style="stroke:black;stroke-width:3" />
+</svg>

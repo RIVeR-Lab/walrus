@@ -1,9 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="flex:1" viewBox="0 0 1100 200" preserveAspectRatio="xMinYMid meet">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink" version="1.1" style="flex:1" viewBox="0 0 1100 200" preserveAspectRatio="xMinYMid meet">
   <!-- Body -->
   <rect x="40" y="20" width="150" height="160" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
 
   <!-- Pods -->
-  <rect x="10" y="10" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[0])}};stroke-width:3;stroke:rgb(0,0,0)" />
+  <rect x="10" y="10" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[0])}};stroke-width:3;stroke:rgb(0,0,0)">
+    <md-tooltip>
+      POD 0
+    </md-tooltip>
+  </rect>
   <rect x="190" y="10" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[1])}};stroke-width:3;stroke:rgb(0,0,0)" />
   <rect x="10" y="120" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[2])}};stroke-width:3;stroke:rgb(0,0,0)" />
   <rect x="190" y="120" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[3])}};stroke-width:3;stroke:rgb(0,0,0)" />
@@ -59,40 +63,45 @@
 
 
   <!-- ROS -->
-  <rect x="450" y="90" width="70" height="70" ng-attr-style="fill:{{(ros.connected?'green':'red')}}" />
-  <text x="485" y="125" text-anchor="middle" alignment-baseline="middle" font-weight="bolder" font-size="larger">ROS</text>
+  <rect x="450" y="10" width="70" height="70" rx="10" ry="10" ng-attr-style="fill:{{(ros.connected?'green':'red')}}" />
+  <text x="485" y="45" text-anchor="middle" alignment-baseline="middle" font-weight="bolder" font-size="larger">ROS</text>
 
   <!-- Gamepad -->
-  <rect x="550" y="90" width="70" height="70" ng-attr-style="fill:{{(gamepad.connected?'green':'red')}}" />
-  <text x="585" y="125" text-anchor="middle" alignment-baseline="middle" font-weight="bolder" font-size="larger">G</text>
+  <rect x="450" y="90" width="70" height="70" rx="10" ry="10" ng-attr-style="fill:{{(gamepad.connected?'green':'red')}}" />
+  <image xlink:href="img/gamepad.svg" x="450" y="90" width="70px" height="70px"/>
+
+  <rect x="550" y="30" width="110" height="110" rx="10" ry="10" style="fill:green;" />
+  <image xlink:href="img/wifi.svg" x="550" y="30" width="110px" height="110px"/>
 
 
   <!-- Gas -->
-  <rect x="700" y="10" width="70" height="70" style="fill:green;" />
-  <text x="735" y="40" text-anchor="middle" font-weight="bolder" font-size="larger">CNG</text>
-  <text x="735" y="70" text-anchor="middle" font-weight="bolder">80 ppm</text>
+  <rect x="750" y="10" width="70" height="70" style="fill:green;" rx="10" ry="10" />
+  <text x="785" y="40" text-anchor="middle" font-weight="bolder" font-size="larger">CNG</text>
+  <text x="785" y="70" text-anchor="middle" font-weight="bolder">80 ppm</text>
 
-  <rect x="800" y="10" width="70" height="70" style="fill:red;" />
-  <text x="835" y="40" text-anchor="middle" font-weight="bolder" font-size="larger">LPG</text>
-  <text x="835" y="70" text-anchor="middle" font-weight="bolder">120 ppm</text>
+  <rect x="830" y="10" width="70" height="70" style="fill:red;" rx="10" ry="10" />
+  <text x="865" y="40" text-anchor="middle" font-weight="bolder" font-size="larger">LPG</text>
+  <text x="865" y="70" text-anchor="middle" font-weight="bolder">120 ppm</text>
 
-  <rect x="700" y="90" width="70" height="70" style="fill:green;" />
-  <text x="735" y="120" text-anchor="middle" font-weight="bolder" font-size="larger">CO</text>
-  <text x="735" y="150" text-anchor="middle" font-weight="bolder">30 ppm</text>
+  <rect x="750" y="90" width="70" height="70" style="fill:green;" rx="10" ry="10" />
+  <text x="785" y="120" text-anchor="middle" font-weight="bolder" font-size="larger">CO</text>
+  <text x="785" y="150" text-anchor="middle" font-weight="bolder">30 ppm</text>
 
-  <rect x="800" y="90" width="70" height="70" style="fill:green;" />
-  <text x="835" y="120" text-anchor="middle" font-weight="bolder" font-size="larger">H</text>
-  <text x="835" y="150" text-anchor="middle" font-weight="bolder">10 ppm</text>
+  <rect x="830" y="90" width="70" height="70" style="fill:green;" rx="10" ry="10" />
+  <text x="865" y="120" text-anchor="middle" font-weight="bolder" font-size="larger">H</text>
+  <text x="865" y="150" text-anchor="middle" font-weight="bolder">10 ppm</text>
 
 
-  <rect x="950" y="10" width="20" height="150" rx="10" ry="10" style="fill:white;" />
-  <circle cx="960" cy="150" r="20" style="fill:white;" />
+  <!-- Temperature -->
+  <rect x="950" y="10" width="20" height="150" rx="10" ry="10" style="fill:lightgray;" />
+  <circle cx="960" cy="150" r="20" style="fill:lightgray;" />
   <rect x="955" y="55" width="10" height="100" rx="5" ry="5" style="fill:red;" />
   <circle cx="960" cy="150" r="15" style="fill:red;" />
-  <text x="960" y="190" text-anchor="middle" font-weight="bolder">70°C</text>
+  <text x="960" y="190" text-anchor="middle" font-weight="bolder" style="fill:white;">70°C</text>
 
+  <!-- Humidity -->
   <circle cx="1050" cy="60" r="40" style="fill:rgb(0,191,255);" />
   <text x="1050" y="60" text-anchor="middle" alignment-baseline="middle" font-weight="900" font-size="30">%</text>
-  <text x="1050" y="120" text-anchor="middle" font-weight="bolder">50%</text>
+  <text x="1050" y="120" text-anchor="middle" font-weight="bolder" style="fill:white;">50%</text>
 
 </svg>
