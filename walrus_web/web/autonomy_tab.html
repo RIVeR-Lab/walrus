@@ -1,4 +1,7 @@
-<md-checkbox ng-change="notify('Stair Climbing', autonomy.stairs)" ng-model="autonomy.stairs">Stair Climbing</md-checkbox>
-<md-checkbox ng-change="notify('Obstacle Avoidance', autonomy.obstacle)" ng-model="autonomy.obstacle">Obstacle Avoidance</md-checkbox>
-<md-checkbox ng-change="notify('Lane Centering', autonomy.lane)" ng-model="autonomy.lane">Lane Centering</md-checkbox>
-<md-checkbox ng-model="settings.touch_joystick">Touch Joystick</md-checkbox>
+<md-content>
+  <md-checkbox ng-change="notify('Stair Climbing', autonomy.stairs)" ng-model="autonomy.stairs">Stair Climbing</md-checkbox>
+  <md-checkbox ng-change="notify('Obstacle Avoidance', autonomy.obstacle)" ng-model="autonomy.obstacle">Obstacle Avoidance</md-checkbox>
+  <md-checkbox ng-change="notify('Lane Centering', autonomy.lane)" ng-model="autonomy.lane">Lane Centering</md-checkbox>
+  <md-checkbox ng-model="settings.touch_joystick">Touch Joystick</md-checkbox>
+  <md-checkbox ng-model="settings.fake_video">Fake Video</md-checkbox>
+</md-content>

@@ -26,7 +26,8 @@ app.controller('RootCtrl', function( $scope, roslib, gamepadService, webrtcRosSe
 	joyPub.publish(joyData);
     });
     $scope.settings = {
-	'touch_joystick' : true
+	'touch_joystick' : true,
+	'fake_video' : true
     };
 });
 
@@ -34,7 +35,8 @@ app.directive('videoViewer', function() {
   return {
       scope: {
 	  topic: '=topic',
-	  label: '=label'
+	  label: '=label',
+	  insetShadow: '=insetshadow'
       },
     templateUrl: 'video-viewer.html.template'
   };
