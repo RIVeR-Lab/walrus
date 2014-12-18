@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="walrus_center_tread">
+	
+	<xacro:macro name="walrus_center_tread" params="lr parent translateY flipY robot_ns"> <!--lr: left, right -->
+		<link name="${robot_ns}/${lr}_center_tread">
+			<inertial>
+				<mass value="${center_tread_mass}" />
+				<origin xyz="${center_tread_x_com} ${center_tread_y_com} ${center_tread_z_com}" />
+				<inertia  ixx="${center_tread_ixx_com_cs}" ixy="${center_tread_ixy_com_cs}" ixz="${center_tread_ixz_com_cs}"
+					iyy="${center_tread_iyy_com_cs}" iyz="${center_tread_iyz_com_cs}" izz="${center_tread_izz_com_cs}" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="${flipY*M_PI} 0 0" /> 
+				<geometry>
+			                <box size = "${center_tread_inner_length} ${tread_width} ${tread_radius*2}"/>
+				</geometry>
+				<material name="blue">
+					<color rgba="0 0 0.8 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "${center_tread_inner_length} ${tread_width} ${(tread_radius-tread_body_inset)*2}"/>
+				</geometry>
+			</collision>
+		</link>
+		
+		<joint name="${robot_ns}/${lr}_center_tread_joint" type="fixed">
+			<parent link="${parent}"/>
+			<child link="${robot_ns}/${lr}_center_tread"/>
+			<origin xyz="0 ${translateY * (base_y_size/2+tread_width/2)} ${-base_z_to_pod_origin}" rpy="0 0 0" /> 
+		</joint>
+
+		<link name="${robot_ns}/${lr}_center_tread_front_cylinder">
+			<inertial>
+				<mass value="${tread_cylinder_mass}" />
+				<origin xyz="${tread_cylinder_x_com} ${tread_cylinder_y_com} ${tread_cylinder_z_com}" />
+				<inertia ixx="${tread_cylinder_ixx_com_cs}" ixy="${tread_cylinder_ixy_com_cs}" ixz="${tread_cylinder_ixz_com_cs}"
+					 iyy="${tread_cylinder_iyy_com_cs}" iyz="${tread_cylinder_iyz_com_cs}" izz="${tread_cylinder_izz_com_cs}" /> 
+			</inertial>
+		<visual>
+				<geometry>
+					<cylinder length="${tread_width}" radius="${tread_radius}" />
+				</geometry>
+				<material name="red">
+					<color rgba="0.8 0 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<cylinder length="${tread_width}" radius="${tread_radius}" />
+				</geometry>
+				<friction>
+					<ode>
+						<mu>${tread_cylinder_mu1}</mu>
+						<mu2>${tread_cylinder_mu2}</mu2>
+						<slip1>${tread_cylinder_slip1}</slip1>
+						<slip2>${tread_cylinder_slip2}</slip2>
+					</ode>
+				</friction>
+			</collision>
+		</link>
+		<joint name="${robot_ns}/${lr}_drive_joint" type="continuous">
+			<parent link="${robot_ns}/${lr}_center_tread"/>
+			<child link="${robot_ns}/${lr}_center_tread_front_cylinder"/>
+			<origin xyz="${center_tread_inner_length/2} 0 0" rpy="${M_PI/2} 0 0" /> 
+			<axis xyz="0 0 1" rpy="0 0 0" />
+		</joint>
+
+		<link name="${robot_ns}/${lr}_center_tread_back_cylinder">
+			<inertial>
+				<mass value="${tread_cylinder_mass}" />
+				<origin xyz="${tread_cylinder_x_com} ${tread_cylinder_y_com} ${tread_cylinder_z_com}" />
+				<inertia ixx="${tread_cylinder_ixx_com_cs}" ixy="${tread_cylinder_ixy_com_cs}" ixz="${tread_cylinder_ixz_com_cs}"
+					 iyy="${tread_cylinder_iyy_com_cs}" iyz="${tread_cylinder_iyz_com_cs}" izz="${tread_cylinder_izz_com_cs}" /> 
+			</inertial>
+			<visual>
+				<geometry>
+					<cylinder length="${tread_width}" radius="${tread_radius}" />
+				</geometry>
+				<material name="red">
+					<color rgba="0.8 0 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<cylinder length="${tread_width}" radius="${tread_radius}" />
+				</geometry>
+				<friction>
+					<ode>
+						<mu>${tread_cylinder_mu1}</mu>
+						<mu2>${tread_cylinder_mu2}</mu2>
+						<slip1>${tread_cylinder_slip1}</slip1>
+						<slip2>${tread_cylinder_slip2}</slip2>
+					</ode>
+				</friction>
+			</collision>
+		</link>
+		<joint name="${robot_ns}/${lr}_center_tread_back_cylinder_joint" type="continuous">
+			<parent link="${robot_ns}/${lr}_center_tread"/>
+			<child link="${robot_ns}/${lr}_center_tread_back_cylinder"/>
+			<origin xyz="${-center_tread_inner_length/2} 0 0" rpy="${M_PI/2} 0 0" /> 
+			<axis xyz="0 0 1" rpy="0 0 0" />
+			<mimic joint="${robot_ns}/${lr}_drive_joint" multiplier="1.0" offset="0.0" />
+		</joint>
+
+  	</xacro:macro>
+</robot>
