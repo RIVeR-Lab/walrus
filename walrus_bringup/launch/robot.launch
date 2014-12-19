@@ -1,3 +1,4 @@
+<!-- Bringup file for the robot -->
 <launch>
   <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
 </launch>

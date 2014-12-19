@@ -1,0 +1,11 @@
+<launch>
+  <rosparam file="$(find walrus_control)/config/walrus_control.yaml" command="load" ns="walrus" />
+
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+	ns="/walrus" args="joint_state_controller front_left_pod_joint_controller back_left_pod_joint_controller front_right_pod_joint_controller back_right_pod_joint_controller left_drive_controller right_drive_controller" />
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false">
+    <remap from="/joint_states" to="/walrus/joint_states" />
+  </node>
+
+</launch>

@@ -1,3 +1,4 @@
+<!-- Load the robot description -->
 <launch>
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find walrus_description)/robots/walrus.urdf.xacro'" />
 </launch>
