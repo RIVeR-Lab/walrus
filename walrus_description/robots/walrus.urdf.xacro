@@ -9,11 +9,11 @@
 
   <xacro:walrus robot_ns="${robot_ns}"/>
 
-  <!--<gazebo>
+  <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <robotNamespace>/walrus</robotNamespace>
       <robotSimType>walrus_gazebo/WalrusHWSim</robotSimType>
     </plugin>
-  </gazebo>-->
+  </gazebo>
 
 </robot>

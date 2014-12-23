@@ -5,21 +5,17 @@ joint_state_controller:
 
 # Pod Controller
 front_left_pod_joint_controller:
-  type: effort_controllers/JointPositionController
+  type: position_controllers/JointPositionController
   joint: walrus/front_left_pod_joint
-  pid: {p: 10.0, i: 0.0, d: 0.0}
 back_left_pod_joint_controller:
-  type: effort_controllers/JointPositionController
+  type: position_controllers/JointPositionController
   joint: walrus/back_left_pod_joint
-  pid: {p: 10.0, i: 0.0, d: 0.0}
 front_right_pod_joint_controller:
-  type: effort_controllers/JointPositionController
+  type: position_controllers/JointPositionController
   joint: walrus/front_right_pod_joint
-  pid: {p: 10.0, i: 0.0, d: 0.0}
 back_right_pod_joint_controller:
-  type: effort_controllers/JointPositionController
+  type: position_controllers/JointPositionController
   joint: walrus/back_right_pod_joint
-  pid: {p: 10.0, i: 0.0, d: 0.0}
 
 # Drive Controllers
 left_drive_controller:
