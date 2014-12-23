@@ -2,7 +2,7 @@
 <package>
   <name>ubiquiti_bullet</name>
   <version>0.0.0</version>
-  <description>The ubiquiti_bullet package</description>
+  <description>Diagnostic reporting node for the ubuquiti bullet</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
