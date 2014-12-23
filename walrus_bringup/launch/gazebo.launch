@@ -1,6 +1,5 @@
 <!-- Bringup file for launching the robot simulator -->
 <launch>
-  <!-- these are the arguments you can pass this launch file, for example paused:=true -->
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="true"/>
@@ -8,9 +7,9 @@
   <arg name="debug" default="false"/>
   <arg name="verbose" default="false"/>
   <arg name="world_name" default="empty"/>
-
   <arg name="full_world_name" default="$(find walrus_gazebo)/worlds/$(arg world_name).world"/>
 
+  <!-- Launch gazebo -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="debug" value="$(arg debug)" />
     <arg name="gui" value="$(arg gui)" />
@@ -21,7 +20,7 @@
     <arg name="world_name" value="$(arg full_world_name)"/>
   </include>
 
-  <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->
+  <!-- Spawn the robot model -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
 	args="-urdf -model walrus -param robot_description"/>
 
