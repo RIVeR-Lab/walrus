@@ -20,7 +20,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES calf_gazebo
   CATKIN_DEPENDS controller_manager gazebo_ros gazebo_ros_control joint_limits_interface urdf pluginlib roscpp transmission_interface
-  DEPENDS gazebo
+  DEPENDS Gazebo
 )
 
 ###########
@@ -70,6 +70,12 @@ target_link_libraries(calf_hw_sim ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 #   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
+
+install(FILES
+  calf_hw_sim_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
 
 #############
 ## Testing ##

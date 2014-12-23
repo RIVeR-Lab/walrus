@@ -82,7 +82,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES thigh_arduino
-#  CATKIN_DEPENDS rosserial_arduino rosserial_client std_msgs
+  CATKIN_DEPENDS rosserial_arduino rosserial_client std_msgs
 #  DEPENDS system_lib
 )
 
