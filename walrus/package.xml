@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>walrus</name>
+  <version>0.0.0</version>
+  <description>A metapackage for all WALRUS Rover packages</description>
+
+  <maintainer email="mwills@wpi.edu">Mitchell Wills</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://robot.wpi.edu/walrus</url>
+  <url type="repository">https://github.com/RIVeR-Lab/walrus</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+    <metapackage />
+  </export>
+</package>
