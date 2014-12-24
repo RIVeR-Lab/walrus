@@ -1,0 +1,4 @@
+<!-- Launch file for starting the base robot hardware -->
+<launch>
+  <node name="walrus_base_hw" pkg="walrus_base_hw" type="walrus_base_hw_node" respawn="true" />
+</launch>
