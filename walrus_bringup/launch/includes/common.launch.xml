@@ -1,5 +1,5 @@
 <!-- Launch everything common between simulation and the real robot -->
 <launch>
-  <include file="$(find walrus_bringup)/launch/includes/description.launch.xml" />
+  <include file="$(find walrus_description)/launch/description.launch" />
   <include file="$(find walrus_control)/launch/walrus_control.launch" />
 </launch>
