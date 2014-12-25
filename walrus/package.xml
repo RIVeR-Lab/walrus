@@ -12,6 +12,11 @@
   <url type="repository">https://github.com/RIVeR-Lab/walrus</url>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>walrus_bringup</run_depend>
+  <run_depend>walrus_description</run_depend>
+  <run_depend>walrus_gazebo</run_depend>
+  <run_depend>walrus_control</run_depend>
+  <run_depend>walrus_base_hw</run_depend>
 
   <export>
     <metapackage />
