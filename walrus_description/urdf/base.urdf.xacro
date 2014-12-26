@@ -69,8 +69,9 @@
     <xacro:include filename="$(find walrus_description)/urdf/simple_transform.urdf.xacro" />
     <xacro:include filename="$(find walrus_description)/urdf/pod.urdf.xacro" />
     <xacro:include filename="$(find walrus_description)/urdf/center_tread.urdf.xacro" />
+    <xacro:include filename="$(find walrus_description)/urdf/boom.urdf.xacro" />
 
-    <xacro:macro name="walrus" params="tf_prefix">
+    <xacro:macro name="walrus" params="tf_prefix robot_ns">
       <!-- BASE-FOOTPRINT -->
       <link name="${tf_prefix}base_footprint">
 	<visual>
@@ -129,6 +130,8 @@
 
       <walrus_center_tread lr="left" parent="${tf_prefix}base_link" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
       <walrus_center_tread lr="right" parent="${tf_prefix}base_link" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
+
+      <walrus_boom parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}boom/" robot_ns="${robot_ns}/boom"/>
 
       <transmission name="${tf_prefix}left_drive_trans">
         <type>transmission_interface/SimpleTransmission</type>

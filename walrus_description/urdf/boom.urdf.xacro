@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="walrus_center_tread">
+	<xacro:macro name="walrus_boom" params="parent tf_prefix robot_ns">
+		<link name="${tf_prefix}base">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+			                <box size = "0.08 0.04 0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "0.08 0.04 0.02"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${tf_prefix}base_joint" type="fixed">
+			<parent link="${parent}"/>
+			<child link="${tf_prefix}base"/>
+			<origin xyz="-0.04 0 0.03" rpy="0 0 0" />
+		</joint>
+
+		<link name="${tf_prefix}deploy_base">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+			                <box size = "0.04 0.04 0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "0.04 0.04 0.02"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}deploy_joint" type="revolute">
+			<parent link="${tf_prefix}base"/>
+			<child link="${tf_prefix}deploy_base"/>
+			<origin xyz="-0.02 0 0.035" rpy="0 0 0" />
+			<axis xyz="0 1 0" rpy="0 0 0" />
+			<limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="2" velocity="0.5" />
+		</joint>
+
+		<link name="${tf_prefix}mast">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0.25" rpy="0 0 0" />
+				<geometry>
+			                <cylinder length="0.5" radius="0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0.25" rpy="0 0 0" />
+				<geometry>
+			                <cylinder length="0.5" radius="0.02"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}pan_joint" type="revolute">
+			<parent link="${tf_prefix}deploy_base"/>
+			<child link="${tf_prefix}mast"/>
+			<origin xyz="0 0 0.012" rpy="0 0 0" />
+			<axis xyz="0 0 1" rpy="0 0 0" />
+			<limit lower="-2" upper="2" effort="2" velocity="0.5" />
+		</joint>
+
+		<link name="${tf_prefix}tilt_base">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+			                <box size = "0.04 0.1 0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "0.04 0.1 0.02"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}tilt_joint" type="revolute">
+			<parent link="${tf_prefix}mast"/>
+			<child link="${tf_prefix}tilt_base"/>
+			<origin xyz="0 0 0.54" rpy="0 0 0" />
+			<axis xyz="0 1 0" rpy="0 0 0" />
+			<limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="2" velocity="0.5" />
+		</joint>
+
+
+		<link name="${tf_prefix}kinect">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+			                <box size = "0.04 0.1 0.03"/>
+				</geometry>
+				<material name="red">
+					<color rgba="0.8 0 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "0.04 0.1 0.03"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}kinect_joint" type="fixed">
+			<parent link="${tf_prefix}tilt_base"/>
+			<child link="${tf_prefix}kinect"/>
+			<origin xyz="0 0 0.03" rpy="0 0 0" />
+		</joint>
+
+		<link name="${tf_prefix}kinect_optical_frame"></link>
+		<joint name="${tf_prefix}kinect_optical_frame_joint" type="fixed">
+			<parent link="${tf_prefix}kinect"/>
+			<child link="${tf_prefix}kinect_optical_frame"/>
+			<origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${-M_PI/2}" />
+		</joint>
+
+		<gazebo reference="${tf_prefix}kinect">
+		  <sensor type="depth" name="kinectv2">
+		    <always_on>1</always_on>
+		    <visualize>true</visualize>
+		    <camera>
+		      <horizontal_fov>1.047</horizontal_fov>
+		      <image>
+			<width>640</width>
+			<height>480</height>
+			<format>B8G8R8</format>
+		      </image>
+		      <depth_camera>
+
+		      </depth_camera>
+		      <clip>
+			<near>0.1</near>
+			<far>100</far>
+		      </clip>
+		    </camera>
+		    <plugin name="boom_kinectv2_controller" filename="libgazebo_ros_openni_kinect.so">
+		      <alwaysOn>true</alwaysOn>
+                      <updateRate>10.0</updateRate>
+                      <cameraName>boom_kinectv2</cameraName>
+                      <frameName>${tf_prefix}kinect_optical_frame</frameName>
+		      <pointCloudTopicName>${robot_ns}/depth/points</pointCloudTopicName>
+
+		      <depthImageCameraInfoTopicName>${robot_ns}/depth/camera_info</depthImageCameraInfoTopicName>
+		      <depthImageTopicName>${robot_ns}/depth/image_raw</depthImageTopicName>
+
+		      <cameraInfoTopicName>${robot_ns}/rgb/camera_info</cameraInfoTopicName>
+		      <imageTopicName>${robot_ns}/rgb/image_raw</imageTopicName>
+
+		      <pointCloudCutoff>0.4</pointCloudCutoff>
+                      <hackBaseline>0.07</hackBaseline>
+                      <distortionK1>0.0</distortionK1>
+                      <distortionK2>0.0</distortionK2>
+                      <distortionK3>0.0</distortionK3>
+                      <distortionT1>0.0</distortionT1>
+                      <distortionT2>0.0</distortionT2>
+		      <CxPrime>0.0</CxPrime>
+		      <Cx>0.0</Cx>
+		      <Cy>0.0</Cy>
+		      <focalLength>0.0</focalLength>
+		    </plugin>
+		  </sensor>
+		</gazebo>
+
+  	</xacro:macro>
+</robot>

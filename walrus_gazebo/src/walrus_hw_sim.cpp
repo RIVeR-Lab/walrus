@@ -28,9 +28,9 @@ private:
   static std::vector<std::string> DRIVE_SIDES;
   static double MAX_DRIVE_TORQUE;
 
-  std::vector<gazebo::physics::JointPtr> pod_joints;
-  std::vector<double> pod_cmds;
-  std::vector<JointState> pod_states;
+  std::vector<gazebo::physics::JointPtr> position_joints;
+  std::vector<double> position_cmds;
+  std::vector<JointState> position_states;
 
   std::vector<std::vector<gazebo::physics::JointPtr> > drive_joints;
   std::vector<std::vector<double> > drive_joint_multipliers;
@@ -45,25 +45,37 @@ public:
   bool initSim(const std::string& robot_namespace, ros::NodeHandle model_nh, gazebo::physics::ModelPtr parent_model,
                const urdf::Model* const urdf_model, std::vector<transmission_interface::TransmissionInfo> transmissions)
   {
-    // Load pod joints
-    pod_cmds.resize(POD_POSITIONS.size() * DRIVE_SIDES.size(), 0);
-    pod_states.resize(POD_POSITIONS.size() * DRIVE_SIDES.size());
-    std::string urdf_namespace = robot_namespace.substr(1);//remove leading slash
+    std::string tf_prefix = robot_namespace.substr(1)+"/";//remove leading slash
+
+    std::vector<std::string> position_joint_names;
+
+    // Enumerate pod joints
     for(int position_index = 0; position_index < POD_POSITIONS.size(); ++position_index) {
       for(int drive_index = 0; drive_index < DRIVE_SIDES.size(); ++drive_index) {
-	int pod_index = position_index + drive_index * POD_POSITIONS.size();
 	const std::string& pod_name = POD_POSITIONS[position_index] + "_" + DRIVE_SIDES[drive_index]; // Create pod name front, left -> front_left
-	const std::string& joint_name = urdf_namespace+"/"+pod_name+"_pod_joint";
-	gazebo::physics::JointPtr joint = parent_model->GetJoint(joint_name);
-	if(!joint) {
-	  ROS_FATAL_STREAM("Could not load joint: " << joint_name);
-	  return false;
-	}
-	pod_joints.push_back(joint);
-	js_interface.registerHandle(hardware_interface::JointStateHandle(joint_name, &pod_states[pod_index].pos, &pod_states[pod_index].vel, &pod_states[pod_index].eff));
-	pj_interface.registerHandle(hardware_interface::JointHandle(js_interface.getHandle(joint_name), &pod_cmds[pod_index]));
+	const std::string& joint_name = tf_prefix+pod_name+"_pod_joint";
+	position_joint_names.push_back(joint_name);
       }
     }
+    position_joint_names.push_back(tf_prefix+"boom/deploy_joint");
+    position_joint_names.push_back(tf_prefix+"boom/pan_joint");
+    position_joint_names.push_back(tf_prefix+"boom/tilt_joint");
+
+    // Load position joints
+    position_cmds.resize(position_joint_names.size(), 0);
+    position_states.resize(position_joint_names.size());
+    for(int i = 0; i < position_joint_names.size(); ++i) {
+      const std::string& joint_name = position_joint_names[i];
+      gazebo::physics::JointPtr joint = parent_model->GetJoint(joint_name);
+      if(!joint) {
+	ROS_FATAL_STREAM("Could not load joint: " << joint_name);
+	return false;
+      }
+      position_joints.push_back(joint);
+      js_interface.registerHandle(hardware_interface::JointStateHandle(joint_name, &position_states[i].pos, &position_states[i].vel, &position_states[i].eff));
+      pj_interface.registerHandle(hardware_interface::JointHandle(js_interface.getHandle(joint_name), &position_cmds[i]));
+    }
+
 
     // Load drive joints
     drive_cmds.resize(DRIVE_SIDES.size(), 0);
@@ -72,16 +84,16 @@ public:
     drive_joint_multipliers.resize(DRIVE_SIDES.size());
     for(int i = 0; i<DRIVE_SIDES.size(); ++i){
       const std::string& drive_name = DRIVE_SIDES[i];
-      const std::string& drive_joint_name = urdf_namespace+"/"+drive_name+"_drive_joint";
+      const std::string& drive_joint_name = tf_prefix+drive_name+"_drive_joint";
 
       // Enumerate joint names for the drive
       std::vector<std::string> joint_names;
       joint_names.push_back(drive_joint_name); // Driven joint must be first
-      joint_names.push_back(urdf_namespace+"/"+drive_name+"_drive_idler_joint");
+      joint_names.push_back(tf_prefix+drive_name+"_drive_idler_joint");
       BOOST_FOREACH(const std::string& pod_position, POD_POSITIONS) {
 	const std::string& pod_name = pod_position + "_" + drive_name;
-	joint_names.push_back(urdf_namespace+"/"+pod_name+"_pod_drive_joint");
-	joint_names.push_back(urdf_namespace+"/"+pod_name+"_pod_drive_idler_joint");
+	joint_names.push_back(tf_prefix+pod_name+"_pod_drive_joint");
+	joint_names.push_back(tf_prefix+pod_name+"_pod_drive_idler_joint");
       }
 
       // Get drive joints
@@ -138,11 +150,11 @@ public:
 
   // Read data from the simulator
   void readSim(ros::Time time, ros::Duration period) {
-    for(int i = 0; i<pod_joints.size(); ++i){
-      gazebo::physics::JointPtr joint = pod_joints[i];
-      pod_states[i].pos += angles::shortest_angular_distance(pod_states[i].pos, joint->GetAngle(0).Radian());
-      pod_states[i].vel = joint->GetVelocity(0);
-      pod_states[i].eff = joint->GetForce((unsigned int)(0));
+    for(int i = 0; i<position_joints.size(); ++i){
+      gazebo::physics::JointPtr joint = position_joints[i];
+      position_states[i].pos += angles::shortest_angular_distance(position_states[i].pos, joint->GetAngle(0).Radian());
+      position_states[i].vel = joint->GetVelocity(0);
+      position_states[i].eff = joint->GetForce((unsigned int)(0));
     }
     for(int i = 0; i<drive_joints.size(); ++i){
       gazebo::physics::JointPtr joint = drive_joints[i][0];//just use the first joint
@@ -154,9 +166,9 @@ public:
 
   // Write control to the simulator
   void writeSim(ros::Time time, ros::Duration period) {
-    for(int i = 0; i<pod_joints.size(); ++i){
-      gazebo::physics::JointPtr joint = pod_joints[i];
-      joint->SetAngle(0, pod_cmds[i]);
+    for(int i = 0; i<position_joints.size(); ++i){
+      gazebo::physics::JointPtr joint = position_joints[i];
+      joint->SetAngle(0, position_cmds[i]);
     }
     for(int i = 0; i<drive_joints.size(); ++i){
       for(int j = 0; j < drive_joints[i].size(); ++j){
