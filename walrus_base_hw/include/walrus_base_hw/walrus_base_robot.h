@@ -21,7 +21,7 @@ using namespace hardware_interface;
 class WalrusBaseRobot : public RobotHW
 {
  public:
-  WalrusBaseRobot(ros::NodeHandle nh = ros::NodeHandle(), std::string robot_ns="walrus/");
+  WalrusBaseRobot(ros::NodeHandle nh);
 
   bool init();
 

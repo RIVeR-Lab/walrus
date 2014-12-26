@@ -7,7 +7,7 @@ int main( int argc, char** argv ){
   ros::init(argc, argv, "walrus_base_hw");
   ros::NodeHandle nh;
 
-  walrus_base_hw::WalrusBaseRobot robot;
+  walrus_base_hw::WalrusBaseRobot robot(nh);
   controller_manager::ControllerManager cm(&robot, nh);
 
   ros::AsyncSpinner spinner(1);

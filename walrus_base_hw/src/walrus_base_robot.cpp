@@ -2,8 +2,7 @@
 
 namespace walrus_base_hw {
 
-WalrusBaseRobot::WalrusBaseRobot(ros::NodeHandle nh, std::string robot_ns)
- : nh_(nh), robot_ns_(robot_ns) {
+WalrusBaseRobot::WalrusBaseRobot(ros::NodeHandle nh) : nh_(nh) {
 }
 
 bool WalrusBaseRobot::init() {

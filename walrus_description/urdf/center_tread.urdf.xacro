@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="walrus_center_tread">
-	<xacro:macro name="walrus_center_tread" params="lr parent translateY flipY robot_ns"> <!--lr: left, right -->
-		<link name="${robot_ns}/${lr}_center_tread">
+	<xacro:macro name="walrus_center_tread" params="lr parent translateY flipY tf_prefix"> <!--lr: left, right -->
+		<link name="${tf_prefix}${lr}_center_tread">
 			<inertial>
 				<mass value="${center_tread_mass}" />
 				<origin xyz="${center_tread_x_com} ${center_tread_y_com} ${center_tread_z_com}" />
@@ -24,13 +24,13 @@
 			</collision>
 		</link>
 
-		<joint name="${robot_ns}/${lr}_center_tread_joint" type="fixed">
+		<joint name="${tf_prefix}${lr}_center_tread_joint" type="fixed">
 			<parent link="${parent}"/>
-			<child link="${robot_ns}/${lr}_center_tread"/>
+			<child link="${tf_prefix}${lr}_center_tread"/>
 			<origin xyz="0 ${translateY * (base_y_size/2+tread_width/2)} ${-base_z_to_pod_origin}" rpy="0 0 0" />
 		</joint>
 
-		<link name="${robot_ns}/${lr}_center_tread_front_cylinder">
+		<link name="${tf_prefix}${lr}_center_tread_front_cylinder">
 			<inertial>
 				<mass value="${tread_cylinder_mass}" />
 				<origin xyz="${tread_cylinder_x_com} ${tread_cylinder_y_com} ${tread_cylinder_z_com}" />
@@ -59,14 +59,14 @@
 				</friction>
 			</collision>
 		</link>
-		<joint name="${robot_ns}/${lr}_drive_joint" type="continuous">
-			<parent link="${robot_ns}/${lr}_center_tread"/>
-			<child link="${robot_ns}/${lr}_center_tread_front_cylinder"/>
+		<joint name="${tf_prefix}${lr}_drive_joint" type="continuous">
+			<parent link="${tf_prefix}${lr}_center_tread"/>
+			<child link="${tf_prefix}${lr}_center_tread_front_cylinder"/>
 			<origin xyz="${center_tread_inner_length/2} 0 0" rpy="${M_PI/2} 0 0" />
 			<axis xyz="0 0 1" rpy="0 0 0" />
 		</joint>
 
-		<link name="${robot_ns}/${lr}_center_tread_back_cylinder">
+		<link name="${tf_prefix}${lr}_center_tread_back_cylinder">
 			<inertial>
 				<mass value="${tread_cylinder_mass}" />
 				<origin xyz="${tread_cylinder_x_com} ${tread_cylinder_y_com} ${tread_cylinder_z_com}" />
@@ -95,12 +95,12 @@
 				</friction>
 			</collision>
 		</link>
-		<joint name="${robot_ns}/${lr}_drive_idler_joint" type="continuous">
-			<parent link="${robot_ns}/${lr}_center_tread"/>
-			<child link="${robot_ns}/${lr}_center_tread_back_cylinder"/>
+		<joint name="${tf_prefix}${lr}_drive_idler_joint" type="continuous">
+			<parent link="${tf_prefix}${lr}_center_tread"/>
+			<child link="${tf_prefix}${lr}_center_tread_back_cylinder"/>
 			<origin xyz="${-center_tread_inner_length/2} 0 0" rpy="${M_PI/2} 0 0" />
 			<axis xyz="0 0 1" rpy="0 0 0" />
-			<mimic joint="${robot_ns}/${lr}_drive_joint" multiplier="1.0" offset="0.0" />
+			<mimic joint="${tf_prefix}${lr}_drive_joint" multiplier="1.0" offset="0.0" />
 		</joint>
 
   	</xacro:macro>

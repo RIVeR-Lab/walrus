@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="walrus_pod">
-	<xacro:macro name="walrus_pod" params="fb lr parent translateX translateY flipY robot_ns"> <!--fb : front, back ; lr: left, right -->
-		<link name="${robot_ns}/${fb}_${lr}_pod">
+	<xacro:macro name="walrus_pod" params="fb lr parent translateX translateY flipY tf_prefix"> <!--fb : front, back ; lr: left, right -->
+		<link name="${tf_prefix}${fb}_${lr}_pod">
 			<inertial>
 				<mass value="${pod_mass}" />
 				<origin xyz="${pod_x_com} ${pod_y_com} ${pod_z_com}" />
@@ -24,29 +24,29 @@
 				</geometry>
 			</collision>
 		</link>
-		<gazebo reference="${robot_ns}/${fb}_${lr}_pod">
+		<gazebo reference="${tf_prefix}${fb}_${lr}_pod">
 			<material>Gazebo/FlatBlack</material>
 			<turnGravityOff>false</turnGravityOff>
 		</gazebo>
 
-		<joint name="${robot_ns}/${fb}_${lr}_pod_joint" type="continuous">
+		<joint name="${tf_prefix}${fb}_${lr}_pod_joint" type="continuous">
 			<parent link="${parent}"/>
-			<child link="${robot_ns}/${fb}_${lr}_pod"/>
+			<child link="${tf_prefix}${fb}_${lr}_pod"/>
 			<origin xyz="${translateX * center_tread_inner_length/2} ${translateY * (base_y_size/2+tread_width/2+tread_width)} ${-base_z_to_pod_origin}" rpy="0 ${M_PI/2-M_PI/2*translateX} 0" />
 			<axis xyz="0 1 0" rpy="0 0 0" />
 			<joint_properties damping="0.0" friction="0.0"/>
 		</joint>
-		<transmission name="${robot_ns}/${fb}_${lr}_pod_joint_trans">
+		<transmission name="${tf_prefix}${fb}_${lr}_pod_joint_trans">
 			<type>transmission_interface/SimpleTransmission</type>
-			<joint name="${robot_ns}/${fb}_${lr}_pod_joint">
+			<joint name="${tf_prefix}${fb}_${lr}_pod_joint">
 				<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
 			</joint>
-			<actuator name="${robot_ns}/${fb}_${lr}_pod_joint_actuator">
+			<actuator name="${tf_prefix}${fb}_${lr}_pod_joint_actuator">
 				<mechanicalReduction>1</mechanicalReduction>
 			</actuator>
 		</transmission>
 
-		<link name="${robot_ns}/${fb}_${lr}_pod_drive_cylinder">
+		<link name="${tf_prefix}${fb}_${lr}_pod_drive_cylinder">
 			<inertial>
 				<mass value="${tread_cylinder_mass}" />
 				<origin xyz="${tread_cylinder_x_com} ${tread_cylinder_y_com} ${tread_cylinder_z_com}" />
@@ -75,15 +75,15 @@
 				</friction>
 			</collision>
 		</link>
-		<joint name="${robot_ns}/${fb}_${lr}_pod_drive_joint" type="continuous">
-			<parent link="${robot_ns}/${fb}_${lr}_pod"/>
-			<child link="${robot_ns}/${fb}_${lr}_pod_drive_cylinder"/>
+		<joint name="${tf_prefix}${fb}_${lr}_pod_drive_joint" type="continuous">
+			<parent link="${tf_prefix}${fb}_${lr}_pod"/>
+			<child link="${tf_prefix}${fb}_${lr}_pod_drive_cylinder"/>
 			<origin xyz="0 0 0" rpy="${M_PI/2} 0 0" />
 			<axis xyz="0 0 1" rpy="0 0 0" />
-			<mimic joint="${robot_ns}/${lr}_drive_joint" multiplier="1.0" offset="0.0" />
+			<mimic joint="${tf_prefix}${lr}_drive_joint" multiplier="1.0" offset="0.0" />
 		</joint>
 
-		<link name="${robot_ns}/${fb}_${lr}_pod_drive_idler_cylinder">
+		<link name="${tf_prefix}${fb}_${lr}_pod_drive_idler_cylinder">
 			<inertial>
 				<mass value="${tread_cylinder_mass}" />
 				<origin xyz="${tread_cylinder_x_com} ${tread_cylinder_y_com} ${tread_cylinder_z_com}" />
@@ -112,12 +112,12 @@
 				</friction>
 			</collision>
 		</link>
-		<joint name="${robot_ns}/${fb}_${lr}_pod_drive_idler_joint" type="continuous">
-			<parent link="${robot_ns}/${fb}_${lr}_pod"/>
-			<child link="${robot_ns}/${fb}_${lr}_pod_drive_idler_cylinder"/>
+		<joint name="${tf_prefix}${fb}_${lr}_pod_drive_idler_joint" type="continuous">
+			<parent link="${tf_prefix}${fb}_${lr}_pod"/>
+			<child link="${tf_prefix}${fb}_${lr}_pod_drive_idler_cylinder"/>
 			<origin xyz="${pod_inner_length} 0 0" rpy="${M_PI/2} 0 0" />
 			<axis xyz="0 0 1" rpy="0 0 0" />
-			<mimic joint="${robot_ns}/${lr}_drive_joint" multiplier="1.0" offset="0.0" />
+			<mimic joint="${tf_prefix}${lr}_drive_joint" multiplier="1.0" offset="0.0" />
 		</joint>
   	</xacro:macro>
 </robot>
