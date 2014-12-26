@@ -24,3 +24,14 @@ left_drive_controller:
 right_drive_controller:
   type: velocity_controllers/JointVelocityController
   joint: walrus/right_drive_joint
+
+#Boom
+boom_deploy_controller:
+  type: position_controllers/JointPositionController
+  joint: walrus/boom/deploy_joint
+boom_pan_controller:
+  type: position_controllers/JointPositionController
+  joint: walrus/boom/pan_joint
+boom_tilt_controller:
+  type: position_controllers/JointPositionController
+  joint: walrus/boom/tilt_joint
