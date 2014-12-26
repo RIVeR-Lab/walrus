@@ -3,7 +3,6 @@
 
   <!-- Included URDF/XACRO Files -->
   <xacro:include filename="$(find walrus_description)/urdf/base.urdf.xacro" />
-  <xacro:include filename="$(find walrus_description)/urdf/simple_transform.urdf.xacro" />
 
   <property name="robot_ns" value="walrus" />
 
