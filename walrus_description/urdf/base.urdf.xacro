@@ -70,6 +70,7 @@
     <xacro:include filename="$(find walrus_description)/urdf/pod.urdf.xacro" />
     <xacro:include filename="$(find walrus_description)/urdf/center_tread.urdf.xacro" />
     <xacro:include filename="$(find walrus_description)/urdf/boom.urdf.xacro" />
+    <xacro:include filename="$(find walrus_description)/urdf/simple_camera.urdf.xacro" />
 
     <xacro:macro name="walrus" params="tf_prefix robot_ns">
       <!-- BASE-FOOTPRINT -->
@@ -149,6 +150,15 @@
 
       <walrus_boom parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}boom/" robot_ns="${robot_ns}/boom"/>
 
+      <simple_camera parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}front_camera" camera_ns="${robot_ns}/front_camera" name="front_camera">
+	<origin xyz="0.08 0 0" rpy="0 0 0" />
+      </simple_camera>
+
+      <simple_camera parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}back_camera" camera_ns="${robot_ns}/back_camera" name="back_camera">
+	<origin xyz="-0.08 0 0" rpy="0 0 ${M_PI}" />
+      </simple_camera>
+
+
       <transmission name="${tf_prefix}left_drive_trans">
         <type>transmission_interface/SimpleTransmission</type>
         <joint name="${tf_prefix}left_drive_joint">
@@ -168,5 +178,5 @@
         </actuator>
       </transmission>
     </xacro:macro>
-    
+
 </robot>
