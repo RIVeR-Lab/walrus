@@ -103,5 +103,14 @@
 			<mimic joint="${tf_prefix}${lr}_drive_joint" multiplier="1.0" offset="0.0" />
 		</joint>
 
+		<transmission name="${tf_prefix}${lr}_drive_trans">
+		  <type>transmission_interface/SimpleTransmission</type>
+		  <joint name="${tf_prefix}${lr}_drive_joint">
+		    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+		  </joint>
+		  <actuator name="${tf_prefix}${lr}_drive_actuator">
+		    <mechanicalReduction>1</mechanicalReduction>
+		  </actuator>
+		</transmission>
   	</xacro:macro>
 </robot>

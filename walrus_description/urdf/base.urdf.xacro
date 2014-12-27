@@ -100,9 +100,9 @@
 	  <mass value="${base_mass}" />
 	  <origin xyz="${base_x_com} ${base_y_com} ${base_z_com}" />
 	  <inertia ixx="${base_ixx_com_cs}" ixy="${base_ixy_com_cs}" ixz="${base_ixz_com_cs}"
-		   iyy="${base_iyy_com_cs}" iyz="${base_iyz_com_cs}" izz="${base_izz_com_cs}" /> 
+		   iyy="${base_iyy_com_cs}" iyz="${base_iyz_com_cs}" izz="${base_izz_com_cs}" />
 	</inertial>
-	
+
 	<visual>
 	  <origin xyz="0 0 0" rpy="0 0 0" />
 	  <geometry>
@@ -110,13 +110,13 @@
 	  </geometry>
 	  <material name="Black" />
 	</visual>
-	
+
 	<collision>
 	  <origin xyz="0 0 0" rpy="0 0 0" />
 	  <geometry>
 	    <box size = "${base_x_size} ${base_y_size} ${base_z_size}"/>
 	  </geometry>
-	</collision>     
+	</collision>
       </link>
       <gazebo reference="${tf_prefix}base_link">
 	<material>Gazebo/Green</material>
@@ -139,17 +139,17 @@
 	  </plugin>
       </gazebo>
 
+      <!-- Center Treads -->
+      <walrus_center_tread lr="left" parent="${tf_prefix}base_link" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
+      <walrus_center_tread lr="right" parent="${tf_prefix}base_link" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
 
+      <!-- Pods -->
       <walrus_pod fb="back" lr="left" parent="${tf_prefix}base_link" translateX="-1" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
       <walrus_pod fb="back" lr="right" parent="${tf_prefix}base_link" translateX="-1" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
       <walrus_pod fb="front" lr="left" parent="${tf_prefix}base_link" translateX="1" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
       <walrus_pod fb="front" lr="right" parent="${tf_prefix}base_link" translateX="1" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
 
-      <walrus_center_tread lr="left" parent="${tf_prefix}base_link" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
-      <walrus_center_tread lr="right" parent="${tf_prefix}base_link" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
-
-      <walrus_boom parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}boom/" robot_ns="${robot_ns}/boom"/>
-
+      <!-- Cameras -->
       <simple_camera parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}front_camera" camera_ns="${robot_ns}/front_camera" name="front_camera">
 	<origin xyz="0.08 0 0" rpy="0 0 0" />
       </simple_camera>
@@ -158,25 +158,9 @@
 	<origin xyz="-0.08 0 0" rpy="0 0 ${M_PI}" />
       </simple_camera>
 
+      <!-- Boom -->
+      <walrus_boom parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}boom/" robot_ns="${robot_ns}/boom"/>
 
-      <transmission name="${tf_prefix}left_drive_trans">
-        <type>transmission_interface/SimpleTransmission</type>
-        <joint name="${tf_prefix}left_drive_joint">
-          <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-	</joint>
-        <actuator name="${tf_prefix}left_drive_actuator">
-          <mechanicalReduction>1</mechanicalReduction>
-        </actuator>
-      </transmission>
-      <transmission name="${tf_prefix}right_drive_trans">
-        <type>transmission_interface/SimpleTransmission</type>
-        <joint name="${tf_prefix}right_drive_joint">
-          <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
-	</joint>
-        <actuator name="${tf_prefix}right_drive_actuator">
-          <mechanicalReduction>1</mechanicalReduction>
-        </actuator>
-      </transmission>
     </xacro:macro>
 
 </robot>

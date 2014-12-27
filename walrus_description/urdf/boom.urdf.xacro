@@ -3,6 +3,8 @@
         <xacro:include filename="$(find walrus_description)/urdf/kinectv2.urdf.xacro" />
 
 	<xacro:macro name="walrus_boom" params="parent tf_prefix robot_ns">
+		<!-- Boom base -->
+		<!-- Fixed base attached to the robot -->
 		<link name="${tf_prefix}base">
 			<inertial>
 				<mass value="0.1" />
@@ -32,6 +34,8 @@
 			<origin xyz="-0.04 0 0.03" rpy="0 0 0" />
 		</joint>
 
+		<!-- Deploy base -->
+		<!-- Link that the deploy joint actuates (contains the pan actuator) -->
 		<link name="${tf_prefix}deploy_base">
 			<inertial>
 				<mass value="0.1" />
@@ -62,6 +66,7 @@
 			<limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="2" velocity="0.5" />
 		</joint>
 
+		<!-- Boom Mast -->
 		<link name="${tf_prefix}mast">
 			<inertial>
 				<mass value="0.1" />
@@ -93,6 +98,8 @@
 			<limit lower="-2" upper="2" effort="2" velocity="0.5" />
 		</joint>
 
+		<!-- Tilt Base -->
+		<!-- Link actuated by the tilt motor -->
 		<link name="${tf_prefix}tilt_base">
 			<inertial>
 				<mass value="0.1" />
@@ -123,6 +130,7 @@
 			<limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="2" velocity="0.5" />
 		</joint>
 
+		<!-- Kinect -->
 		<kinectv2 parent="${tf_prefix}tilt_base" tf_prefix="${tf_prefix}kinect" camera_ns="${robot_ns}/kinect" name="boom_kinect">
 			<origin xyz="0 0 0.03" rpy="0 0 0" />
 		</kinectv2>
