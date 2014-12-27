@@ -3,6 +3,7 @@
 #include "walrus_base_hw/walrus_base_robot.h"
 #include <controller_manager/controller_manager.h>
 
+// Node running robot hardware interfaces and controllers
 int main( int argc, char** argv ){
   ros::init(argc, argv, "walrus_base_hw");
   ros::NodeHandle nh;
@@ -10,6 +11,7 @@ int main( int argc, char** argv ){
   walrus_base_hw::WalrusBaseRobot robot(nh);
   controller_manager::ControllerManager cm(&robot, nh);
 
+  // Startup ROS spinner in background
   ros::AsyncSpinner spinner(1);
   spinner.start();
 

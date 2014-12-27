@@ -22,11 +22,13 @@ bool WalrusBaseRobot::init() {
     return false;
   }
 
+  // Register ros_control interfaces
   registerInterface(&as_interface_);
   registerInterface(&ae_interface_);
   registerInterface(&av_interface_);
 
 
+  // Load the robot description
   std::string urdf_string;
   nh_.getParam("robot_description", urdf_string);
   while (urdf_string.empty() && ros::ok()){
@@ -35,15 +37,19 @@ bool WalrusBaseRobot::init() {
     ros::Duration(0.2).sleep();
   }
 
+  // Load transmissions from the robot description
   if (!transmission_loader_->load(urdf_string)) { return false; }
 
   return true;
 }
 
+// Write controller output to actuators
 void WalrusBaseRobot::write(){
   robot_transmissions_.get<JointToActuatorEffortInterface>()->propagate();
   // Write actuator commands
 }
+
+// Read robot state
 void WalrusBaseRobot::read(){
   // Read actuator commands
   robot_transmissions_.get<ActuatorToJointStateInterface>()->propagate();

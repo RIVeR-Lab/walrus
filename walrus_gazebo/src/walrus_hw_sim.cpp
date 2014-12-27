@@ -47,6 +47,7 @@ public:
   {
     std::string tf_prefix = robot_namespace.substr(1)+"/";//remove leading slash
 
+    // List of all position joints to be initialized
     std::vector<std::string> position_joint_names;
 
     // Enumerate pod joints
@@ -148,7 +149,7 @@ public:
     return true;
   }
 
-  // Read data from the simulator
+  // Read state from the simulator
   void readSim(ros::Time time, ros::Duration period) {
     for(int i = 0; i<position_joints.size(); ++i){
       gazebo::physics::JointPtr joint = position_joints[i];
