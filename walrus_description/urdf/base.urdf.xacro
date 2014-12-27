@@ -123,6 +123,22 @@
       </gazebo>
 
 
+      <joint name="${tf_prefix}imu_joint" type="fixed">
+	<origin xyz="0 0 0" rpy="0 0 0" />
+	<parent link="${tf_prefix}base_link"/>
+	<child link="${tf_prefix}imu" />
+      </joint>
+      <link name="${tf_prefix}imu"/>
+      <gazebo>
+	  <plugin name="imu_controller" filename="libgazebo_ros_imu.so">
+	    <topicName>${robot_ns}/imu/data</topicName>
+	    <serviceName>${robot_ns}/data/calibrate</serviceName>
+	    <bodyName>${tf_prefix}imu</bodyName>
+	    <updateRate>50</updateRate>
+	  </plugin>
+      </gazebo>
+
+
       <walrus_pod fb="back" lr="left" parent="${tf_prefix}base_link" translateX="-1" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
       <walrus_pod fb="back" lr="right" parent="${tf_prefix}base_link" translateX="-1" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
       <walrus_pod fb="front" lr="left" parent="${tf_prefix}base_link" translateX="1" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
