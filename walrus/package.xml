@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>ubiquiti_bullet</name>
+  <name>walrus</name>
   <version>0.0.0</version>
-  <description>Diagnostic reporting node for the ubuquiti bullet</description>
+  <description>A metapackage for all WALRUS Rover packages</description>
 
   <maintainer email="mwills@wpi.edu">Mitchell Wills</maintainer>
 
@@ -11,13 +11,9 @@
   <url type="website">http://robot.wpi.edu/walrus</url>
   <url type="repository">https://github.com/RIVeR-Lab/walrus</url>
 
-  <author email="mwills@wpi.edu">Mitchell Wills</author>
-
   <buildtool_depend>catkin</buildtool_depend>
-  <run_depend>diagnostic_updater</run_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>python-requests</run_depend>
 
   <export>
+    <metapackage />
   </export>
 </package>

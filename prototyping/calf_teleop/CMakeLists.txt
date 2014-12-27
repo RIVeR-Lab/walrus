@@ -1,14 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(thigh_arduino)
+project(calf_teleop)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  rosserial_arduino
-  rosserial_client
-  std_msgs
-)
+find_package(catkin REQUIRED COMPONENTS)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -67,7 +63,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   sensor_msgs
 # )
 
 ###################################
@@ -81,27 +77,14 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES thigh_arduino
-#  CATKIN_DEPENDS rosserial_arduino rosserial_client std_msgs
+#  LIBRARIES calf_teleop
+#  CATKIN_DEPENDS rospy sensor_msgs
 #  DEPENDS system_lib
 )
 
 ###########
 ## Build ##
 ###########
-
-rosserial_generate_ros_lib(
-	PACKAGE rosserial_arduino
-	SCRIPT make_libraries.py
-)
-
-rosserial_configure_client(
-	DIRECTORY firmware
-	TOOLCHAIN_FILE ${ROSSERIAL_ARDUINO_TOOLCHAIN}
-)
-
-rosserial_add_client_target(firmware thigh_firmware ALL)
-rosserial_add_client_target(firmware thigh_firmware-upload)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
@@ -111,19 +94,19 @@ include_directories(
 )
 
 ## Declare a cpp library
-# add_library(thigh_arduino
-#   src/${PROJECT_NAME}/thigh_arduino.cpp
+# add_library(calf_teleop
+#   src/${PROJECT_NAME}/calf_teleop.cpp
 # )
 
 ## Declare a cpp executable
-# add_executable(thigh_arduino_node src/thigh_arduino_node.cpp)
+# add_executable(calf_teleop_node src/calf_teleop_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(thigh_arduino_node thigh_arduino_generate_messages_cpp)
+# add_dependencies(calf_teleop_node calf_teleop_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(thigh_arduino_node
+# target_link_libraries(calf_teleop_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -142,7 +125,7 @@ include_directories(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS thigh_arduino thigh_arduino_node
+# install(TARGETS calf_teleop calf_teleop_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -167,7 +150,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_thigh_arduino.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_calf_teleop.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

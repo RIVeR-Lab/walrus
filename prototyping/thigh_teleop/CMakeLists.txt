@@ -1,14 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(calf_control)
+project(thigh_teleop)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  #controller_manager
-  joint_state_controller
-  robot_state_publisher
-)
+find_package(catkin REQUIRED COMPONENTS)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -67,7 +63,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
+#   std_msgs
 # )
 
 ###################################
@@ -81,8 +77,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES calf_control
-#  CATKIN_DEPENDS controller_manager joint_state_controller robot_state_publisher
+#  LIBRARIES thigh_teleop
+#  CATKIN_DEPENDS rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -98,19 +94,19 @@ include_directories(
 )
 
 ## Declare a cpp library
-# add_library(calf_control
-#   src/${PROJECT_NAME}/calf_control.cpp
+# add_library(thigh_teleop
+#   src/${PROJECT_NAME}/thigh_teleop.cpp
 # )
 
 ## Declare a cpp executable
-# add_executable(calf_control_node src/calf_control_node.cpp)
+# add_executable(thigh_teleop_node src/thigh_teleop_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(calf_control_node calf_control_generate_messages_cpp)
+# add_dependencies(thigh_teleop_node thigh_teleop_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(calf_control_node
+# target_link_libraries(thigh_teleop_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -129,7 +125,7 @@ include_directories(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS calf_control calf_control_node
+# install(TARGETS thigh_teleop thigh_teleop_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -154,7 +150,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_calf_control.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_thigh_teleop.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
