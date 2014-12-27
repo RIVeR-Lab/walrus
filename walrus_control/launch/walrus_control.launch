@@ -7,7 +7,7 @@
 	ns="/walrus" args="joint_state_controller front_left_pod_joint_controller back_left_pod_joint_controller front_right_pod_joint_controller back_right_pod_joint_controller left_drive_controller right_drive_controller boom_deploy_controller boom_pan_controller boom_tilt_controller" />
 
   <!-- Robot state publisher to publish tf from joint states -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false">
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true">
     <remap from="/joint_states" to="/walrus/joint_states" />
   </node>
 
