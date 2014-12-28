@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-sudo apt-get install npm
+sudo add-apt-repository -y ppa:chris-lea/node.js
+sudo apt-get update
+sudo apt-get install -qq nodejs
 sudo npm install -g bower grunt grunt-cli
 npm install
 bower install
