@@ -20,6 +20,7 @@ install:
   - git clone https://github.com/ros-drivers/rosserial.git
   - git clone https://github.com/RIVeR-Lab/epos_hardware.git
   - git clone https://github.com/ros-drivers/linux_peripheral_interfaces.git
+  - git clone https://github.com/mitchellwills/ros_package_web_server.git
   - cd /tmp/ws
   - rosdep install --from-paths src --ignore-src --rosdistro hydro -y
 
