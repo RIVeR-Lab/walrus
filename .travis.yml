@@ -24,7 +24,13 @@ install:
   - cd /tmp/ws
   - rosdep install --from-paths src --ignore-src --rosdistro hydro -y
 
+  - cd /tmp/ws/src/package/walrus_web/
+  - ./install_deps.sh
+
 script:
+  - cd /tmp/ws/src/package/walrus_web/
+  - grunt
+  - cd /tmp/ws
   - source /opt/ros/hydro/setup.bash
   - catkin build --no-status
   - source devel/setup.bash
