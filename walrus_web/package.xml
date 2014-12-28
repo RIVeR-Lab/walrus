@@ -15,7 +15,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>robot_state_publisher</run_depend>
-  <run_depend>webrtc_ros</run_depend>
+  <!--<run_depend>webrtc_ros</run_depend>-->
   <run_depend>ros_package_web_server</run_depend>
   <run_depend>rosbridge_server</run_depend>
   <run_depend>tf2_web_republisher</run_depend>
