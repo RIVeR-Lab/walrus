@@ -43,8 +43,8 @@
 		    <camera>
 		      <horizontal_fov>1.047</horizontal_fov>
 		      <image>
-			<width>640</width>
-			<height>480</height>
+			<width>1280</width>
+			<height>720</height>
 			<format>B8G8R8</format>
 		      </image>
 		      <depth_camera>
@@ -57,7 +57,7 @@
 		    </camera>
 		    <plugin name="${name}_controller" filename="libgazebo_ros_openni_kinect.so">
 		      <alwaysOn>true</alwaysOn>
-                      <updateRate>10.0</updateRate>
+                      <updateRate>15.0</updateRate>
                       <cameraName>${name}</cameraName>
                       <frameName>${tf_prefix}_optical_frame</frameName>
 		      <pointCloudTopicName>${camera_ns}/depth/points</pointCloudTopicName>

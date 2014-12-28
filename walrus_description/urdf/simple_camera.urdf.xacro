@@ -43,8 +43,8 @@
 		    <camera>
 		      <horizontal_fov>1.047</horizontal_fov>
 		      <image>
-			<width>640</width>
-			<height>480</height>
+			<width>1280</width>
+			<height>720</height>
 			<format>B8G8R8</format>
 		      </image>
 		      <clip>
@@ -54,7 +54,7 @@
 		    </camera>
 		    <plugin name="${name}_controller" filename="libgazebo_ros_camera.so">
 		      <alwaysOn>true</alwaysOn>
-		      <updateRate>0.0</updateRate>
+		      <updateRate>15.0</updateRate>
 		      <cameraName>${name}</cameraName>
 		      <cameraInfoTopicName>${camera_ns}/camera_info</cameraInfoTopicName>
 		      <imageTopicName>${camera_ns}/image_raw</imageTopicName>
