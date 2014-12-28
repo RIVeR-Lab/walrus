@@ -1,0 +1,6 @@
+pub_rate: 1.0
+analyzers:
+  computers:
+    type: GenericAnalyzer
+    path: Primary Computer
+    find_and_remove_prefix: 'primary_computer_monitor:'

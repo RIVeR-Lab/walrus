@@ -1,6 +1,7 @@
 <!-- Bringup file for the robot -->
 <launch>
   <group ns="walrus">
+    <include file="$(find walrus_diagnostics)/launch/diagnostics.launch" />
     <include file="$(find walrus_base_hw)/launch/walrus_base_hw.launch" />
     <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
   </group>
