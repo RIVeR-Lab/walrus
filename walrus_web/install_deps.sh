@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-sudo apt-get install nodejs
+sudo apt-get install npm
 sudo npm install -g bower grunt grunt-cli
 npm install
 bower install
