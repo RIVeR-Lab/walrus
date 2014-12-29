@@ -34,22 +34,19 @@ rosModule
 	    return {
 		ros: ros,
 		packageUrl: this.packageUrl,
-		tfClient: null,
-		getTfClient: function() {
-		    if(!this.tfClient){
-			this.tfClient = new ROSLIB.TFClient({
-			    ros : this.ros,
-			    angularThres : 0.01,
-			    transThres : 0.01,
-			    rate : 10.0
-			});
-		    }
-		    return this.tfClient;
+		createTfClient: function(fixedFrame) {
+		    return new ROSLIB.TFClient({
+			ros : this.ros,
+			angularThres : 0.01,
+			transThres : 0.01,
+			rate : 10.0,
+			fixedFrame: fixedFrame
+		    });
 		},
-		createUrdfClient: function(scene) {
+		createUrdfClient: function(scene, fixedFrame) {
 		    return new ROS3D.UrdfClient({
 			ros : this.ros,
-			tfClient : this.getTfClient(),
+			tfClient : this.createTfClient(fixedFrame),
 			path : this.packageUrl,
 			rootObject : scene
 		    });
@@ -82,7 +79,7 @@ rosModule
 		antialias : true
 	    });
 	    viewer.addObject(new ROS3D.Grid());
-	    roslib.createUrdfClient(viewer.scene);
+	    roslib.createUrdfClient(viewer.scene, scope.fixedFrame);
 
 	    function updateViewer() {
 		// only resize if the viewer is actually visible
@@ -102,7 +99,8 @@ rosModule
 
 	return {
 	    scope: {
-		'aspectRatio': '=aspectRatio'
+		'aspectRatio': '=aspectRatio',
+		'fixedFrame': '=fixedFrame'
 	    },
 	    restrict: 'E',
 	    link: link

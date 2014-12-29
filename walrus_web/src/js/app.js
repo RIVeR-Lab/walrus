@@ -28,7 +28,7 @@ app.controller('RootCtrl', ['$scope', 'roslib', 'gamepadService', 'webrtcRosServ
     });
     $scope.settings = {
 	'touch_joystick' : true,
-	'fake_video' : true
+	'fake_video' : false
     };
 }]);
 
