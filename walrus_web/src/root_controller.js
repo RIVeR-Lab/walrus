@@ -14,8 +14,7 @@ angular.module("app").controller("RootCtrl", ["$scope", "roslib", "gamepadServic
 	joyPub.publish(joyData);
     });
     $scope.settings = {
-	"touch_joystick" : true,
-	"fake_video" : false
+	"touch_joystick" : true
     };
 }]);
 
