@@ -3,15 +3,12 @@ angular.module("ros", [])
 	rosbridgeWsUrl: "ws://localhost:9090/",
 	packageUrl: "http://localhost:8080/",
 	setRosbridgeWsUrl: function(url) {
-	    "use strict";
 	    this.rosbridgeWsUrl = url;
 	},
 	setPackageUrl: function(url) {
-	    "use strict";
 	    this.packageUrl = url;
 	},
 	$get: ["$rootScope", function($rootScope) {
-	    "use strict";
 	    var ros = new ROSLIB.Ros({
 		url : this.rosbridgeWsUrl
 	    });
@@ -68,7 +65,6 @@ angular.module("ros", [])
 	}]
     })
     .directive("urdfViewer", ["roslib", function(roslib) {
-	"use strict";
 	function link(scope, element/*, attrs*/) {
 	    if(!element.attr("id")) {
 		throw "A urdf viewer must define an id";
@@ -112,11 +108,9 @@ angular.module("ros", [])
     .provider("webrtcRosService",  {
 	signalingUrl: "ws://localhost:8080/webrtc",
 	setSignalingUrl: function(signalingUrl) {
-	    "use strict";
 	    this.signalingUrl = signalingUrl;
 	},
 	$get: [function() {
-	    "use strict";
 	    return {
 		signalingUrl: this.signalingUrl,
 		createConnection: function() {
@@ -126,7 +120,6 @@ angular.module("ros", [])
 	}]
     })
     .directive("webrtcRosVideo", ["webrtcRosService", function(webrtcRosService) {
-	"use strict";
 	function link(scope, element/*, attrs*/) {
 	    var connection = webrtcRosService.createConnection();
 	    function configure() {

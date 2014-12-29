@@ -55,7 +55,9 @@ module.exports = function(grunt) {
 	},
 	uglify: {
 	    options: {
-		banner: "/*! <%= pkg.name %> <%= grunt.template.today('dd-mm-yyyy') %> */\n",
+		banner: "/*! <%= pkg.name %> <%= grunt.template.today('dd-mm-yyyy') %> */\n" +
+		    ";(function( window, undefined ){ \n 'use strict';",
+		footer: "\n}( window ));",
 		sourceMap: true
 		//mangle: false
 	    },

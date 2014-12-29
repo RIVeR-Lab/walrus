@@ -4,11 +4,9 @@ rosModule
     .provider("gamepadService",  {
 	pollRate: 100,
 	setPollRate: function(pollRate) {
-	    "use strict";
 	    this.pollRate = pollRate;
 	},
 	$get: ["$rootScope", "$interval", function($rootScope, $interval) {
-	    "use strict";
 	    var lastTimestamp = null;
 	    var lastData = null;
 	    $interval(function() {

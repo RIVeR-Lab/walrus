@@ -1,11 +1,10 @@
-RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
-RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
-navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-URL = window.webkitURL || window.URL;
+window.RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+window.RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
+window.RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+window.navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+window.URL = window.webkitURL || window.URL;
 
 window.WebrtcRos = (function() {
-    "use strict";
     var WebrtcRosConnection = function(signalingServerPath) {
 	var self = this;
 	signalingServerPath = signalingServerPath || "ws://"+window.location.host+"/webrtc";

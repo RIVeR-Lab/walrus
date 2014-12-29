@@ -2,7 +2,6 @@ var app = angular.module("app", ["ros", "gamepad", "ngMaterial"]);
 
 app.config(["roslibProvider", "gamepadServiceProvider", "webrtcRosServiceProvider",
 	    function(roslibProvider, gamepadServiceProvider, webrtcRosServiceProvider){
-  "use strict";
     roslibProvider.setRosbridgeWsUrl("ws://"+location.hostname+":9003");
     roslibProvider.setPackageUrl("http://"+location.hostname+":9002/");
 
@@ -14,7 +13,6 @@ app.config(["roslibProvider", "gamepadServiceProvider", "webrtcRosServiceProvide
 
 app.controller("RootCtrl", ["$scope", "roslib", "gamepadService",
 			    function( $scope, roslib, gamepadService ) {
-  "use strict";
     var joyPub = roslib.advertise("/joy", "sensor_msgs/Joy");
     $scope.$on("gamepad-data", function(ev, data) {
 	var currentTime = new Date();
@@ -35,7 +33,6 @@ app.controller("RootCtrl", ["$scope", "roslib", "gamepadService",
 }]);
 
 app.directive("videoViewer", function() {
-  "use strict";
   return {
       scope: {
 	  topic: "=topic",
@@ -47,7 +44,6 @@ app.directive("videoViewer", function() {
 });
 
 app.controller("SidepanelCtrl", ["$scope", function( $scope ) {
-  "use strict";
     $scope.tabs = {
 	selectedIndex : 0
     };
@@ -62,7 +58,6 @@ app.controller("SidepanelCtrl", ["$scope", function( $scope ) {
 
 app.controller("DiagnosticsCtrl", ["$scope", "$mdDialog", "$mdBottomSheet",
 				   function( $scope, $mdDialog, $mdBottomSheet ) {
-  "use strict";
     $scope.ros = {
 	connected: false
     };
@@ -136,7 +131,6 @@ app.controller("DiagnosticsCtrl", ["$scope", "$mdDialog", "$mdBottomSheet",
 
 app.controller("OptionsSheetController", ["$scope", "$mdBottomSheet", "$mdDialog", "diagnostics",
 					  function($scope, $mdBottomSheet, $mdDialog, diagnostics) {
-  "use strict";
     $scope.showControlsLayout = function(ev){
 	$mdBottomSheet.hide(ev);
 	$mdDialog.show({
@@ -166,7 +160,6 @@ app.controller("OptionsSheetController", ["$scope", "$mdBottomSheet", "$mdDialog
 
 app.controller("DiagnosticsDialogController", ["$scope", "$mdDialog", "diagnostics",
 					       function($scope, $mdDialog, diagnostics) {
-  "use strict";
   $scope.diagnostics = diagnostics;
   $scope.hide = function() {
     $mdDialog.hide();
@@ -182,7 +175,6 @@ app.controller("DiagnosticsDialogController", ["$scope", "$mdDialog", "diagnosti
 
 app.controller("ControlsDialogController", ["$scope", "$mdDialog",
 					    function ControlsDialogController($scope, $mdDialog) {
-  "use strict";
   $scope.hide = function() {
     $mdDialog.hide();
   };
@@ -197,7 +189,6 @@ app.controller("ControlsDialogController", ["$scope", "$mdDialog",
 
 app.controller("GamepadDialogController", ["$scope", "$mdDialog", "gamepadService",
 					   function($scope, $mdDialog, gamepadService) {
-    "use strict";
     $scope.gamepad = {
 	connected: gamepadService.isConnected(),
 	data: gamepadService.getLastData()
