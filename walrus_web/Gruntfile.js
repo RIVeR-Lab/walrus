@@ -58,8 +58,9 @@ module.exports = function(grunt) {
 		banner: "/*! <%= pkg.name %> <%= grunt.template.today('dd-mm-yyyy') %> */\n" +
 		    ";(function( window, undefined ){ \n 'use strict';",
 		footer: "\n}( window ));",
-		sourceMap: true
-		//mangle: false
+		sourceMap: true,
+		sourceMapIncludeSources: true,
+		mangle: true
 	    },
 	    js: {
 		files: {
