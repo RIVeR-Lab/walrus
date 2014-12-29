@@ -6,6 +6,12 @@ find_package(catkin REQUIRED)
 catkin_package()
 
 #############
+##  Build  ##
+#############
+
+add_custom_target(build ALL COMMAND grunt WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+#############
 ## Install ##
 #############
 

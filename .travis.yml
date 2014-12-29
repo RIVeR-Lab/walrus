@@ -28,8 +28,6 @@ install:
   - ./install_deps.sh
 
 script:
-  - cd /tmp/ws/src/package/walrus_web/
-  - grunt
   - cd /tmp/ws
   - source /opt/ros/hydro/setup.bash
   - catkin build --no-status
