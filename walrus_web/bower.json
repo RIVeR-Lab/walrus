@@ -17,6 +17,6 @@
     "dependencies": {
 	"angular": null,
 	"angular-material": null,
-	"eventemitter2": null
+	"roslib": null
     }
 }

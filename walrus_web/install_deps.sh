@@ -11,10 +11,9 @@ bower install
 
 [ -d libs ] || mkdir libs
 pushd libs
-wget http://cdn.robotwebtools.org/roslibjs/current/roslib.js
-wget http://cdn.robotwebtools.org/threejs/r61/three.js
-wget http://cdn.robotwebtools.org/threejs/r61/STLLoader.js
-wget http://cdn.robotwebtools.org/threejs/r61/ColladaLoader.js
-wget http://cdn.robotwebtools.org/ColladaAnimationCompress/0.0.2/ColladaLoader2.js
-wget http://cdn.robotwebtools.org/ros3djs/current/ros3d.js
+curl http://cdn.robotwebtools.org/threejs/r61/three.js > three.js
+curl http://cdn.robotwebtools.org/threejs/r61/STLLoader.js > STLLoader.js
+curl http://cdn.robotwebtools.org/threejs/r61/ColladaLoader.js > ColladaLoader.js
+curl http://cdn.robotwebtools.org/ColladaAnimationCompress/0.0.2/ColladaLoader2.js > ColladaLoader2.js
+curl http://cdn.robotwebtools.org/ros3djs/current/ros3d.js > ros3d.js
 popd

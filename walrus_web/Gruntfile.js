@@ -77,6 +77,7 @@ module.exports = function(grunt) {
 		    'angular-aria/angular-aria.min.js', 'angular-aria/angular-aria.min.js.map',
 		    'angular-material/angular-material.min.js', 'angular-material/angular-material.min.css', 'angular-material/themes/*.css',
 		    'eventemitter2/lib/eventemitter2.js',
+		    'roslib/build/roslib.min.js',
 		    'hammerjs/hammer.min.js', 'hammerjs/hammer.min.map'
 		],
 		dest: 'web/libs/'
