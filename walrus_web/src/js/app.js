@@ -1,23 +1,25 @@
-var app = angular.module('app', ['ros', 'gamepad', 'ngMaterial']);
+var app = angular.module("app", ["ros", "gamepad", "ngMaterial"]);
 
 app.config(["roslibProvider", "gamepadServiceProvider", "webrtcRosServiceProvider",
 	    function(roslibProvider, gamepadServiceProvider, webrtcRosServiceProvider){
-    roslibProvider.setRosbridgeWsUrl('ws://'+location.hostname+':9003');
-    roslibProvider.setPackageUrl('http://'+location.hostname+':9002/');
+  "use strict";
+    roslibProvider.setRosbridgeWsUrl("ws://"+location.hostname+":9003");
+    roslibProvider.setPackageUrl("http://"+location.hostname+":9002/");
 
-    webrtcRosServiceProvider.setSignalingUrl('ws://'+location.hostname+':9001/webrtc');
+    webrtcRosServiceProvider.setSignalingUrl("ws://"+location.hostname+":9001/webrtc");
 
     gamepadServiceProvider.setPollRate(100);
 }]);
 
 
-app.controller('RootCtrl', ['$scope', 'roslib', 'gamepadService', 'webrtcRosService',
-			    function( $scope, roslib, gamepadService, webrtcRosService ) {
-    var joyPub = roslib.advertise('/joy', 'sensor_msgs/Joy');
-    $scope.$on('gamepad-data', function(ev, data) {
+app.controller("RootCtrl", ["$scope", "roslib", "gamepadService",
+			    function( $scope, roslib, gamepadService ) {
+  "use strict";
+    var joyPub = roslib.advertise("/joy", "sensor_msgs/Joy");
+    $scope.$on("gamepad-data", function(ev, data) {
 	var currentTime = new Date();
 	var secs = Math.floor(currentTime.getTime()/1000);
-        var nsecs = Math.round(1000000000*(currentTime.getTime()/1000-secs));
+        var nsecs = Math.round(1000000000 * (currentTime.getTime() / 1000 - secs));
 	var joyData = {
 	    header: { stamp: { secs: secs, nsecs: nsecs } },
 	    axes: data.axes,
@@ -27,59 +29,62 @@ app.controller('RootCtrl', ['$scope', 'roslib', 'gamepadService', 'webrtcRosServ
 	joyPub.publish(joyData);
     });
     $scope.settings = {
-	'touch_joystick' : true,
-	'fake_video' : false
+	"touch_joystick" : true,
+	"fake_video" : false
     };
 }]);
 
-app.directive('videoViewer', function() {
+app.directive("videoViewer", function() {
+  "use strict";
   return {
       scope: {
-	  topic: '=topic',
-	  label: '=label',
-	  insetShadow: '=insetshadow'
+	  topic: "=topic",
+	  label: "=label",
+	  insetShadow: "=insetshadow"
       },
-    templateUrl: 'video-viewer.template.html'
+    templateUrl: "video-viewer.template.html"
   };
 });
 
-app.controller('SidepanelCtrl', ['$scope', 'roslib', function( $scope, roslib ) {
+app.controller("SidepanelCtrl", ["$scope", function( $scope ) {
+  "use strict";
     $scope.tabs = {
 	selectedIndex : 0
     };
-    $scope.$watch('tabs.selectedIndex', function(newIndex, oldIndex){
+    $scope.$watch("tabs.selectedIndex", function(newIndex, oldIndex){
 	if(newIndex !== oldIndex) {
 	    setTimeout(function() { // Need to delay to allow for the tabs to actually change
-		$scope.$broadcast('tab-changed', newIndex, oldIndex);
+		$scope.$broadcast("tab-changed", newIndex, oldIndex);
 	    }, 100);
 	}
     });
 }]);
 
-app.controller('DiagnosticsCtrl', ['$scope', '$mdDialog', '$mdBottomSheet',
+app.controller("DiagnosticsCtrl", ["$scope", "$mdDialog", "$mdBottomSheet",
 				   function( $scope, $mdDialog, $mdBottomSheet ) {
+  "use strict";
     $scope.ros = {
 	connected: false
     };
 
     $scope.gamepad = {
-	connected: false,
+	connected: false
     };
 
-    $scope.$on('gamepad-connected', function() {
+    $scope.$on("gamepad-connected", function() {
 	$scope.gamepad.connected = true;
     });
-    $scope.$on('gamepad-disconnected', function() {
+    $scope.$on("gamepad-disconnected", function() {
 	$scope.gamepad.connected = false;
     });
 
-    $scope.$on('ros-connection', function() {
+    $scope.$on("ros-connection", function() {
 	$scope.ros.connected = true;
     });
-    $scope.$on('ros-error', function(error) {
+    $scope.$on("ros-error", function(/*error*/) {
 	$scope.ros.connected = false;
     });
-    $scope.$on('ros-close', function() {
+    $scope.$on("ros-close", function() {
 	$scope.ros.connected = false;
     });
 
@@ -92,68 +97,76 @@ app.controller('DiagnosticsCtrl', ['$scope', '$mdDialog', '$mdBottomSheet',
 	drive: [0.5, -0.3]
     };
     $scope.percentToColorHighBad = function(val){
-	if(val > 0.8)
-	    return 'red';
-	else if(val > 0.6)
-	    return 'orange';
-	else
-	    return 'green';
+	if(val > 0.8) {
+	    return "red";
+	}
+	else if(val > 0.6) {
+	    return "orange";
+	}
+	else {
+	    return "green";
+	}
     };
     $scope.percentToColorLowBad = function(val){
-	if(val < 0.2)
-	    return 'red';
-	else if(val < 0.4)
-	    return 'orange';
-	else
-	    return 'green';
+	if(val < 0.2) {
+	    return "red";
+	}
+	else if(val < 0.4) {
+	    return "orange";
+	}
+	else {
+	    return "green";
+	}
     };
 
     $scope.Math = window.Math;
 
     $scope.showOptions = function(ev){
-	$scope.alert = '';
+	$scope.alert = "";
 	$mdBottomSheet.show({
-	    templateUrl: 'bottom_sheet.html',
-	    controller: 'OptionsSheetController',
+	    templateUrl: "bottom_sheet.html",
+	    controller: "OptionsSheetController",
 	    targetEvent: ev,
-	    locals: { diagnostics: $scope.diagnostics },
+	    locals: { diagnostics: $scope.diagnostics }
 	});
     };
 
 
 }]);
 
-app.controller('OptionsSheetController', ['$scope', '$mdBottomSheet', '$mdDialog', 'diagnostics',
+app.controller("OptionsSheetController", ["$scope", "$mdBottomSheet", "$mdDialog", "diagnostics",
 					  function($scope, $mdBottomSheet, $mdDialog, diagnostics) {
+  "use strict";
     $scope.showControlsLayout = function(ev){
 	$mdBottomSheet.hide(ev);
 	$mdDialog.show({
             targetEvent: ev,
-	    templateUrl: 'controls_dialog.html',
-	    controller: 'ControlsDialogController'
+	    templateUrl: "controls_dialog.html",
+	    controller: "ControlsDialogController"
         });
     };
     $scope.showDiagnostics = function(ev){
 	$mdBottomSheet.hide(ev);
         $mdDialog.show({
             targetEvent: ev,
-	    templateUrl: 'diagnostics_dialog.html',
+	    templateUrl: "diagnostics_dialog.html",
 	    locals: { diagnostics: diagnostics },
-	    controller: 'DiagnosticsDialogController'
+	    controller: "DiagnosticsDialogController"
         });
     };
     $scope.showGamepadDiagnostics = function(ev){
 	$mdBottomSheet.hide(ev);
         $mdDialog.show({
             targetEvent: ev,
-	    templateUrl: 'gamepad_dialog.html',
-	    controller: 'GamepadDialogController'
+	    templateUrl: "gamepad_dialog.html",
+	    controller: "GamepadDialogController"
         });
     };
 }]);
 
-app.controller('DiagnosticsDialogController', ['$scope', '$mdDialog', 'diagnostics',
+app.controller("DiagnosticsDialogController", ["$scope", "$mdDialog", "diagnostics",
 					       function($scope, $mdDialog, diagnostics) {
+  "use strict";
   $scope.diagnostics = diagnostics;
   $scope.hide = function() {
     $mdDialog.hide();
@@ -167,8 +180,9 @@ app.controller('DiagnosticsDialogController', ['$scope', '$mdDialog', 'diagnosti
 }]);
 
 
-app.controller('ControlsDialogController', ['$scope', '$mdDialog',
+app.controller("ControlsDialogController", ["$scope", "$mdDialog",
 					    function ControlsDialogController($scope, $mdDialog) {
+  "use strict";
   $scope.hide = function() {
     $mdDialog.hide();
   };
@@ -181,20 +195,21 @@ app.controller('ControlsDialogController', ['$scope', '$mdDialog',
 }]);
 
 
-app.controller('GamepadDialogController', ['$scope', '$mdDialog', 'gamepadService',
+app.controller("GamepadDialogController", ["$scope", "$mdDialog", "gamepadService",
 					   function($scope, $mdDialog, gamepadService) {
+    "use strict";
     $scope.gamepad = {
 	connected: gamepadService.isConnected(),
 	data: gamepadService.getLastData()
     };
 
-    $scope.$on('gamepad-connected', function() {
+    $scope.$on("gamepad-connected", function() {
 	$scope.gamepad.connected = true;
     });
-    $scope.$on('gamepad-disconnected', function() {
+    $scope.$on("gamepad-disconnected", function() {
 	$scope.gamepad.connected = false;
     });
-    $scope.$on('gamepad-data', function(ev, data) {
+    $scope.$on("gamepad-data", function(ev, data) {
 	$scope.gamepad.data = data;
     });
 

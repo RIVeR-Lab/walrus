@@ -1,28 +1,30 @@
 var rosModule = angular.module("gamepad", []);
 
 rosModule
-    .provider('gamepadService',  {
+    .provider("gamepadService",  {
 	pollRate: 100,
 	setPollRate: function(pollRate) {
+	    "use strict";
 	    this.pollRate = pollRate;
 	},
-	$get: ['$rootScope', '$interval', function($rootScope, $interval) {
+	$get: ["$rootScope", "$interval", function($rootScope, $interval) {
+	    "use strict";
 	    var lastTimestamp = null;
 	    var lastData = null;
-	    var pollTimer = $interval(function() {
+	    $interval(function() {
 		var gamepadData = navigator.getGamepads()[0];
 		if(gamepadData) {
 		    if(lastTimestamp === null) {
-			$rootScope.$broadcast('gamepad-connected');
+			$rootScope.$broadcast("gamepad-connected");
 		    }
 		    if(gamepadData.timestamp !== lastTimestamp) {
-			$rootScope.$broadcast('gamepad-data', gamepadData);
+			$rootScope.$broadcast("gamepad-data", gamepadData);
 			lastTimestamp = gamepadData.timestamp;
 			lastData = gamepadData;
 		    }
 		}
 		else if(lastTimestamp !== null){
-		    $rootScope.$broadcast('gamepad-disconnected');
+		    $rootScope.$broadcast("gamepad-disconnected");
 		    lastData = null;
 		    lastTimestamp = null;
 		}

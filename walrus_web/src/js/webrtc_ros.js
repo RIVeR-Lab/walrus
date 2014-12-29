@@ -5,15 +5,16 @@ navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMed
 URL = window.webkitURL || window.URL;
 
 window.WebrtcRos = (function() {
+    "use strict";
     var WebrtcRosConnection = function(signalingServerPath) {
 	var self = this;
-	signalingServerPath = signalingServerPath || 'ws://'+window.location.host+'/webrtc';
+	signalingServerPath = signalingServerPath || "ws://"+window.location.host+"/webrtc";
 	this.signalingChannel = new WebSocket(signalingServerPath);
 	this.signalingChannel.onmessage = function(e){ self.onSignalingMessage(e); };
 	this.peerConnection = null;
 	this.config = {};
 
-	var peerConnectionOptions = {
+	this.peerConnectionOptions = {
 	    optional: [
 		{DtlsSrtpKeyAgreement: true}
 	    ]
@@ -25,7 +26,7 @@ window.WebrtcRos = (function() {
                     sdp_mline_index: event.candidate.sdpMLineIndex,
                     sdp_mid: event.candidate.sdpMid,
                     candidate: event.candidate.candidate,
-                    type: 'ice_candidate'
+                    type: "ice_candidate"
                 };
                 self.signalingChannel.send(JSON.stringify(candidate));
             }
@@ -34,23 +35,23 @@ window.WebrtcRos = (function() {
         this.peerConnection.onopen = this.onSessionOpened;
     };
 
-    Object.defineProperty(WebrtcRosConnection.prototype, 'onSignalingOpen', {
+    Object.defineProperty(WebrtcRosConnection.prototype, "onSignalingOpen", {
 	enumerable: true,
 	get: function() { return this.signalingChannel.onopen; },
 	set: function(callback) { this.signalingChannel.onopen = callback; }
     });
-    Object.defineProperty(WebrtcRosConnection.prototype, 'onSignalingError', {
+    Object.defineProperty(WebrtcRosConnection.prototype, "onSignalingError", {
 	enumerable: true,
 	get: function() { return this.signalingChannel.onerror; },
 	set: function(callback) { this.signalingChannel.onerror = callback; }
     });
 
-    Object.defineProperty(WebrtcRosConnection.prototype, 'onRemoteStreamAdded', {
+    Object.defineProperty(WebrtcRosConnection.prototype, "onRemoteStreamAdded", {
 	enumerable: true,
 	get: function() { return this.peerConnection.onaddstream; },
 	set: function(callback) { this.peerConnection.onaddstream = callback; }
     });
-    Object.defineProperty(WebrtcRosConnection.prototype, 'onRemoteStreamRemoved', {
+    Object.defineProperty(WebrtcRosConnection.prototype, "onRemoteStreamRemoved", {
 	enumerable: true,
 	get: function() { return this.peerConnection.onremovestream; },
 	set: function(callback) { this.peerConnection.onremovestream = callback; }
@@ -59,7 +60,9 @@ window.WebrtcRos = (function() {
 	this.config = config;
 	var configMessage = {"type": "configure"};
 	for(var field in config){
-	    configMessage[field] = config[field];
+	    if(config.hasOwnProperty(field)) {
+		configMessage[field] = config[field];
+	    }
 	}
 	this.signalingChannel.send(JSON.stringify(configMessage));
 	console.log("WebRTC ROS Configure: ", config);
@@ -68,7 +71,7 @@ window.WebrtcRos = (function() {
 	var self = this;
 	var dataJson = JSON.parse(e.data);
 	console.log("WebRTC ROS Got Message: ", dataJson);
-	if (dataJson.type == 'offer') {
+	if (dataJson.type === "offer") {
 	    this.peerConnection.setRemoteDescription(new RTCSessionDescription(dataJson), this.onRemoteSdpSucces, this.onRemoteSdpError);
 
 	    if(this.config.published_video_topic && this.config.published_video_topic.length > 0) {
@@ -79,10 +82,11 @@ window.WebrtcRos = (function() {
 		    console.error(error);
 		});
 	    }
-	    else
+	    else {
 		self.sendAnswer();
+	    }
 	}
-	else if(dataJson.type == 'ice_candidate') {
+	else if(dataJson.type === "ice_candidate") {
 	    var candidate = new RTCIceCandidate({sdpMLineIndex: dataJson.sdpMLineIndex, candidate: dataJson.candidate});
 	    this.peerConnection.addIceCandidate(candidate);
 	}
@@ -93,9 +97,9 @@ window.WebrtcRos = (function() {
 
     WebrtcRosConnection.prototype.sendAnswer = function() {
 	var self = this;
-	var mediaConstraints = {'mandatory': {
-	    'OfferToReceiveAudio': true,
-	    'OfferToReceiveVideo': true
+	var mediaConstraints = {"mandatory": {
+	    "OfferToReceiveAudio": true,
+	    "OfferToReceiveVideo": true
 	}};
 	this.peerConnection.createAnswer(function(sessionDescription) {
             console.log("Create answer:", sessionDescription);
@@ -108,19 +112,19 @@ window.WebrtcRos = (function() {
     };
 
     WebrtcRosConnection.prototype.onSessionConnecting = function(message) {
-        console.log("Session connecting.");
+        console.log("Session connecting: ", message);
     };
 
     WebrtcRosConnection.prototype.onSessionOpened = function(message) {
-        console.log("Session opened.");
+        console.log("Session opened: ", message);
     };
 
     WebrtcRosConnection.prototype.onRemoteSdpError = function(event) {
-	console.error('onRemoteSdpError', event);
+	console.error("onRemoteSdpError", event);
     };
 
     WebrtcRosConnection.prototype.onRemoteSdpSucces = function() {
-	console.log('onRemoteSdpSucces');
+	console.log("onRemoteSdpSucces");
     };
 
     var WebrtcRos = {

@@ -1,34 +1,35 @@
-var rosModule = angular.module("ros", []);
-
-rosModule
-    .provider('roslib',  {
-	rosbridgeWsUrl: 'ws://localhost:9090/',
-	packageUrl: 'http://localhost:8080/',
+angular.module("ros", [])
+    .provider("roslib",  {
+	rosbridgeWsUrl: "ws://localhost:9090/",
+	packageUrl: "http://localhost:8080/",
 	setRosbridgeWsUrl: function(url) {
+	    "use strict";
 	    this.rosbridgeWsUrl = url;
 	},
 	setPackageUrl: function(url) {
+	    "use strict";
 	    this.packageUrl = url;
 	},
-	$get: ['$rootScope', function($rootScope) {
+	$get: ["$rootScope", function($rootScope) {
+	    "use strict";
 	    var ros = new ROSLIB.Ros({
 		url : this.rosbridgeWsUrl
 	    });
-	    ros.on('connection', function() {
+	    ros.on("connection", function() {
 		$rootScope.$apply(function(){
-		    $rootScope.$broadcast('ros-connection');
+		    $rootScope.$broadcast("ros-connection");
 		});
 	    });
 
-	    ros.on('error', function(error) {
+	    ros.on("error", function(error) {
 		$rootScope.$apply(function(){
-		    $rootScope.$broadcast('ros-error', error);
+		    $rootScope.$broadcast("ros-error", error);
 		});
 	    });
 
-	    ros.on('close', function() {
+	    ros.on("close", function() {
 		$rootScope.$apply(function(){
-		    $rootScope.$broadcast('ros-close');
+		    $rootScope.$broadcast("ros-close");
 		});
 	    });
 	    return {
@@ -66,16 +67,17 @@ rosModule
 	    };
 	}]
     })
-    .directive('urdfViewer', ['roslib', function(roslib) {
-	function link(scope, element, attrs) {
-	    if(!element.attr('id')) {
-		throw 'A urdf viewer must define an id';
+    .directive("urdfViewer", ["roslib", function(roslib) {
+	"use strict";
+	function link(scope, element/*, attrs*/) {
+	    if(!element.attr("id")) {
+		throw "A urdf viewer must define an id";
 	    }
 	    var viewer = new ROS3D.Viewer({
-		divID : element.attr('id'),
+		divID : element.attr("id"),
 		width : element[0].offsetWidth,
 		height : element[0].offsetWidth / scope.aspectRatio,
-		background: '#AAAAAA',
+		background: "#AAAAAA",
 		antialias : true
 	    });
 	    viewer.addObject(new ROS3D.Grid());
@@ -91,42 +93,45 @@ rosModule
 		}
 	    }
 
-	    window.addEventListener('resize', updateViewer);
-	    scope.$on('tab-changed', function(ev, newIndex, oldIndex) {
+	    window.addEventListener("resize", updateViewer);
+	    scope.$on("tab-changed", function(/*ev, newIndex, oldIndex*/) {
 		updateViewer();
 	    });
 	}
 
 	return {
 	    scope: {
-		'aspectRatio': '=aspectRatio',
-		'fixedFrame': '=fixedFrame'
+		"aspectRatio": "=aspectRatio",
+		"fixedFrame": "=fixedFrame"
 	    },
-	    restrict: 'E',
+	    restrict: "E",
 	    link: link
 	};
     }])
 
-    .provider('webrtcRosService',  {
-	signalingUrl: 'ws://localhost:8080/webrtc',
+    .provider("webrtcRosService",  {
+	signalingUrl: "ws://localhost:8080/webrtc",
 	setSignalingUrl: function(signalingUrl) {
+	    "use strict";
 	    this.signalingUrl = signalingUrl;
 	},
-	$get: ['$rootScope', function($rootScope) {
+	$get: [function() {
+	    "use strict";
 	    return {
 		signalingUrl: this.signalingUrl,
 		createConnection: function() {
-		    return WebrtcRos.createConnection(this.signalingUrl);
+		    return window.WebrtcRos.createConnection(this.signalingUrl);
 		}
 	    };
 	}]
     })
-    .directive('webrtcRosVideo', ['webrtcRosService', function(webrtcRosService) {
-	function link(scope, element, attrs) {
+    .directive("webrtcRosVideo", ["webrtcRosService", function(webrtcRosService) {
+	"use strict";
+	function link(scope, element/*, attrs*/) {
 	    var connection = webrtcRosService.createConnection();
 	    function configure() {
-		config = {
-		    "subscribed_video_topic": scope.topic,
+		var config = {
+		    "subscribed_video_topic": scope.topic
 		};
 		connection.configure(config);
 	    }
@@ -142,16 +147,16 @@ rosModule
 		element[0].src = URL.createObjectURL(event.stream);
 		element[0].play();
 	    };
-	    connection.onRemoteStreamRemoved = function(event) {
+	    connection.onRemoteStreamRemoved = function(/*event*/) {
 		console.log("Remote stream removed");
 	    };
 	}
 
 	return {
 	    scope: {
-		topic: '=topic'
+		topic: "=topic"
 	    },
-	    restrict: 'A',
+	    restrict: "A",
 	    link: link
 	};
     }]);
