@@ -33,7 +33,7 @@
   <div style="flex:80;display:flex;flex-direction:column;">
     <video-viewer style="flex:none;box-shadow: -24px -24px 0 0 red inset;" topic="'/walrus/boom/kinect/rgb/image_raw'" label="'Front Camera'" insetshadow="true"></video-viewer>
     <div style="flex:1;display:flex;flex-direction:row;position:relative;" ng-controller="DiagnosticsCtrl">
-      <ng-include style="flex:1;display:flex;" src="'diagnostics.svg'"></ng-include>
+      <ng-include style="flex:1;display:flex;" src="'diagnostics.angular.svg'"></ng-include>
       <md-button class="md-fab md-primary md-fab-bottom-right" ng-click="showOptions()">
         <md-icon icon="/img/gear.svg" style="width: 24px; height: 24px;"></md-icon>
       </md-button>
@@ -49,8 +49,8 @@
       </md-tab>
     </md-tabs>
     <div style="flex:1;">
-      <ng-include src="'model_tab.html'" ng-show="tabs.selectedIndex==0"></ng-include>
-      <ng-include src="'autonomy_tab.html'" ng-show="tabs.selectedIndex==1"></ng-include>
+      <ng-include src="'sidepanel/model_tab.html'" ng-show="tabs.selectedIndex==0"></ng-include>
+      <ng-include src="'sidepanel/autonomy_tab.html'" ng-show="tabs.selectedIndex==1"></ng-include>
     </div>
     <video-viewer style="flex:none;" topic="'/walrus/back_camera/image_raw'" label="'Back Camera'"></video-viewer>
     <img src="joystick.svg" ng-show="settings.touch_joystick"/>
