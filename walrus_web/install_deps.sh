@@ -4,10 +4,12 @@ sudo add-apt-repository -y ppa:chris-lea/node.js
 sudo apt-get update
 sudo apt-get install -qq nodejs
 sudo npm install -g bower grunt grunt-cli
+# Need to clean cache to prevent errors when running npm as non-root user
+sudo npm cache clean
 npm install
 bower install
 
-mkdir libs
+[ -d libs ] || mkdir libs
 pushd libs
 wget http://cdn.robotwebtools.org/roslibjs/current/roslib.js
 wget http://cdn.robotwebtools.org/threejs/r61/three.js
