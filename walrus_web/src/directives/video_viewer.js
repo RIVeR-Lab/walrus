@@ -5,6 +5,6 @@ angular.module("app").directive("videoViewer", function() {
 	  label: "=label",
 	  insetShadow: "=insetshadow"
       },
-    templateUrl: "directives/video_viewer.template.html"
+    templateUrl: "/directives/video_viewer.tpl.html"
   };
 });

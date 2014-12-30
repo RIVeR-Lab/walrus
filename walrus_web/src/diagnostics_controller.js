@@ -61,7 +61,7 @@ angular.module("app").controller("DiagnosticsCtrl",
     $scope.showOptions = function(ev){
 	$scope.alert = "";
 	$mdBottomSheet.show({
-	    templateUrl: "options_sheet.html",
+	    templateUrl: "/options_sheet.tpl.html",
 	    controller: "OptionsSheetController",
 	    targetEvent: ev,
 	    locals: { diagnostics: $scope.diagnostics }

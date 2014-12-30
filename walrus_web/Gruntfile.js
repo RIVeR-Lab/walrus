@@ -1,4 +1,4 @@
-var build_tasks = ["jshint", "csslint", "cssmin", "ngAnnotate", "concat", "uglify", "copy:images", "copy:bower_libs", "copy:libs", "htmlmin"];
+var build_tasks = ["jshint", "csslint", "cssmin", "ngAnnotate", "ngtemplates", "concat", "uglify", "copy:images", "copy:bower_libs", "copy:libs", "htmlmin"];
 module.exports = function(grunt) {
     "use strict";
     grunt.initConfig({
@@ -59,12 +59,35 @@ module.exports = function(grunt) {
                 }]
             }
 	},
+	ngtemplates: {
+	    html_templates: {
+		options: {
+		    prefix: "/",
+		    htmlmin:  "<%= htmlmin.app.options %>"
+		},
+		cwd: "src",
+		src: "**/*.tpl.html",
+		dest: "build/html-templates.js"
+	    },
+	    svg_templates: {
+		options: {
+		    prefix: "/"
+		},
+		cwd: "src",
+		src: "**/*.tpl.svg",
+		dest: "build/svg-templates.js"
+	    }
+	},
 	concat: {
 	    options: {
 		separator: ";"
 	    },
 	    js: {
-		src: ["build/annotated/**/*.js"],
+		src: [
+		    "build/annotated/**/*.js",
+		    "<%= ngtemplates.html_templates.dest %>",
+		    "<%= ngtemplates.svg_templates.dest %>"
+		],
 		dest: "build/<%= pkg.name %>.js"
 	    }
 	},
@@ -84,7 +107,7 @@ module.exports = function(grunt) {
 	    }
 	},
 	htmlmin: {
-	    html: {
+	    app: {
 		options: {
 		    removeComments: true,
 		    collapseWhitespace: true
@@ -92,7 +115,7 @@ module.exports = function(grunt) {
 		files: [{
 		    expand: true,
 		    cwd: "src/",
-		    src: "**/*.html",
+		    src: "index.html",
 		    dest: "web/"
 		}]
 	    }
@@ -102,7 +125,7 @@ module.exports = function(grunt) {
 		nonull: true,
 		expand: true,
 		cwd: "src/",
-		src: ["img/**", "**/*.svg"],
+		src: ["img/**"],
 		dest: "web/"
 	    },
 	    libs: {
@@ -140,6 +163,7 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks("grunt-contrib-jshint");
     grunt.loadNpmTasks("grunt-ng-annotate");
+    grunt.loadNpmTasks("grunt-angular-templates");
     grunt.loadNpmTasks("grunt-contrib-csslint");
     grunt.loadNpmTasks("grunt-contrib-cssmin");
     grunt.loadNpmTasks("grunt-contrib-htmlmin");
