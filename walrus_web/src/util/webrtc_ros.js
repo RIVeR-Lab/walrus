@@ -18,20 +18,7 @@ window.WebrtcRos = (function() {
 		{DtlsSrtpKeyAgreement: true}
 	    ]
 	};
-	this.peerConnection = new RTCPeerConnection(null, this.peerConnectionOptions);
-	this.peerConnection.onicecandidate = function(event) {
-            if (event.candidate) {
-                var candidate = {
-                    sdp_mline_index: event.candidate.sdpMLineIndex,
-                    sdp_mid: event.candidate.sdpMid,
-                    candidate: event.candidate.candidate,
-                    type: "ice_candidate"
-                };
-                self.signalingChannel.send(JSON.stringify(candidate));
-            }
-        };
-	this.peerConnection.onconnecting = this.onSessionConnecting;
-        this.peerConnection.onopen = this.onSessionOpened;
+	this.connect();
     };
 
     Object.defineProperty(WebrtcRosConnection.prototype, "onSignalingOpen", {
@@ -55,6 +42,23 @@ window.WebrtcRos = (function() {
 	get: function() { return this.peerConnection.onremovestream; },
 	set: function(callback) { this.peerConnection.onremovestream = callback; }
     });
+    WebrtcRosConnection.prototype.connect = function(){
+	var self = this;
+	this.peerConnection = new RTCPeerConnection(null, this.peerConnectionOptions);
+	this.peerConnection.onicecandidate = function(event) {
+            if (event.candidate) {
+                var candidate = {
+                    sdp_mline_index: event.candidate.sdpMLineIndex,
+                    sdp_mid: event.candidate.sdpMid,
+                    candidate: event.candidate.candidate,
+                    type: "ice_candidate"
+                };
+                self.signalingChannel.send(JSON.stringify(candidate));
+            }
+        };
+	this.peerConnection.onconnecting = this.onSessionConnecting;
+        this.peerConnection.onopen = this.onSessionOpened;
+    };
     WebrtcRosConnection.prototype.configure = function(config){
 	this.config = config;
 	var configMessage = {"type": "configure"};
