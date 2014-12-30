@@ -1,4 +1,4 @@
-angular.module("app").controller("RootCtrl", ["$scope", "roslib", "gamepadService",
+angular.module("app").controller("RootCtrl",
 					      function( $scope, roslib, gamepadService ) {
     var joyPub = roslib.advertise("/joy", "sensor_msgs/Joy");
     $scope.$on("gamepad-data", function(ev, data) {
@@ -16,5 +16,4 @@ angular.module("app").controller("RootCtrl", ["$scope", "roslib", "gamepadServic
     $scope.settings = {
 	"touch_joystick" : true
     };
-}]);
-
+});

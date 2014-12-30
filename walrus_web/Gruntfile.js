@@ -1,4 +1,4 @@
-var build_tasks = ["jshint", "csslint", "cssmin", "concat", "uglify", "copy:images", "copy:bower_libs", "copy:libs", "htmlmin"];
+var build_tasks = ["jshint", "csslint", "cssmin", "ngAnnotate", "concat", "uglify", "copy:images", "copy:bower_libs", "copy:libs", "htmlmin"];
 module.exports = function(grunt) {
     "use strict";
     grunt.initConfig({
@@ -27,8 +27,8 @@ module.exports = function(grunt) {
 		quotmark: "double",
 		maxparams: 4,
 		maxdepth: 2,
-		maxstatements: 14,
-		maxcomplexity: 6
+		maxstatements: 15,
+		maxcomplexity: 5
 	    },
 	    files: ["Gruntfile.js", "src/**/*.js"]
 	},
@@ -44,12 +44,27 @@ module.exports = function(grunt) {
 		}
 	    }
 	},
+	ngAnnotate: {
+            options: {
+		singleQuotes: false
+            },
+            app: {
+                files: [{
+                    expand: true,
+		    cwd: "src",
+                    src: ["**/*.js"],
+                    ext: ".annotated.js",
+                    extDot: "last",
+		    dest: "build/annotated/"
+                }]
+            }
+	},
 	concat: {
 	    options: {
 		separator: ";"
 	    },
 	    js: {
-		src: ["src/**/*.js"],
+		src: ["build/annotated/**/*.js"],
 		dest: "build/<%= pkg.name %>.js"
 	    }
 	},
@@ -124,6 +139,7 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks("grunt-contrib-jshint");
+    grunt.loadNpmTasks("grunt-ng-annotate");
     grunt.loadNpmTasks("grunt-contrib-csslint");
     grunt.loadNpmTasks("grunt-contrib-cssmin");
     grunt.loadNpmTasks("grunt-contrib-htmlmin");

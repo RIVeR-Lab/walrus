@@ -1,4 +1,4 @@
-angular.module("ros").directive("urdfViewer", ["roslib", function(roslib) {
+angular.module("ros").directive("urdfViewer", function(roslib) {
 	function link(scope, element/*, attrs*/) {
 	    if(!element.attr("id")) {
 		throw "A urdf viewer must define an id";
@@ -37,4 +37,4 @@ angular.module("ros").directive("urdfViewer", ["roslib", function(roslib) {
 	    restrict: "E",
 	    link: link
 	};
-}]);
+});

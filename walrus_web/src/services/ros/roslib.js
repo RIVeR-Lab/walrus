@@ -8,7 +8,7 @@ angular.module("ros", [])
 	setPackageUrl: function(url) {
 	    this.packageUrl = url;
 	},
-	$get: ["$rootScope", function($rootScope) {
+	$get: function($rootScope) {
 	    var ros = new ROSLIB.Ros({
 		url : this.rosbridgeWsUrl
 	    });
@@ -62,5 +62,5 @@ angular.module("ros", [])
 		    };
 		}
 	    };
-	}]
+	}
     });

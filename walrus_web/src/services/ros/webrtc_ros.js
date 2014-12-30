@@ -12,7 +12,7 @@ angular.module("ros").provider("webrtcRosService",  {
 	    };
 	}]
 })
-.directive("webrtcRosVideo", ["webrtcRosService", function(webrtcRosService) {
+.directive("webrtcRosVideo", function(webrtcRosService) {
 	function link(scope, element/*, attrs*/) {
 	    var connection = webrtcRosService.createConnection();
 	    function configure() {
@@ -45,4 +45,4 @@ angular.module("ros").provider("webrtcRosService",  {
 	    restrict: "A",
 	    link: link
 	};
-}]);
+});

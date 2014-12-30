@@ -1,4 +1,4 @@
-angular.module("app").controller("GamepadDialogController", ["$scope", "$mdDialog", "gamepadService",
+angular.module("app").controller("GamepadDialogController",
 					   function($scope, $mdDialog, gamepadService) {
     $scope.gamepad = {
 	connected: gamepadService.isConnected(),
@@ -25,4 +25,4 @@ angular.module("app").controller("GamepadDialogController", ["$scope", "$mdDialo
     $scope.answer = function(answer) {
 	$mdDialog.hide(answer);
     };
-}]);
+});

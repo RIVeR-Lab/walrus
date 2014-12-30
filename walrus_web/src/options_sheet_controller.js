@@ -1,4 +1,4 @@
-angular.module("app").controller("OptionsSheetController", ["$scope", "$mdBottomSheet", "$mdDialog", "diagnostics",
+angular.module("app").controller("OptionsSheetController",
 					  function($scope, $mdBottomSheet, $mdDialog, diagnostics) {
     $scope.showControlsLayout = function(ev){
 	$mdBottomSheet.hide(ev);
@@ -25,4 +25,4 @@ angular.module("app").controller("OptionsSheetController", ["$scope", "$mdBottom
 	    controller: "GamepadDialogController"
         });
     };
-}]);
+});

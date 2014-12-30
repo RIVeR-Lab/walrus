@@ -1,4 +1,4 @@
-angular.module("app").controller("SidepanelCtrl", ["$scope", function( $scope ) {
+angular.module("app").controller("SidepanelCtrl", function( $scope ) {
     $scope.tabs = {
 	selectedIndex : 0
     };
@@ -9,4 +9,4 @@ angular.module("app").controller("SidepanelCtrl", ["$scope", function( $scope ) 
 	    }, 100);
 	}
     });
-}]);
+});

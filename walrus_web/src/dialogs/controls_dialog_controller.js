@@ -1,4 +1,4 @@
-angular.module("app").controller("ControlsDialogController", ["$scope", "$mdDialog",
+angular.module("app").controller("ControlsDialogController",
 					    function ControlsDialogController($scope, $mdDialog) {
   $scope.hide = function() {
     $mdDialog.hide();
@@ -9,4 +9,4 @@ angular.module("app").controller("ControlsDialogController", ["$scope", "$mdDial
   $scope.answer = function(answer) {
     $mdDialog.hide(answer);
   };
-}]);
+});

@@ -1,4 +1,4 @@
-angular.module("app").controller("DiagnosticsCtrl", ["$scope", "$mdDialog", "$mdBottomSheet",
+angular.module("app").controller("DiagnosticsCtrl",
 				   function( $scope, $mdDialog, $mdBottomSheet ) {
     $scope.ros = {
 	connected: false
@@ -68,4 +68,4 @@ angular.module("app").controller("DiagnosticsCtrl", ["$scope", "$mdDialog", "$md
 	});
     };
 
-}]);
+});

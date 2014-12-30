@@ -6,7 +6,7 @@ rosModule
 	setPollRate: function(pollRate) {
 	    this.pollRate = pollRate;
 	},
-	$get: ["$rootScope", "$interval", function($rootScope, $interval) {
+	$get: function($rootScope, $interval) {
 	    var lastTimestamp = null;
 	    var lastData = null;
 	    $interval(function() {
@@ -31,5 +31,5 @@ rosModule
 		isConnected: function() { return lastTimestamp !== null; },
 		getLastData: function() { return lastData; }
 	    };
-	}]
+	}
     });
