@@ -32,8 +32,8 @@
 <body style="display:flex;flex-direction:row;" ng-controller="RootCtrl">
   <div style="flex:80;display:flex;flex-direction:column;">
     <div style="flex:none;position:relative;">
-      <video-viewer class="main-video" topic="'/walrus/boom/kinect/rgb/image_raw'" label="'Front Camera'"></video-viewer>
-      <div style="max-width:100%;width:100%;height:100%;position:absolute;left:0px;top:0px;" class="main-video-shadow" ></div>
+      <video-viewer class="main-video" stream="primary_video_stream" available-streams="available_video_streams"></video-viewer>
+      <div style="max-width:100%;width:100%;height:100%;position:absolute;left:0px;top:0px;pointer-events:none;" class="main-video-shadow" ></div>
     </div>
     <div style="flex:1;display:flex;flex-direction:row;position:relative;" ng-controller="DiagnosticsCtrl">
       <ng-include style="flex:1;display:flex;" src="'/diagnostics.tpl.svg'"></ng-include>
@@ -55,7 +55,7 @@
       <ng-include src="'/sidepanel/model_tab.tpl.html'" ng-show="tabs.selectedIndex==0"></ng-include>
       <ng-include src="'/sidepanel/autonomy_tab.tpl.html'" ng-show="tabs.selectedIndex==1"></ng-include>
     </div>
-    <video-viewer style="flex:none;" topic="'/walrus/back_camera/image_raw'" label="'Back Camera'"></video-viewer>
+    <video-viewer style="flex:none;" stream="secondary_video_stream" available-streams="available_video_streams"></video-viewer>
     <img src="img/joystick.svg" ng-show="settings.touch_joystick"/>
   </div>
 </body>

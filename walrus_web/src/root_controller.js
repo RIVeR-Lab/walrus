@@ -16,4 +16,12 @@ angular.module("app").controller("RootCtrl",
     $scope.settings = {
 	"touch_joystick" : true
     };
+    $scope.available_video_streams = [
+	{ label: "Front Camera", topic: "/walrus/front_camera/image_raw" },
+	{ label: "Back Camera", topic: "/walrus/back_camera/image_raw" },
+	{ label: "Boom Camera", topic: "/walrus/boom/kinect/rgb/image_raw" },
+	{ label: "Boom Depth Camera", topic: "/walrus/boom/kinect/depth/image_raw" }
+    ];
+    $scope.primary_video_stream = $scope.available_video_streams[0];
+    $scope.secondary_video_stream = $scope.available_video_streams[3];
 });

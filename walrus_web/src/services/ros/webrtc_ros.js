@@ -15,18 +15,26 @@ angular.module("ros").provider("webrtcRosService",  {
 .directive("webrtcRosVideo", function(webrtcRosService) {
 	function link(scope, element/*, attrs*/) {
 	    var connection = webrtcRosService.createConnection();
+	    var signaling_open = false;
+	    var last_topic = "";
 	    function configure() {
-		var config = {
-		    "subscribed_video_topic": scope.topic
-		};
-		connection.configure(config);
+		if(scope.topic !== last_topic) {
+		    console.log("Video topic change: " + last_topic + " -> " + scope.topic);
+		    var config = {
+			"subscribed_video_topic": scope.topic
+		    };
+		    connection.configure(config);
+		    last_topic = scope.topic;
+		}
 	    }
 	    connection.onSignalingOpen = function(){
 		console.log("Signaling open");
+		signaling_open = true;
 		configure();
 	    };
 	    connection.onSignalingError = function(error){
 		console.error("Error opening signaling channel", error);
+		signaling_open = false;
 	    };
 	    connection.onRemoteStreamAdded = function(event) {
 		console.log("Remote stream added:", URL.createObjectURL(event.stream));
@@ -36,6 +44,11 @@ angular.module("ros").provider("webrtcRosService",  {
 	    connection.onRemoteStreamRemoved = function(/*event*/) {
 		console.log("Remote stream removed");
 	    };
+	    scope.$watch("topic", function(newValue, oldValue) {
+		if(signaling_open) {
+		    configure();
+		}
+	    });
 	}
 
 	return {

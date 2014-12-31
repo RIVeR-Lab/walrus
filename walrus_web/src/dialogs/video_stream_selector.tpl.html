@@ -1,0 +1,17 @@
+<md-dialog style="display:flex;flex-direction:column;">
+  <md-content>
+      <h1>Select A Video Stream</h1>
+      <ul style="list-style-type:none">
+	<li ng-repeat="stream in available_streams">
+	  <md-button ng-click="answer(stream)" class="md-raised">{{stream.label}}</md-button>
+	</li>
+      </ul>
+  </md-content>
+
+  <div class="md-actions">
+    <md-button ng-click="cancel()">
+      Cancel
+    </md-button>
+  </div>
+</md-dialog>
+
