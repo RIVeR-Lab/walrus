@@ -31,6 +31,11 @@ window.WebrtcRos = (function() {
 	get: function() { return this.signalingChannel.onerror; },
 	set: function(callback) { this.signalingChannel.onerror = callback; }
     });
+    Object.defineProperty(WebrtcRosConnection.prototype, "onSignalingClose", {
+	enumerable: true,
+	get: function() { return this.signalingChannel.onclose; },
+	set: function(callback) { this.signalingChannel.onclose = callback; }
+    });
 
     Object.defineProperty(WebrtcRosConnection.prototype, "onRemoteStreamAdded", {
 	enumerable: true,

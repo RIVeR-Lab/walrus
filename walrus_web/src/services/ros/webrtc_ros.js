@@ -13,10 +13,18 @@ angular.module("ros").provider("webrtcRosService",  {
 	}]
 })
 .directive("webrtcRosVideo", function(webrtcRosService) {
+        var DISCONNECTED_STATE = "disconnected";
+        var CONNECTED_STATE = "connected";
+        var STREAMING_STATE = "streaming";
 	function link(scope, element/*, attrs*/) {
 	    var connection = webrtcRosService.createConnection();
 	    var signaling_open = false;
 	    var last_topic = "";
+
+	    function fireStateChanged(state) {
+		scope.onStateChange({state: state, console: console});
+	    }
+
 	    function configure() {
 		if(scope.topic !== last_topic) {
 		    console.log("Video topic change: " + last_topic + " -> " + scope.topic);
@@ -27,20 +35,29 @@ angular.module("ros").provider("webrtcRosService",  {
 		    last_topic = scope.topic;
 		}
 	    }
-	    connection.onSignalingOpen = function(){
-		console.log("Signaling open");
+	    connection.onSignalingOpen = function(event){
+		fireStateChanged(CONNECTED_STATE);
+		console.log("Signaling open", event);
 		signaling_open = true;
 		configure();
 	    };
 	    connection.onSignalingError = function(error){
-		console.error("Error opening signaling channel", error);
+		console.log("Signaling channel error", error);
+		fireStateChanged(DISCONNECTED_STATE);
+		signaling_open = false;
+	    };
+	    connection.onSignalingClose = function(event){
+		console.log("Signaling channel closed", event);
+		fireStateChanged(DISCONNECTED_STATE);
 		signaling_open = false;
 	    };
 	    connection.onRemoteStreamAdded = function(event) {
 		console.log("Remote stream added:", URL.createObjectURL(event.stream));
 		element[0].src = URL.createObjectURL(event.stream);
+		fireStateChanged(STREAMING_STATE);
 	    };
 	    connection.onRemoteStreamRemoved = function(/*event*/) {
+		fireStateChanged(CONNECTED_STATE);
 		console.log("Remote stream removed");
 	    };
 	    scope.$watch("topic", function(newValue, oldValue) {
@@ -48,11 +65,13 @@ angular.module("ros").provider("webrtcRosService",  {
 		    configure();
 		}
 	    });
+	    fireStateChanged(DISCONNECTED_STATE);
 	}
 
 	return {
 	    scope: {
-		topic: "=topic"
+		topic: "=topic",
+		onStateChange: "&onStateChange"
 	    },
 	    restrict: "A",
 	    link: link
