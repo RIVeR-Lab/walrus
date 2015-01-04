@@ -3,4 +3,6 @@ analyzers:
   computers:
     type: GenericAnalyzer
     path: Primary Computer
-    find_and_remove_prefix: 'primary_computer_monitor:'
+    startswith: 'walrus/primary_computer_monitor: '
+    remove_prefix: 'walrus primary_computer_monitor: '
+#    find_and_remove_prefix: 'primary_computer_monitor:'
