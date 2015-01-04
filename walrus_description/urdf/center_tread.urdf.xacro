@@ -106,7 +106,7 @@
 		<transmission name="${tf_prefix}${lr}_drive_trans">
 		  <type>transmission_interface/SimpleTransmission</type>
 		  <joint name="${tf_prefix}${lr}_drive_joint">
-		    <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+		    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
 		  </joint>
 		  <actuator name="${tf_prefix}${lr}_drive_actuator">
 		    <mechanicalReduction>1</mechanicalReduction>

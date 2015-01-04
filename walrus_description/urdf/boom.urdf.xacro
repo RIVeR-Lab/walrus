@@ -65,6 +65,15 @@
 			<axis xyz="0 1 0" rpy="0 0 0" />
 			<limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="2" velocity="0.5" />
 		</joint>
+		<transmission name="${tf_prefix}deploy_joint_trans">
+			<type>transmission_interface/SimpleTransmission</type>
+			<joint name="${tf_prefix}deploy_joint">
+				<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="${tf_prefix}deploy_joint_actuator">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
+		</transmission>
 
 		<!-- Boom Mast -->
 		<link name="${tf_prefix}mast">
@@ -97,6 +106,15 @@
 			<axis xyz="0 0 1" rpy="0 0 0" />
 			<limit lower="-2" upper="2" effort="2" velocity="0.5" />
 		</joint>
+		<transmission name="${tf_prefix}pan_joint_trans">
+			<type>transmission_interface/SimpleTransmission</type>
+			<joint name="${tf_prefix}pan_joint">
+				<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="${tf_prefix}pan_joint_actuator">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
+		</transmission>
 
 		<!-- Tilt Base -->
 		<!-- Link actuated by the tilt motor -->
@@ -129,6 +147,15 @@
 			<axis xyz="0 1 0" rpy="0 0 0" />
 			<limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="2" velocity="0.5" />
 		</joint>
+		<transmission name="${tf_prefix}tilt_joint_trans">
+			<type>transmission_interface/SimpleTransmission</type>
+			<joint name="${tf_prefix}tilt_joint">
+				<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="${tf_prefix}tilt_joint_actuator">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
+		</transmission>
 
 		<!-- Kinect -->
 		<kinectv2 parent="${tf_prefix}tilt_base" tf_prefix="${tf_prefix}kinect" camera_ns="${robot_ns}/kinect" name="boom_kinect">
