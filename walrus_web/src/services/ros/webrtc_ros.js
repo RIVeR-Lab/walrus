@@ -39,7 +39,6 @@ angular.module("ros").provider("webrtcRosService",  {
 	    connection.onRemoteStreamAdded = function(event) {
 		console.log("Remote stream added:", URL.createObjectURL(event.stream));
 		element[0].src = URL.createObjectURL(event.stream);
-		element[0].play();
 	    };
 	    connection.onRemoteStreamRemoved = function(/*event*/) {
 		console.log("Remote stream removed");
