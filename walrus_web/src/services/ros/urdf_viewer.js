@@ -11,7 +11,7 @@ angular.module("ros").directive("urdfViewer", function(roslib) {
 		antialias : true
 	    });
 	    viewer.addObject(new ROS3D.Grid());
-	    roslib.createUrdfClient(viewer.scene, scope.fixedFrame);
+	    roslib.createUrdfClient(viewer.scene, scope.fixedFrame, scope.param);
 
 	    function updateViewer() {
 		// only resize if the viewer is actually visible
@@ -32,7 +32,8 @@ angular.module("ros").directive("urdfViewer", function(roslib) {
 	return {
 	    scope: {
 		"aspectRatio": "=aspectRatio",
-		"fixedFrame": "=fixedFrame"
+		"fixedFrame": "=fixedFrame",
+		"param": "=param"
 	    },
 	    restrict: "E",
 	    link: link

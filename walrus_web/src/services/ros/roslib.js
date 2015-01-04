@@ -41,12 +41,13 @@ angular.module("ros", [])
 			fixedFrame: fixedFrame
 		    });
 		},
-		createUrdfClient: function(scene, fixedFrame) {
+		createUrdfClient: function(scene, fixedFrame, param) {
 		    return new ROS3D.UrdfClient({
 			ros : this.ros,
 			tfClient : this.createTfClient(fixedFrame),
 			path : this.packageUrl,
-			rootObject : scene
+			rootObject : scene,
+			param: param
 		    });
 		},
 		advertise: function(name, messageType) {
