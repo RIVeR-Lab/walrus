@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="walrus_pod">
+	<xacro:macro name="walrus_pod" params="fb lr parent translateX translateY flipY tf_prefix"> <!--fb : front, back ; lr: left, right -->
+		<link name="${tf_prefix}${fb}_${lr}_pod">
+			<inertial>
+				<mass value="${pod_mass}" />
+				<origin xyz="${pod_x_com} ${pod_y_com} ${pod_z_com}" />
+				<inertia  ixx="${pod_ixx_com_cs}" ixy="${pod_ixy_com_cs}" ixz="${pod_ixz_com_cs}"
+					iyy="${pod_iyy_com_cs}" iyz="${pod_iyz_com_cs}" izz="${pod_izz_com_cs}" />
+			</inertial>
+			<visual>
+				<origin xyz="${pod_inner_length/2} 0 0" rpy="${flipY*M_PI} 0 0" />
+				<geometry>
+			                <box size = "${pod_inner_length} ${tread_width} ${tread_radius*2}"/>
+				</geometry>
+				<material name="blue">
+					<color rgba="0 0 0.8 1"/>
+				</material>
+			</visual>
+			<collision>
+				<origin xyz="${pod_inner_length/2} 0 0" rpy="${flipY*M_PI} 0 0" />
+				<geometry>
+			                <box size = "${pod_inner_length} ${tread_width} ${(tread_radius-tread_body_inset)*2}"/>
+				</geometry>
+			</collision>
+		</link>
+		<gazebo reference="${tf_prefix}${fb}_${lr}_pod">
+			<material>Gazebo/FlatBlack</material>
+			<turnGravityOff>false</turnGravityOff>
+		</gazebo>
+
+		<joint name="${tf_prefix}${fb}_${lr}_pod_joint" type="continuous">
+			<parent link="${parent}"/>
+			<child link="${tf_prefix}${fb}_${lr}_pod"/>
+			<origin xyz="${translateX * center_tread_inner_length/2} ${translateY * (base_y_size/2+tread_width/2+tread_width)} ${-base_z_to_pod_origin}" rpy="0 ${M_PI/2-M_PI/2*translateX} 0" />
+			<axis xyz="0 1 0" rpy="0 0 0" />
+			<joint_properties damping="0.0" friction="0.0"/>
+		</joint>
+		<transmission name="${tf_prefix}${fb}_${lr}_pod_joint_trans">
+			<type>transmission_interface/SimpleTransmission</type>
+			<joint name="${tf_prefix}${fb}_${lr}_pod_joint">
+				<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="${tf_prefix}${fb}_${lr}_pod_joint_actuator">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
+		</transmission>
+
+		<link name="${tf_prefix}${fb}_${lr}_pod_drive_cylinder">
+			<inertial>
+				<mass value="${tread_cylinder_mass}" />
+				<origin xyz="${tread_cylinder_x_com} ${tread_cylinder_y_com} ${tread_cylinder_z_com}" />
+				<inertia ixx="${tread_cylinder_ixx_com_cs}" ixy="${tread_cylinder_ixy_com_cs}" ixz="${tread_cylinder_ixz_com_cs}"
+					 iyy="${tread_cylinder_iyy_com_cs}" iyz="${tread_cylinder_iyz_com_cs}" izz="${tread_cylinder_izz_com_cs}" />
+			</inertial>
+			<visual>
+				<geometry>
+					<cylinder length="${tread_width}" radius="${tread_radius}" />
+				</geometry>
+				<material name="red">
+					<color rgba="0.8 0 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<cylinder length="${tread_width}" radius="${tread_radius}" />
+				</geometry>
+				<friction>
+					<ode>
+						<mu>${tread_cylinder_mu1}</mu>
+						<mu2>${tread_cylinder_mu2}</mu2>
+						<slip1>${tread_cylinder_slip1}</slip1>
+						<slip2>${tread_cylinder_slip2}</slip2>
+					</ode>
+				</friction>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}${fb}_${lr}_pod_drive_joint" type="continuous">
+			<parent link="${tf_prefix}${fb}_${lr}_pod"/>
+			<child link="${tf_prefix}${fb}_${lr}_pod_drive_cylinder"/>
+			<origin xyz="0 0 0" rpy="${M_PI/2} 0 0" />
+			<axis xyz="0 0 1" rpy="0 0 0" />
+			<mimic joint="${tf_prefix}${lr}_drive_joint" multiplier="1.0" offset="0.0" />
+		</joint>
+
+		<link name="${tf_prefix}${fb}_${lr}_pod_drive_idler_cylinder">
+			<inertial>
+				<mass value="${tread_cylinder_mass}" />
+				<origin xyz="${tread_cylinder_x_com} ${tread_cylinder_y_com} ${tread_cylinder_z_com}" />
+				<inertia ixx="${tread_cylinder_ixx_com_cs}" ixy="${tread_cylinder_ixy_com_cs}" ixz="${tread_cylinder_ixz_com_cs}"
+					 iyy="${tread_cylinder_iyy_com_cs}" iyz="${tread_cylinder_iyz_com_cs}" izz="${tread_cylinder_izz_com_cs}" /> 
+			</inertial>
+			<visual>
+				<geometry>
+					<cylinder length="${tread_width}" radius="${tread_radius}" />
+				</geometry>
+				<material name="red">
+					<color rgba="0.8 0 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<cylinder length="${tread_width}" radius="${tread_radius}" />
+				</geometry>
+				<friction>
+					<ode>
+						<mu>${tread_cylinder_mu1}</mu>
+						<mu2>${tread_cylinder_mu2}</mu2>
+						<slip1>${tread_cylinder_slip1}</slip1>
+						<slip2>${tread_cylinder_slip2}</slip2>
+					</ode>
+				</friction>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}${fb}_${lr}_pod_drive_idler_joint" type="continuous">
+			<parent link="${tf_prefix}${fb}_${lr}_pod"/>
+			<child link="${tf_prefix}${fb}_${lr}_pod_drive_idler_cylinder"/>
+			<origin xyz="${pod_inner_length} 0 0" rpy="${M_PI/2} 0 0" />
+			<axis xyz="0 0 1" rpy="0 0 0" />
+			<mimic joint="${tf_prefix}${lr}_drive_joint" multiplier="1.0" offset="0.0" />
+		</joint>
+  	</xacro:macro>
+</robot>

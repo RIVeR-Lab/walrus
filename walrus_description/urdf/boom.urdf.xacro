@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="walrus_boom">
+        <xacro:include filename="$(find walrus_description)/urdf/kinectv2.urdf.xacro" />
+
+	<xacro:macro name="walrus_boom" params="parent tf_prefix robot_ns">
+		<!-- Boom base -->
+		<!-- Fixed base attached to the robot -->
+		<link name="${tf_prefix}base">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+			                <box size = "0.08 0.04 0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "0.08 0.04 0.02"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${tf_prefix}base_joint" type="fixed">
+			<parent link="${parent}"/>
+			<child link="${tf_prefix}base"/>
+			<origin xyz="-0.04 0 0.03" rpy="0 0 0" />
+		</joint>
+
+		<!-- Deploy base -->
+		<!-- Link that the deploy joint actuates (contains the pan actuator) -->
+		<link name="${tf_prefix}deploy_base">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+			                <box size = "0.04 0.04 0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "0.04 0.04 0.02"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}deploy_joint" type="revolute">
+			<parent link="${tf_prefix}base"/>
+			<child link="${tf_prefix}deploy_base"/>
+			<origin xyz="-0.02 0 0.035" rpy="0 0 0" />
+			<axis xyz="0 1 0" rpy="0 0 0" />
+			<limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="2" velocity="0.5" />
+		</joint>
+
+		<!-- Boom Mast -->
+		<link name="${tf_prefix}mast">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0.25" rpy="0 0 0" />
+				<geometry>
+			                <cylinder length="0.5" radius="0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0.25" rpy="0 0 0" />
+				<geometry>
+			                <cylinder length="0.5" radius="0.02"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}pan_joint" type="revolute">
+			<parent link="${tf_prefix}deploy_base"/>
+			<child link="${tf_prefix}mast"/>
+			<origin xyz="0 0 0.012" rpy="0 0 0" />
+			<axis xyz="0 0 1" rpy="0 0 0" />
+			<limit lower="-2" upper="2" effort="2" velocity="0.5" />
+		</joint>
+
+		<!-- Tilt Base -->
+		<!-- Link actuated by the tilt motor -->
+		<link name="${tf_prefix}tilt_base">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+			                <box size = "0.04 0.1 0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "0.04 0.1 0.02"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}tilt_joint" type="revolute">
+			<parent link="${tf_prefix}mast"/>
+			<child link="${tf_prefix}tilt_base"/>
+			<origin xyz="0 0 0.54" rpy="0 0 0" />
+			<axis xyz="0 1 0" rpy="0 0 0" />
+			<limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="2" velocity="0.5" />
+		</joint>
+
+		<!-- Kinect -->
+		<kinectv2 parent="${tf_prefix}tilt_base" tf_prefix="${tf_prefix}kinect" camera_ns="${robot_ns}/kinect" name="boom_kinect">
+			<origin xyz="0 0 0.03" rpy="0 0 0" />
+		</kinectv2>
+
+  	</xacro:macro>
+</robot>

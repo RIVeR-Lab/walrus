@@ -1,0 +1,94 @@
+<?xml version="1.0" ?>
+<sdf version='1.4'>
+  <world name='default'>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://asphalt_plane</uri>
+      <pose>0 0 0  0 0 0</pose>
+    </include>
+
+
+    <include>
+      <uri>model://coke_can</uri>
+      <pose>1 1 0.15  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://construction_barrel</uri>
+      <pose>-1 1 0.15  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://cinder_block</uri>
+      <pose>-1 -1 0.1016  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://cinder_block_2</uri>
+      <pose>1 -1 0.0714375  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://cinder_block_wide</uri>
+      <pose>2 0 0.0714375  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://cordless_drill</uri>
+      <pose>2 2 0.13254  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://drc_practice_angled_barrier_135</uri>
+      <pose>-5 -8 0  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://drc_practice_angled_barrier_45</uri>
+      <pose>-5 8 0  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://drc_practice_truss</uri>
+      <pose>-2 -2 0  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://dumpster</uri>
+      <pose>6 0 0  0 0 -1.57075</pose>
+    </include>
+
+    <include>
+      <uri>model://construction_cone</uri>
+      <pose>-2 2 0  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://mailbox</uri>
+      <pose>-2 1 0  0 0 0</pose>
+    </include>
+
+    <include>
+      <uri>model://speed_limit_sign</uri>
+      <pose>-3 0 0  0 0 -1.57075</pose>
+    </include>
+
+    <include>
+      <uri>model://jersey_barrier</uri>
+      <pose>-6 0 0  0 0 1.57075</pose>
+    </include>
+
+    <include>
+      <uri>model://jersey_barrier</uri>
+      <pose>-6 5 0  0 0 1.57075</pose>
+    </include>
+
+    <include>
+      <uri>model://jersey_barrier</uri>
+      <pose>-6 -5 0  0 0 1.57075</pose>
+    </include>
+
+  </world>
+</sdf>

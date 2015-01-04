@@ -1,0 +1,24 @@
+<!-- Bringup file for launching the robot simulator -->
+<launch>
+  <!-- Gazebo parameters -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="verbose" default="false"/>
+  <arg name="world_name" default="empty"/>
+
+  <!-- Launch gazebo -->
+  <include file="$(find walrus_gazebo)/launch/gazebo.launch">
+    <arg name="debug" value="$(arg debug)" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
+    <arg name="world_name" value="$(arg world_name)"/>
+  </include>
+
+  <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
+</launch>

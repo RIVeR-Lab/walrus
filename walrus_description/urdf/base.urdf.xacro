@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="walrus">
+
+    <!-- PROPERTY LIST -->
+    <!--All units in m-kg-s-radians unit system -->
+    <property name="M_PI" value="3.1415926535897931" />
+    
+    <property name="base_mass" value="30" />
+    <!--This is the pose of the inertial reference frame, relative to the link reference frame. The origin of the inertial reference frame needs to be at the center of gravity. The axes of the inertial reference frame do not need to be aligned with the principal axes of the inertia.-->
+    <property name="base_x_com" value="0"/>
+    <property name="base_y_com" value="0"/>
+    <property name="base_z_com" value="0"/>
+    <!--The 3x3 rotational inertia matrix. Because the rotational inertia matrix is symmetric, only 6 above-diagonal elements of this matrix are specified here, using the attributes ixx, ixy, ixz, iyy, iyz, izz.-->
+    <property name="base_ixx_com_cs" value="1"/>
+    <property name="base_ixy_com_cs" value="0"/>
+    <property name="base_ixz_com_cs" value="0"/>
+    <property name="base_iyy_com_cs" value="1"/>
+    <property name="base_iyz_com_cs" value="0"/>
+    <property name="base_izz_com_cs" value="1"/>
+
+    <property name="base_x_size" value="0.1375"/>
+    <property name="base_y_size" value="0.13"/>
+    <property name="base_z_size" value="0.031"/>
+
+    <property name="tread_radius" value="0.044"/>
+    <property name="tread_width" value="0.0381"/>
+    <property name="pod_inner_length" value="0.1041"/>
+    <property name="center_tread_inner_length" value="0.2794"/>
+    <property name="base_z_to_pod_origin" value="0.006" />
+    <property name="tread_body_inset" value="0.03" />
+    <property name="tread_cylinder_mu1" value="1.0" />
+    <property name="tread_cylinder_mu2" value="1.0" />
+    <property name="tread_cylinder_slip1" value="0.0" />
+    <property name="tread_cylinder_slip2" value="0.0" />
+
+    <property name="pod_mass" value="1" />
+    <property name="pod_x_com" value="0"/>
+    <property name="pod_y_com" value="0"/>
+    <property name="pod_z_com" value="0"/>
+    <property name="pod_ixx_com_cs" value="0.001"/>
+    <property name="pod_ixy_com_cs" value="0"/>
+    <property name="pod_ixz_com_cs" value="0"/>
+    <property name="pod_iyy_com_cs" value="0.001"/>
+    <property name="pod_iyz_com_cs" value="0"/>
+    <property name="pod_izz_com_cs" value="0.001"/>
+
+    <property name="center_tread_mass" value="1" />
+    <property name="center_tread_x_com" value="0"/>
+    <property name="center_tread_y_com" value="0"/>
+    <property name="center_tread_z_com" value="0"/>
+    <property name="center_tread_ixx_com_cs" value="1"/>
+    <property name="center_tread_ixy_com_cs" value="0"/>
+    <property name="center_tread_ixz_com_cs" value="0"/>
+    <property name="center_tread_iyy_com_cs" value="1"/>
+    <property name="center_tread_iyz_com_cs" value="0"/>
+    <property name="center_tread_izz_com_cs" value="1"/>
+
+    <property name="tread_cylinder_mass" value="1"/>
+    <property name="tread_cylinder_x_com" value="0"/>
+    <property name="tread_cylinder_y_com" value="0"/>
+    <property name="tread_cylinder_z_com" value="0"/>
+    <property name="tread_cylinder_ixx_com_cs" value="0.01"/>
+    <property name="tread_cylinder_ixy_com_cs" value="0"/>
+    <property name="tread_cylinder_ixz_com_cs" value="0"/>
+    <property name="tread_cylinder_iyy_com_cs" value="0.01"/>
+    <property name="tread_cylinder_iyz_com_cs" value="0"/>
+    <property name="tread_cylinder_izz_com_cs" value="0.01"/>
+
+    <xacro:include filename="$(find walrus_description)/urdf/simple_transform.urdf.xacro" />
+    <xacro:include filename="$(find walrus_description)/urdf/pod.urdf.xacro" />
+    <xacro:include filename="$(find walrus_description)/urdf/center_tread.urdf.xacro" />
+    <xacro:include filename="$(find walrus_description)/urdf/boom.urdf.xacro" />
+    <xacro:include filename="$(find walrus_description)/urdf/simple_camera.urdf.xacro" />
+
+    <xacro:macro name="walrus" params="tf_prefix robot_ns">
+      <!-- BASE-FOOTPRINT -->
+      <link name="${tf_prefix}base_footprint">
+	<visual>
+	  <origin xyz="0 0 0" rpy="0 0 0" />
+	  <geometry>
+	    <box size="0.001 0.001 0.001" />
+	  </geometry>
+	</visual>
+      </link>
+
+      <gazebo reference="${tf_prefix}base_footprint">
+	<turnGravityOff>false</turnGravityOff>
+      </gazebo>
+
+      <joint name="${tf_prefix}base_link_joint" type="fixed">
+	<origin xyz="0 0 ${tread_radius + base_z_to_pod_origin}" rpy="0 0 0" />
+	<parent link="${tf_prefix}base_footprint"/>
+	<child link="${tf_prefix}base_link" />
+      </joint>
+
+      <!-- BASE-LINK -->
+      <!--Actual body/chassis of the robot-->
+      <link name="${tf_prefix}base_link">
+	<inertial>
+	  <mass value="${base_mass}" />
+	  <origin xyz="${base_x_com} ${base_y_com} ${base_z_com}" />
+	  <inertia ixx="${base_ixx_com_cs}" ixy="${base_ixy_com_cs}" ixz="${base_ixz_com_cs}"
+		   iyy="${base_iyy_com_cs}" iyz="${base_iyz_com_cs}" izz="${base_izz_com_cs}" />
+	</inertial>
+
+	<visual>
+	  <origin xyz="0 0 0" rpy="0 0 0" />
+	  <geometry>
+	    <box size = "${base_x_size} ${base_y_size} ${base_z_size}"/>
+	  </geometry>
+	  <material name="Black" />
+	</visual>
+
+	<collision>
+	  <origin xyz="0 0 0" rpy="0 0 0" />
+	  <geometry>
+	    <box size = "${base_x_size} ${base_y_size} ${base_z_size}"/>
+	  </geometry>
+	</collision>
+      </link>
+      <gazebo reference="${tf_prefix}base_link">
+	<material>Gazebo/Green</material>
+	<turnGravityOff>false</turnGravityOff>
+      </gazebo>
+
+
+      <joint name="${tf_prefix}imu_joint" type="fixed">
+	<origin xyz="0 0 0" rpy="0 0 0" />
+	<parent link="${tf_prefix}base_link"/>
+	<child link="${tf_prefix}imu" />
+      </joint>
+      <link name="${tf_prefix}imu"/>
+      <gazebo>
+	  <plugin name="imu_controller" filename="libgazebo_ros_imu.so">
+	    <topicName>${robot_ns}/imu/data</topicName>
+	    <serviceName>${robot_ns}/data/calibrate</serviceName>
+	    <bodyName>${tf_prefix}imu</bodyName>
+	    <updateRate>50</updateRate>
+	  </plugin>
+      </gazebo>
+
+      <!-- Center Treads -->
+      <walrus_center_tread lr="left" parent="${tf_prefix}base_link" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
+      <walrus_center_tread lr="right" parent="${tf_prefix}base_link" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
+
+      <!-- Pods -->
+      <walrus_pod fb="back" lr="left" parent="${tf_prefix}base_link" translateX="-1" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
+      <walrus_pod fb="back" lr="right" parent="${tf_prefix}base_link" translateX="-1" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
+      <walrus_pod fb="front" lr="left" parent="${tf_prefix}base_link" translateX="1" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
+      <walrus_pod fb="front" lr="right" parent="${tf_prefix}base_link" translateX="1" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
+
+      <!-- Cameras -->
+      <simple_camera parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}front_camera" camera_ns="${robot_ns}/front_camera" name="front_camera">
+	<origin xyz="0.08 0 0" rpy="0 0 0" />
+      </simple_camera>
+
+      <simple_camera parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}back_camera" camera_ns="${robot_ns}/back_camera" name="back_camera">
+	<origin xyz="-0.08 0 0" rpy="0 0 ${M_PI}" />
+      </simple_camera>
+
+      <!-- Boom -->
+      <walrus_boom parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}boom/" robot_ns="${robot_ns}/boom"/>
+
+    </xacro:macro>
+
+</robot>

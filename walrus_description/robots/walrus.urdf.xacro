@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot name="$(arg robot_name)" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Included URDF/XACRO Files -->
+  <xacro:include filename="$(find walrus_description)/urdf/base.urdf.xacro" />
+
+  <property name="tf_prefix" value="$(arg tf_prefix)" />
+  <property name="robot_ns" value="$(arg robot_ns)" />
+
+  <xacro:walrus tf_prefix="${tf_prefix}" robot_ns="${robot_ns}"/>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>${robot_ns}</robotNamespace>
+      <robotSimType>walrus_gazebo/WalrusHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+
+</robot>

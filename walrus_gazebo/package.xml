@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package>
+  <name>walrus_gazebo</name>
+  <version>0.0.0</version>
+  <description>Resources to simulate the WALRUS Rover in Gazebo</description>
+
+  <maintainer email="mwills@wpi.edu">Mitchell Wills</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://robot.wpi.edu/walrus</url>
+  <url type="repository">https://github.com/RIVeR-Lab/walrus</url>
+
+  <author email="mwills@wpi.edu">Mitchell Wills</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>gazebo_ros</build_depend>
+  <build_depend>gazebo_ros_control</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>transmission_interface</build_depend>
+  <build_depend>urdf</build_depend>
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>gazebo_ros_control</run_depend>
+  <run_depend>pluginlib</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>transmission_interface</run_depend>
+  <run_depend>urdf</run_depend>
+
+  <export>
+    <gazebo_ros_control plugin="${prefix}/walrus_hw_sim_plugins.xml"/>
+  </export>
+</package>
