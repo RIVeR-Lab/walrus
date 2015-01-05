@@ -3,6 +3,11 @@ project(walrus_web)
 
 find_package(catkin REQUIRED)
 
+execute_process(
+  COMMAND ./download_src_deps.sh
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/
+)
+
 catkin_package()
 
 #############
