@@ -1,0 +1,30 @@
+<md-dialog>
+  <md-content>
+    CPU: <md-slider min="0" max="1" step="0.01" ng-model="diagnostics.cpu"></md-slider>
+    Memory: <md-slider min="0" max="1" step="0.01" ng-model="diagnostics.memory"></md-slider>
+
+    <md-checkbox style="display:inline;" ng-model="diagnostics.batteries_connected[0]">Battery 1</md-checkbox>
+    <md-slider min="0" max="1" step="0.01" ng-model="diagnostics.batteries[0]"></md-slider>
+    <md-checkbox style="display:inline;" ng-model="diagnostics.batteries_connected[1]">Battery 2</md-checkbox>
+    <md-slider min="0" max="1" step="0.01" ng-model="diagnostics.batteries[1]"></md-slider>
+    <md-checkbox style="display:inline;" ng-model="diagnostics.batteries_connected[2]">Battery 3</md-checkbox>
+    <md-slider min="0" max="1" step="0.01" ng-model="diagnostics.batteries[2]"></md-slider>
+    <md-checkbox style="display:inline;" ng-model="diagnostics.batteries_connected[3]">Battery 4</md-checkbox>
+    <md-slider min="0" max="1" step="0.01" ng-model="diagnostics.batteries[3]"></md-slider>
+
+    Pod 1: <md-slider min="0" max="1" step="0.01" ng-model="diagnostics.pods[0]"></md-slider>
+    Pod 2: <md-slider min="0" max="1" step="0.01" ng-model="diagnostics.pods[1]"></md-slider>
+    Pod 3: <md-slider min="0" max="1" step="0.01" ng-model="diagnostics.pods[2]"></md-slider>
+    Pod 4: <md-slider min="0" max="1" step="0.01" ng-model="diagnostics.pods[3]"></md-slider>
+
+    Drive 1: <md-slider min="-1" max="1" step="0.01" ng-model="diagnostics.drive[0]"></md-slider>
+    Drive 2: <md-slider min="-1" max="1" step="0.01" ng-model="diagnostics.drive[1]"></md-slider>
+  </md-content>
+
+  <div class="md-actions">
+    <md-button ng-click="hide()">
+      Done
+    </md-button>
+  </div>
+</md-dialog>
+

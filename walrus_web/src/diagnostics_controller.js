@@ -1,5 +1,5 @@
 angular.module("app").controller("DiagnosticsCtrl",
-				   function( $scope, $mdDialog, $mdBottomSheet ) {
+				 function( $scope, $mdDialog, $mdBottomSheet ) {
     $scope.ros = {
 	connected: false
     };

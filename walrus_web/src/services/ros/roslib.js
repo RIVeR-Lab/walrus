@@ -57,8 +57,24 @@ angular.module("ros", [])
 			messageType : messageType
 		    });
 		    return {
+			shutdown: function(){
+			    topic.unadvertise();
+			},
 			publish: function(msg){
 			    topic.publish(new ROSLIB.Message(msg));
+			}
+		    };
+		},
+		subscribe: function(name, messageType, callback) {
+		    var topic = new ROSLIB.Topic({
+			ros : ros,
+			name : name,
+			messageType : messageType
+		    });
+		    topic.subscribe(callback);
+		    return {
+			shutdown: function(){
+			    topic.unsubscribe();
 			}
 		    };
 		}
