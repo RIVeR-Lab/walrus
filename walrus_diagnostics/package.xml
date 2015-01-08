@@ -15,7 +15,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>diagnostic_aggregator</run_depend>
-  <run_depend>diagnostic_common_diagnostics</run_depend>
+  <run_depend>libsensors_monitor</run_depend>
 
   <export>
   </export>

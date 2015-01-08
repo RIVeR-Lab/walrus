@@ -6,5 +6,5 @@
   </node>
 
   <!-- Monitors internal computer sensors (fan, temperature, etc) -->
-  <node pkg="diagnostic_common_diagnostics" type="libsensors_monitor" name="primary_computer_monitor" />
+  <node pkg="libsensors_monitor" type="libsensors_monitor" name="primary_computer_monitor" />
 </launch>
