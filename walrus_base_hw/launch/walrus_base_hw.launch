@@ -1,4 +1,6 @@
 <!-- Launch file for starting the base robot hardware -->
 <launch>
-  <node name="walrus_base_hw" pkg="walrus_base_hw" type="walrus_base_hw_node" respawn="true" />
+  <node name="walrus_base_hw" pkg="walrus_base_hw" type="walrus_base_hw_node" respawn="true">
+    <rosparam command="load" file="$(find walrus_base_hw)/config/epos_motors.yaml" />
+  </node>
 </launch>

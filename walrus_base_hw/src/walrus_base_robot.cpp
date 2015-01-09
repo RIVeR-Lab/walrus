@@ -19,6 +19,14 @@ void WalrusBaseRobot::createFakeActuator(const std::string& name) {
 
 WalrusBaseRobot::WalrusBaseRobot(ros::NodeHandle nh, ros::NodeHandle pnh)
   : nh_(nh), pnh_(pnh), epos_manager_(as_interface_, av_interface_, ap_interface_) {
+
+  XmlRpc::XmlRpcValue epos_motors_xml;
+  if(pnh_.getParam("epos_motors", epos_motors_xml)) {
+    epos_manager_.load(epos_motors_xml);
+  }
+  else {
+    ROS_FATAL("No EPOS motor definitions found");
+  }
 }
 
 bool WalrusBaseRobot::init() {
@@ -44,9 +52,6 @@ bool WalrusBaseRobot::init() {
   }
 
   // Create fake actuators so that transmission loading doesn't fail
-  createFakeActuator("walrus/left_drive_actuator");
-  createFakeActuator("walrus/right_drive_actuator");
-
   createFakeActuator("walrus/back_left_pod_joint_actuator");
   createFakeActuator("walrus/front_left_pod_joint_actuator");
   createFakeActuator("walrus/back_right_pod_joint_actuator");
