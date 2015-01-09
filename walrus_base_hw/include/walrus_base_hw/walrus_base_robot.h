@@ -27,6 +27,7 @@ class WalrusBaseRobot : public RobotHW
 
   void write();
   void read();
+  void update_diagnostics();
 
  private:
   ros::NodeHandle nh_;

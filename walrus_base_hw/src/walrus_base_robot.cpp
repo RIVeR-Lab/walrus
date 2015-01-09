@@ -18,7 +18,8 @@ void WalrusBaseRobot::createFakeActuator(const std::string& name) {
 
 
 WalrusBaseRobot::WalrusBaseRobot(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : nh_(nh), pnh_(pnh), epos_manager_(as_interface_, av_interface_, ap_interface_) {
+  : nh_(nh), pnh_(pnh),
+    epos_manager_(as_interface_, av_interface_, ap_interface_, nh, pnh) {
 
   XmlRpc::XmlRpcValue epos_motors_xml;
   if(pnh_.getParam("epos_motors", epos_motors_xml)) {
@@ -112,6 +113,9 @@ void WalrusBaseRobot::read(){
   robot_transmissions_.get<ActuatorToJointStateInterface>()->propagate();
 }
 
+void WalrusBaseRobot::update_diagnostics(){
+  epos_manager_.update_diagnostics();
+}
 
 
 }
