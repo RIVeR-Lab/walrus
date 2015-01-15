@@ -90,7 +90,7 @@ ubnt\r
 
     for msg in status_msgs:
         msg.hardware_id = "Bullet: " + ip_address
-        msg.name = device_name+'/'+msg.name
+        msg.name = device_name+': '+msg.name
     diagnostic_array = DiagnosticArray()
     diagnostic_array.status = status_msgs
     diagnostic_array.header.stamp = rospy.Time.now()
@@ -101,7 +101,7 @@ if __name__=='__main__':
     rospy.init_node("bullet_monitor")
 
     ip_address = rospy.get_param('~ip_address', '192.168.1.20')
-    device_name = rospy.get_param('~device_name', 'Bullet')
+    device_name = rospy.get_param('~device_name', rospy.get_name()[1:])
 
     timer = rospy.Timer(rospy.Duration(2.0), update_callback)
     diagnostic_pub = rospy.Publisher("/diagnostics", DiagnosticArray, queue_size = 1)
