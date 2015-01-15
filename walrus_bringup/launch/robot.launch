@@ -4,5 +4,8 @@
     <include file="$(find walrus_diagnostics)/launch/diagnostics.launch" />
     <include file="$(find walrus_base_hw)/launch/walrus_base_hw.launch" />
     <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
+    <node name="orientus_node" pkg="orientus_driver" type="orientus_node" respawn="true">
+      <param name="port" value="/dev/ttyUSB0"/>
+    </node>
   </group>
 </launch>
