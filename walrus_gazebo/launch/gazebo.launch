@@ -1,5 +1,6 @@
 <!-- Launch file for starting the robot simulator -->
 <launch>
+  <arg name="robot_ns"/>
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="true"/>
@@ -21,6 +22,8 @@
   </include>
 
   <!-- Spawn the robot model -->
-  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-	args="-urdf -model walrus -param robot_description"/>
+  <group ns="$(arg robot_ns)">
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+	  args="-urdf -model walrus -param robot_description"/>
+  </group>
 </launch>

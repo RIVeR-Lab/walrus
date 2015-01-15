@@ -11,6 +11,7 @@
 
   <!-- Launch gazebo -->
   <include file="$(find walrus_gazebo)/launch/gazebo.launch">
+    <arg name="robot_ns" value="walrus" />
     <arg name="debug" value="$(arg debug)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="paused" value="$(arg paused)"/>
@@ -20,5 +21,7 @@
     <arg name="world_name" value="$(arg world_name)"/>
   </include>
 
-  <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
+  <group ns="walrus">
+    <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
+  </group>
 </launch>

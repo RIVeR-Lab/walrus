@@ -1,0 +1,10 @@
+<!-- Bringup file for robot diagnostics nodes -->
+<launch>
+  <!-- Aggregates diagnostics from multiple nodes -->
+  <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator" >
+    <rosparam command="load" file="$(find walrus_diagnostics)/config/analyzers.yaml" />
+  </node>
+
+  <!-- Monitors internal computer sensors (fan, temperature, etc) -->
+  <node pkg="libsensors_monitor" type="libsensors_monitor" name="primary_computer_monitor" />
+</launch>

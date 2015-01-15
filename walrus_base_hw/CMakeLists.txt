@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   hardware_interface
   roscpp
   transmission_interface
+  epos_hardware
 )
 
 catkin_package()
@@ -40,12 +41,6 @@ install(TARGETS walrus_base_robot walrus_base_hw_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
-  PATTERN ".svn" EXCLUDE
 )
 
 install(DIRECTORY launch
