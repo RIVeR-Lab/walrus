@@ -103,6 +103,8 @@ if __name__=='__main__':
     ip_address = rospy.get_param('~ip_address', '192.168.1.20')
     device_name = rospy.get_param('~device_name', rospy.get_name()[1:])
 
-    timer = rospy.Timer(rospy.Duration(2.0), update_callback)
+    period = rospy.get_param("~diagnostic_period", 5.0)
+
+    timer = rospy.Timer(rospy.Duration(period), update_callback)
     diagnostic_pub = rospy.Publisher("/diagnostics", DiagnosticArray, queue_size = 1)
     rospy.spin()
