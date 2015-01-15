@@ -10,6 +10,13 @@
     <!-- Monitors internal computer sensors (fan, temperature, etc) -->
     <node pkg="libsensors_monitor" type="libsensors_monitor" name="primary_computer_monitor" />
 
+    <node name="robot_bullet_monitor" pkg="ubiquiti_bullet" type="bullet_monitor.py" respawn="true">
+      <param name="ip_address" value="192.168.1.20"/>
+    </node>
+    <node name="remote_bullet_monitor" pkg="ubiquiti_bullet" type="bullet_monitor.py" respawn="true">
+      <param name="ip_address" value="192.168.1.21"/>
+    </node>
+
     <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
   </group>
 </launch>
