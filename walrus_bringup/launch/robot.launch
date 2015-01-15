@@ -1,11 +1,15 @@
 <!-- Bringup file for the robot -->
 <launch>
   <group ns="walrus">
-    <include file="$(find walrus_diagnostics)/launch/diagnostics.launch" />
     <include file="$(find walrus_base_hw)/launch/walrus_base_hw.launch" />
-    <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
+
+    <!-- IMU -->
     <node name="orientus_node" pkg="orientus_driver" type="orientus_node" respawn="true">
       <param name="port" value="/dev/ttyUSB0"/>
     </node>
+    <!-- Monitors internal computer sensors (fan, temperature, etc) -->
+    <node pkg="libsensors_monitor" type="libsensors_monitor" name="primary_computer_monitor" />
+
+    <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
   </group>
 </launch>
