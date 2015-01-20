@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>walrus_web</name>
+  <name>walrus_web_server</name>
   <version>0.0.0</version>
   <description>The WALRUS web interface</description>
 

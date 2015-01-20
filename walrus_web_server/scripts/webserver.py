@@ -12,7 +12,7 @@ def main():
     rospy.init_node('walrus_web_server')
     rospack = rospkg.RosPack()
 
-    web_dir = os.path.join(rospack.get_path('walrus_web'), 'web')
+    web_dir = os.path.join(rospack.get_path('walrus_web_server'), 'web')
 
     application = web.Application([
         (r"/()", web.StaticFileHandler, {'path': os.path.join(web_dir, 'index.html')}),

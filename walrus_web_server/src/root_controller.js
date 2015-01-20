@@ -1,6 +1,6 @@
 angular.module("app").controller("RootCtrl",
 					      function( $scope, roslib, gamepadService ) {
-    var joyPub = roslib.advertise("/joy", "sensor_msgs/Joy");
+    var joyPub = roslib.advertise("/walrus/web_interface/joy", "sensor_msgs/Joy");
     $scope.$on("gamepad-data", function(ev, data) {
 	var currentTime = new Date();
 	var secs = Math.floor(currentTime.getTime()/1000);

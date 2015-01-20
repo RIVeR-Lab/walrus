@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(walrus_web)
+project(walrus_web_server)
 
 find_package(catkin REQUIRED)
 
