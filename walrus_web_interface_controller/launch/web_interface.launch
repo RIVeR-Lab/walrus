@@ -1,0 +1,4 @@
+<launch>
+  <node name="joystick_interface" pkg="walrus_joystick_controller" type="joystick_controller_node" />
+  <include file="$(find walrus_web_server)/launch/server.launch" />
+</launch>

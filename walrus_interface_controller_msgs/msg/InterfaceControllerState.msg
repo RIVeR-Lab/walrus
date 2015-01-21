@@ -1,0 +1,5 @@
+int32 UNAVAILABLE = 1
+int32 ACTIVE = 2
+int32 DISABLED = 3
+
+int32 state
