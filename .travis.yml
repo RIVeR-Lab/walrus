@@ -20,10 +20,15 @@ install:
   - git clone https://github.com/ros-drivers/rosserial.git
   - git clone https://github.com/RIVeR-Lab/epos_hardware.git
   - git clone https://github.com/ros-drivers/linux_peripheral_interfaces.git
+  - git clone https://github.com/mitchellwills/ros_package_web_server.git
   - cd /tmp/ws
   - rosdep install --from-paths src --ignore-src --rosdistro hydro -y
 
+  - cd /tmp/ws/src/package/walrus_web/
+  - ./install_deps.sh
+
 script:
+  - cd /tmp/ws
   - source /opt/ros/hydro/setup.bash
   - catkin build --no-status
   - source devel/setup.bash

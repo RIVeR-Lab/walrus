@@ -1,0 +1,13 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow:hidden;
+}
+
+body {
+    background-color:#333;
+}
+
+.main-video-shadow {
+    box-shadow: -24px -24px 24px 0 rgba(0,0,0,0.3) inset;
+}

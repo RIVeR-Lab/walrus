@@ -1,0 +1,24 @@
+<md-dialog style="display:flex;flex-direction:column;">
+  <md-content>
+    <div ng-show="gamepad.connected">
+      <h1>{{gamepad.data.id}}</h1>
+      Timestamp: {{gamepad.data.timestamp}}
+      <div style="display:flex;">
+	<span ng-repeat="axis in gamepad.data.axes track by $index" style="width:100px;height:30px;background-color:rgb({{Math.round(211-100*Math.abs(axis))}}, {{Math.round(211-100*Math.abs(axis))}}, {{Math.round(211-100*Math.abs(axis))}});margin:4px;padding:3px;">{{axis|number:4}}</span>
+      </div>
+      <div style="display:flex;">
+	<span ng-repeat="button in gamepad.data.buttons track by $index" style="width:50px;background-color:{{button.pressed?'DarkGray':'LightGray'}};margin:4px;padding:3px;text-align:center;">{{$index}}</span>
+      </div>
+    </div>
+    <div ng-hide="gamepad.connected">
+      <h1>No Gamepad Found</h1>
+    </div>
+  </md-content>
+
+  <div class="md-actions">
+    <md-button ng-click="hide()">
+      Done
+    </md-button>
+  </div>
+</md-dialog>
+

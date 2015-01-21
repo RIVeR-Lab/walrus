@@ -1,0 +1,10 @@
+<div style="display:flex;flex:none;position:relative;">
+  <video webrtc-ros-video topic="stream.topic" style="max-width:100%;flex:0 1 auto;width:100%;height:100%;"
+	 ng-style="{'background-color': videoColor}"
+	 poster="{{videoPoster}}" ng-click="showStreamSelectorDialog($event)" autoplay="true" on-state-change="stateChanged(state)"></video>
+  <md-toolbar style="position:absolute;bottom:7px;right:7px;width:inherit;">
+    <h2 class="md-toolbar-tools">
+      <span>{{stream.label}}</span>
+    </h2>
+  </md-toolbar>
+</div>

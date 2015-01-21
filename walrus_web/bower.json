@@ -1,0 +1,22 @@
+{
+    "name": "walrus_web",
+    "version": "0.0.0",
+    "homepage": "https://github.com/RIVeR-Lab/walrus",
+    "authors": [
+	"Mitchell Wills <mwills@wpi.edu>"
+    ],
+    "license": "BSD",
+    "private": true,
+    "ignore": [
+	"**/.*",
+	"node_modules",
+	"bower_components",
+	"launch",
+	"scripts"
+    ],
+    "dependencies": {
+	"angular": null,
+	"angular-material": null,
+	"roslib": null
+    }
+}
