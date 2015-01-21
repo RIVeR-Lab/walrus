@@ -19,6 +19,8 @@
   <run_depend>walrus_control</run_depend>
   <run_depend>walrus_base_hw</run_depend>
   <run_depend>walrus_diagnostics</run_depend>
+  <run_depend>libsensors_monitor</run_depend>
+  <run_depend>orientus_driver</run_depend>
 
   <export>
   </export>
