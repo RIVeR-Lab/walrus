@@ -25,7 +25,7 @@ angular.module("app").controller("DiagnosticsDialogController",
 	  return "green";
       }
       else if(level === WARN) {
-	  return "yellow";
+	  return "orange";
       }
       else if(level === STALE) {
 	  return "blue";
