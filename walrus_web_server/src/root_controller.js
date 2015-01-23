@@ -19,6 +19,7 @@ angular.module("app").controller("RootCtrl",
 	joyData.axes[0] = -joyData.axes[0];
 	joyData.axes[1] = -joyData.axes[1];
 	lastJoyData = joyData;
+	publish_joy_data();
     });
     $interval(publish_joy_data, 250); // republish joystick data every quarter second
 
