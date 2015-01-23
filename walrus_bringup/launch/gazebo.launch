@@ -23,5 +23,9 @@
 
   <group ns="walrus">
     <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
+
+    <include file="$(find walrus_bringup)/launch/includes/computer_monitor.launch.xml">
+      <arg name="name" value="primary_computer"/>
+    </include>
   </group>
 </launch>
