@@ -1,10 +1,23 @@
 pub_rate: 1.0
 analyzers:
   computers:
-    type: diagnostic_aggregator/GenericAnalyzer
-    path: Primary Computer
-    startswith: 'walrus/primary_computer_monitor: '
-    remove_prefix: 'walrus primary_computer_monitor: '
+    type: diagnostic_aggregator/AnalyzerGroup
+    path: Computers
+    analyzers:
+      primary_computer:
+        type: diagnostic_aggregator/AnalyzerGroup
+        path: Primary Computer
+        analyzers:
+          sensors:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: Sensors
+            startswith: 'walrus/primary_computer_sensors_monitor: '
+            remove_prefix: 'walrus primary_computer_sensors_monitor: '
+          resources:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: Resources
+            startswith: 'walrus/primary_computer_resource_monitor: '
+            remove_prefix: 'walrus primary_computer_resource_monitor: '
   imu:
     type: diagnostic_aggregator/GenericAnalyzer
     path: IMU
