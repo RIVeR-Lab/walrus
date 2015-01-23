@@ -9,6 +9,6 @@ catkin_package()
 ## Install ##
 #############
 
-install(FILES
-  launch/web_interface.launch
+install(DIRECTORY launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

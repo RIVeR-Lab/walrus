@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   LIBRARIES walrus_drive_controller
+  CATKIN_DEPENDS nav_msgs
 )
 
 ###########
@@ -41,3 +42,9 @@ install(TARGETS walrus_drive_controller
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(FILES
+  walrus_drive_controller_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+

@@ -17,7 +17,6 @@
   <run_depend>walrus_web_server</run_depend>
   <run_depend>walrus_joystick_controller</run_depend>
 
-
   <export>
   </export>
 </package>
