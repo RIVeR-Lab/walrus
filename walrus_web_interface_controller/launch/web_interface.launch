@@ -1,4 +1,6 @@
 <launch>
-  <node name="joystick_interface" pkg="walrus_joystick_controller" type="joystick_controller_node" />
+  <node name="joystick_interface" pkg="walrus_joystick_controller" type="joystick_controller_node">
+    <remap from="cmd_vel" to="/walrus/drive_controller/cmd_vel" />
+  </node>
   <include file="$(find walrus_web_server)/launch/server.launch" />
 </launch>

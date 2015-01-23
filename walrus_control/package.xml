@@ -18,7 +18,7 @@
   <run_depend>robot_state_publisher</run_depend>
   <run_depend>joint_state_controller</run_depend>
   <run_depend>position_controllers</run_depend>
-  <run_depend>velocity_controllers</run_depend>
+  <run_depend>walrus_drive_controllers</run_depend>
 
   <export>
   </export>

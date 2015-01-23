@@ -1,6 +1,13 @@
 angular.module("app").controller("RootCtrl",
-					      function( $scope, roslib, gamepadService ) {
+					      function( $scope, roslib, gamepadService, $interval ) {
     var joyPub = roslib.advertise("/walrus/web_interface/joy", "sensor_msgs/Joy");
+
+    var lastJoyData = null;
+    var publish_joy_data = function() {
+	if(lastJoyData) {
+	    joyPub.publish(lastJoyData);
+	}
+    };
     $scope.$on("gamepad-data", function(ev, data) {
 	var currentTime = new Date();
 	var secs = Math.floor(currentTime.getTime()/1000);
@@ -11,8 +18,10 @@ angular.module("app").controller("RootCtrl",
 	    buttons: data.buttons.map(function(button){return button.pressed?1:0;})};
 	joyData.axes[0] = -joyData.axes[0];
 	joyData.axes[1] = -joyData.axes[1];
-	joyPub.publish(joyData);
+	lastJoyData = joyData;
     });
+    $interval(publish_joy_data, 250); // republish joystick data every quarter second
+
     $scope.settings = {
 	"touch_joystick" : true
     };

@@ -78,7 +78,7 @@
 		<joint name="${tf_prefix}${fb}_${lr}_pod_drive_joint" type="continuous">
 			<parent link="${tf_prefix}${fb}_${lr}_pod"/>
 			<child link="${tf_prefix}${fb}_${lr}_pod_drive_cylinder"/>
-			<origin xyz="0 0 0" rpy="${M_PI/2} 0 0" />
+			<origin xyz="0 0 0" rpy="${-M_PI/2} 0 0" />
 			<axis xyz="0 0 1" rpy="0 0 0" />
 			<mimic joint="${tf_prefix}${lr}_drive_joint" multiplier="1.0" offset="0.0" />
 		</joint>
@@ -115,7 +115,7 @@
 		<joint name="${tf_prefix}${fb}_${lr}_pod_drive_idler_joint" type="continuous">
 			<parent link="${tf_prefix}${fb}_${lr}_pod"/>
 			<child link="${tf_prefix}${fb}_${lr}_pod_drive_idler_cylinder"/>
-			<origin xyz="${pod_inner_length} 0 0" rpy="${M_PI/2} 0 0" />
+			<origin xyz="${pod_inner_length} 0 0" rpy="${-M_PI/2} 0 0" />
 			<axis xyz="0 0 1" rpy="0 0 0" />
 			<mimic joint="${tf_prefix}${lr}_drive_joint" multiplier="1.0" offset="0.0" />
 		</joint>
