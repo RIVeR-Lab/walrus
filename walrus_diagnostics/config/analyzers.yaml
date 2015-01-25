@@ -11,23 +11,19 @@ analyzers:
           sensors:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Sensors
-            startswith: 'walrus/primary_computer_sensors_monitor: '
-            remove_prefix: 'walrus primary_computer_sensors_monitor: '
+            find_and_remove_prefix: 'walrus/primary_computer_sensors_monitor: '
           resources:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Resources
-            startswith: 'walrus/primary_computer_resource_monitor: '
-            remove_prefix: 'walrus primary_computer_resource_monitor: '
+            find_and_remove_prefix: 'walrus/primary_computer_resource_monitor: '
   imu:
     type: diagnostic_aggregator/GenericAnalyzer
     path: IMU
-    startswith: 'walrus/orientus_node: '
-    remove_prefix: 'walrus orientus_node: '
+    find_and_remove_prefix: 'walrus/orientus_node: '
   robot_hw:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Robot Hardware
-    startswith: 'walrus/walrus_base_hw: '
-    remove_prefix: 'walrus walrus_base_hw: '
+    find_and_remove_prefix: 'walrus/walrus_base_hw: '
   networking:
     type: diagnostic_aggregator/AnalyzerGroup
     path: Networking
@@ -35,10 +31,8 @@ analyzers:
       robot_bullet:
         type: diagnostic_aggregator/GenericAnalyzer
         path: Robot Bullet
-        startswith: 'walrus/robot_bullet_monitor: '
-        remove_prefix: 'walrus robot_bullet_monitor: '
+        find_and_remove_prefix: 'walrus/robot_bullet_monitor: '
       remote_bullet:
         type: diagnostic_aggregator/GenericAnalyzer
         path: Remote Bullet
-        startswith: 'walrus/remote_bullet_monitor: '
-        remove_prefix: 'walrus remote_bullet_monitor: '
+        find_and_remove_prefix: 'walrus/remote_bullet_monitor: '
