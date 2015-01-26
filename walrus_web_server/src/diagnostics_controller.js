@@ -78,8 +78,7 @@ angular.module("app").controller("DiagnosticsCtrl",
 	$mdBottomSheet.show({
 	    templateUrl: "/options_sheet.tpl.html",
 	    controller: "OptionsSheetController",
-	    targetEvent: ev,
-	    locals: { diagnostics: $scope.diagnostics }
+	    targetEvent: ev
 	});
     };
 
