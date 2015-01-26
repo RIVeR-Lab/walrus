@@ -84,6 +84,9 @@ module.exports = function(grunt) {
 	    },
 	    js: {
 		src: [
+		    // make sure that the modules definitions are first
+		    "build/annotated/app.annotated.js",
+		    "build/annotated/services/ros/ros.annotated.js",
 		    "build/annotated/**/*.js",
 		    "<%= ngtemplates.html_templates.dest %>",
 		    "<%= ngtemplates.svg_templates.dest %>"

@@ -1,5 +1,5 @@
 angular.module("app").controller("DiagnosticsCtrl",
-				 function( $scope, $mdDialog, $mdBottomSheet ) {
+				 function( $scope, $mdDialog, $mdBottomSheet, diagnosticsService ) {
     $scope.ros = {
 	connected: false
     };
@@ -25,34 +25,49 @@ angular.module("app").controller("DiagnosticsCtrl",
 	$scope.ros.connected = false;
     });
 
+    $scope.$on("ros-diagnostics", function(e, diagnostics) {
+	var percent_regex = /^(\d+(?:\.\d+)?)%$/; // matches ##.##%
+
+	var cpu_percent = diagnostics.value("/Computers/Primary Computer/Resources/CPU", "Total CPU", percent_regex);
+	$scope.diagnostics.cpu.value = cpu_percent / 100;
+	$scope.diagnostics.cpu.state = diagnostics.state("/Computers/Primary Computer/Resources/CPU");
+
+	var memory_percent = diagnostics.value("/Computers/Primary Computer/Resources/Virtual Memory", "Percent Used", percent_regex);
+	$scope.diagnostics.memory.value = memory_percent / 100;
+	$scope.diagnostics.memory.state = diagnostics.state("/Computers/Primary Computer/Resources/Virtual Memory");
+
+	var temp_regex = /^(\d+(?:\.\d+)?)/; // matches ##.##
+	var cpu_temp = diagnostics.value("/Computers/Primary Computer/Sensors/coretemp-isa-0000 Physical id 0", "Temperature", temp_regex);
+	$scope.diagnostics.cpu_temp.value = cpu_temp;
+	$scope.diagnostics.cpu_temp.state = diagnostics.state("/Computers/Primary Computer/Sensors/coretemp-isa-0000 Physical id 0");
+    });
+
+
     $scope.diagnostics = {
-	cpu: 0.7,
-	memory: 0.5,
-	batteries: [0.2, 0.3, 0.6, 0.9],
-	batteries_connected: [true, false, true, true],
-	pods: [0.5, 0.6, 0.1, 0.0],
-	drive: [0.5, -0.3]
+	cpu: {value: 1.0, state: diagnosticsService.STALE},
+	memory: {value: 1.0, state: diagnosticsService.STALE},
+	cpu_temp: {value: 0.0, state: diagnosticsService.STALE},
+	batteries: [
+	    {value: 0.0, connected: false, state: diagnosticsService.ERROR},
+	    {value: 0.2, connected: true, state: diagnosticsService.WARN},
+	    {value: 0.5, connected: true, state: diagnosticsService.OK},
+	    {value: 0.8, connected: true, state: diagnosticsService.STALE}
+	]
     };
-    $scope.percentToColorHighBad = function(val){
-	if(val > 0.8) {
+
+
+    $scope.stateToColor = function(state){
+	if(state === diagnosticsService.ERROR) {
 	    return "red";
 	}
-	else if(val > 0.6) {
+	else if(state === diagnosticsService.WARN) {
 	    return "orange";
 	}
-	else {
+	else if(state === diagnosticsService.OK) {
 	    return "green";
 	}
-    };
-    $scope.percentToColorLowBad = function(val){
-	if(val < 0.2) {
-	    return "red";
-	}
-	else if(val < 0.4) {
-	    return "orange";
-	}
 	else {
-	    return "green";
+	    return "blue";
 	}
     };
 

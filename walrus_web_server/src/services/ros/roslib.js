@@ -1,4 +1,4 @@
-angular.module("ros", [])
+angular.module("ros")
     .provider("roslib",  {
 	rosbridgeWsUrl: "ws://localhost:9090/",
 	packageUrl: "http://localhost:8080/",

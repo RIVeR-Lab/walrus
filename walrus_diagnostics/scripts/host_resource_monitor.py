@@ -17,16 +17,19 @@ def human_bytes(num_bytes):
 
 def cpu_task(stat):
     cpu_percent = psutil.cpu_percent(interval=0, percpu=True)
+    total_cpu = str(psutil.cpu_percent(interval=0))+'%';
+    stat.add('Total CPU', total_cpu)
     for i in range(len(cpu_percent)):
         stat.add('CPU '+str(i), str(cpu_percent[i])+'%')
 
-    stat.summary(DiagnosticStatus.OK, str(psutil.cpu_percent(interval=0))+'%')
+    stat.summary(DiagnosticStatus.OK, total_cpu)
 
 def virtual_memory_task(stat):
     virtual = psutil.virtual_memory()
 
     stat.summary(DiagnosticStatus.OK, str(virtual.percent)+'% Used')
 
+    stat.add('Percent Used', str(virtual.percent)+'%')
     stat.add('Total Virtual Memory', human_bytes(virtual.total))
     stat.add('Available Virtual Memory', human_bytes(virtual.available))
     stat.add('Used Virtual Memory', human_bytes(virtual.used))
