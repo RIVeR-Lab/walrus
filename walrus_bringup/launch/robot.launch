@@ -7,8 +7,10 @@
     <node name="orientus_node" pkg="orientus_driver" type="orientus_node" respawn="true">
       <param name="port" value="/dev/ttyUSB0"/>
     </node>
-    <!-- Monitors internal computer sensors (fan, temperature, etc) -->
-    <node pkg="libsensors_monitor" type="libsensors_monitor" name="primary_computer_monitor" />
+
+    <include file="$(find walrus_bringup)/launch/includes/computer_monitor.launch.xml">
+      <arg name="name" value="primary_computer"/>
+    </include>
 
     <node name="robot_bullet_monitor" pkg="ubiquiti_bullet" type="bullet_monitor.py" respawn="true">
       <param name="ip_address" value="192.168.1.20"/>

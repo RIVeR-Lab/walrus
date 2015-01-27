@@ -1,0 +1,18 @@
+<launch>
+  <group  ns="/">
+    <node name="walrus_web_server" pkg="walrus_web_server" type="webserver.py">
+      <param name="port" value="9000" />
+    </node>
+    <node name="webrtc_ros_server" pkg="webrtc_ros" type="webrtc_ros_server_node">
+      <param name="port" value="9001" />
+    </node>
+    <node name="ros_package_web_server" pkg="ros_package_web_server" type="server.py">
+      <param name="port" value="9002" />
+    </node>
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+      <arg name="port" value="9003" />
+    </include>
+
+    <node name="tf2_web_republisher" pkg="tf2_web_republisher" type="tf2_web_republisher" />
+  </group>
+</launch>

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>walrus_diagnostics</name>
+  <name>walrus_web_server</name>
   <version>0.0.0</version>
-  <description>WALRUS Rover diagnostics configuration</description>
+  <description>The WALRUS web interface</description>
 
   <maintainer email="mwills@wpi.edu">Mitchell Wills</maintainer>
 
@@ -14,11 +14,14 @@
   <author email="mwills@wpi.edu">Mitchell Wills</author>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <run_depend>diagnostic_aggregator</run_depend>
-
+  <run_depend>robot_state_publisher</run_depend>
+  <!--<run_depend>webrtc_ros</run_depend>-->
+  <run_depend>ros_package_web_server</run_depend>
+  <run_depend>rosbridge_server</run_depend>
+  <run_depend>tf2_web_republisher</run_depend>
   <run_depend>rospy</run_depend>
-  <run_depend>diagnostic_updater</run_depend>
-  <run_depend>python-psutil</run_depend>
+  <run_depend>python-rospkg</run_depend>
+  <run_depend>python-tornado</run_depend>
 
   <export>
   </export>

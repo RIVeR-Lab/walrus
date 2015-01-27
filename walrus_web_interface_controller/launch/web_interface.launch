@@ -1,0 +1,10 @@
+<launch>
+  <node name="joystick_interface" pkg="walrus_joystick_controller" type="joystick_controller_node">
+    <remap from="cmd_vel" to="/walrus/drive_controller/cmd_vel" />
+
+    <param name="button_pods_up" value="3" />
+    <param name="button_pods_toes" value="1" />
+    <param name="button_pods_flat" value="2" />
+  </node>
+  <include file="$(find walrus_web_server)/launch/server.launch" />
+</launch>

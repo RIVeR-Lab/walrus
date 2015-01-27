@@ -18,12 +18,19 @@ back_right_pod_joint_controller:
   joint: walrus/back_right_pod_joint
 
 # Drive Controllers
-left_drive_controller:
-  type: velocity_controllers/JointVelocityController
-  joint: walrus/left_drive_joint
-right_drive_controller:
-  type: velocity_controllers/JointVelocityController
-  joint: walrus/right_drive_joint
+drive_controller:
+  type: walrus_drive_controller/WalrusDriveController
+  left_tread_joint: walrus/left_drive_joint
+  right_tread_joint: walrus/right_drive_joint
+  pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+  twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+  main_tread_separation: 0.5
+  tread_driver_radius: 0.05
+  main_tread_ground_contact_length: 0.75
+  tread_width: 0.1
+  cmd_vel_timeout: 0.5
+  base_frame_id: walrus/base_link
+  odom_frame_id: walrus/odom
 
 #Boom
 boom_deploy_controller:
