@@ -1,8 +1,8 @@
 
 #include <Arduino.h>
 #include <ros.h>
-#include <walrus_msgs/DiagnosticRXMsg.h>
-#include <walrus_msgs/DiagnosticTXMsg.h>
+#include <walrus_firmware_msgs/DiagnosticRXMsg.h>
+#include <walrus_firmware_msgs/DiagnosticTXMsg.h>
 #include "constants.h"
 #include "Bounce.h"
 #include "LiquidCrystal.h"
@@ -10,10 +10,10 @@
 //ROS node handle
 ros::NodeHandle nh;
 //ROS Message publisher
-walrus_msgs::DiagnositcRXMsg rx_msg;
+walrus_firmware_msgs::DiagnositcRXMsg rx_msg;
 ros::Publisher rx("/walrus/diagnostic_board/rx", &rx_msg);
 //ROS Message subscriber
-ros::Subscriber<walrus_msgs::DiagnosticTXMsg> tx("/walrus/diagnostic_board/tx", &recv_msg);
+ros::Subscriber<walrus_firmware_msgs::DiagnosticTXMsg> tx("/walrus/diagnostic_board/tx", &recv_msg);
 
 //LCD Object
 LiquidCrystal lcd(P_DISP_RS, P_DISP_RW, P_DISP_EN, P_DISP_D0, P_DISP_D1, P_DISP_D2, P_DISP_D3, P_DISP_D4, P_DISP_D5, P_DISP_D6, P_DISP_D7);
@@ -24,7 +24,7 @@ bool last_up, last_right, last_down, last_cent, last_left;
 
 
 //Receive TX message from ROS master
-void recv_msg(const walrus_msgs::DiagnosticTXMsg& msg)
+void recv_msg(const walrus_firmware_msgs::DiagnosticTXMsg& msg)
 {
 	//msg.display contains an array of 80 characters in row major order
 	//clear the screen and print them if they are not 0

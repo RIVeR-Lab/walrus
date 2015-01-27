@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(diagnostic_board_adapter)
+project(walrus_firmware_msgs)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  std_msgs
+	message_generation
+	std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -43,11 +43,15 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+ add_message_files(
+   FILES
+   BoomBoardRXMsg.msg
+   BoomBoardTXMsg.msg
+   DiagnosticRXMsg.msg
+   DiagnosticTXMsg.msg
+   MainBoardRXMsg.msg
+   MainBoardTXMsg.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -64,10 +68,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+   DEPENDENCIES
+   std_msgs  # Or other packages containing msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -80,8 +84,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES diagnostic_board_adapter
-#  CATKIN_DEPENDS roscpp std_msgs
+#  LIBRARIES walrus_firmware_msgs
+  CATKIN_DEPENDS message_runtime
 #  DEPENDS system_lib
 )
 
@@ -92,24 +96,21 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
 
 ## Declare a cpp library
-# add_library(diagnostic_board_adapter
-#   src/${PROJECT_NAME}/diagnostic_board_adapter.cpp
+# add_library(walrus_firmware_msgs
+#   src/${PROJECT_NAME}/walrus_firmware_msgs.cpp
 # )
 
 ## Declare a cpp executable
-# add_executable(diagnostic_board_adapter_node src/diagnostic_board_adapter_node.cpp)
+# add_executable(walrus_firmware_msgs_node src/walrus_firmware_msgs_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(diagnostic_board_adapter_node diagnostic_board_adapter_generate_messages_cpp)
+# add_dependencies(walrus_firmware_msgs_node walrus_firmware_msgs_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(diagnostic_board_adapter_node
+# target_link_libraries(walrus_firmware_msgs_node
 #   ${catkin_LIBRARIES}
 # )
 
@@ -128,7 +129,7 @@ include_directories(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS diagnostic_board_adapter diagnostic_board_adapter_node
+# install(TARGETS walrus_firmware_msgs walrus_firmware_msgs_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -153,7 +154,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_diagnostic_board_adapter.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_walrus_firmware_msgs.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
