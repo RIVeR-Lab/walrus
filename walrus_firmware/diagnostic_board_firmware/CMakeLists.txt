@@ -35,18 +35,18 @@ rosserial_generate_ros_lib(
 #)
 
 
-  set(DTOOLCHAIN_FILE -DCMAKE_TOOLCHAIN_FILE=${ROSSERIAL_ARDUINO_TOOLCHAIN})
-  # Create a build tree directory for configuring the client's CMake project.
-  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/firmware)
-  add_custom_target(${PROJECT_NAME}_firmware
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/firmware
-    COMMAND ${CMAKE_COMMAND} ${PROJECT_SOURCE_DIR}/firmware
-      -DROS_LIB_DIR=${${PROJECT_NAME}_ROS_LIB_DIR}
-      -DARDUINO_SDK_PATH=${CMAKE_SOURCE_DIR}/../../teensyduinoSDK/arduino-1.0.6
-      -DEXECUTABLE_OUTPUT_PATH=${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}
-      ${DTOOLCHAIN_FILE}
-  )
-  add_dependencies(${PROJECT_NAME}_firmware ${PROJECT_NAME}_ros_lib)
+set(DTOOLCHAIN_FILE -DCMAKE_TOOLCHAIN_FILE=${ROSSERIAL_ARDUINO_TOOLCHAIN})
+
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/firmware)
+add_custom_target(${PROJECT_NAME}_firmware
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/firmware
+  COMMAND ${CMAKE_COMMAND} ${PROJECT_SOURCE_DIR}/firmware
+    -DROS_LIB_DIR=${${PROJECT_NAME}_ROS_LIB_DIR}
+    -DARDUINO_SDK_PATH=${CMAKE_SOURCE_DIR}/../../teensyduinoSDK/arduino-1.0.6
+    -DEXECUTABLE_OUTPUT_PATH=${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}
+    ${DTOOLCHAIN_FILE}
+)
+add_dependencies(${PROJECT_NAME}_firmware ${PROJECT_NAME}_ros_lib)
 
 rosserial_add_client_target(firmware diagnostic_board_firmware ALL)
 rosserial_add_client_target(firmware diagnostic_board_firmware-upload)
