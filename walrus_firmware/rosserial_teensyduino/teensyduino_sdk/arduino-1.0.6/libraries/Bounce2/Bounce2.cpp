@@ -5,7 +5,7 @@
 #else
 #include "WProgram.h"
 #endif
-#include "Bounce.h"
+#include "Bounce2.h"
 
 #define DEBOUNCED_STATE 0
 #define UNSTABLE_STATE  1

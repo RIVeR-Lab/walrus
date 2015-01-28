@@ -4,7 +4,7 @@
 #include <walrus_firmware_msgs/DiagnosticRXMsg.h>
 #include <walrus_firmware_msgs/DiagnosticTXMsg.h>
 #include "constants.h"
-#include "Bounce.h"
+#include "Bounce2.h"
 #include "LiquidCrystal.h"
 
 void recv_msg(const walrus_firmware_msgs::DiagnosticTXMsg& msg);
