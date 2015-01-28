@@ -10,3 +10,10 @@ catkin_package(
   CATKIN_DEPENDS rosserial_arduino
   CFG_EXTRAS rosserial_teensyduino-extras.cmake
 )
+
+install(DIRECTORY teensyduino_sdk
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+install(FILES cmake/Teensyduino.cmake
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/cmake
+)

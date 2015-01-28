@@ -11,7 +11,7 @@ set(TEENSYDUINO "${rosserial_teensyduino_DIR}/cmake/Teensyduino.cmake")
 function(rosserial_configure_teensyduino_client)
   cmake_parse_arguments(client "" "DIRECTORY" "" ${ARGN})
   if(NOT client_DIRECTORY)
-    message(SEND_ERROR "rosserial_client_add_client called without DIRECTORY argument.")
+    message(SEND_ERROR "rosserial_configure_teensyduino_client called without DIRECTORY argument.")
   endif()
 
   set(DTOOLCHAIN_FILE -DCMAKE_TOOLCHAIN_FILE=${ROSSERIAL_ARDUINO_TOOLCHAIN})
