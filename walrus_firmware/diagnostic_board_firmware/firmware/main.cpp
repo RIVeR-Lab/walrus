@@ -6,11 +6,13 @@
 #include "constants.h"
 #include "Bounce.h"
 #include "LiquidCrystal.h"
+
+void recv_msg(const walrus_firmware_msgs::DiagnosticTXMsg& msg);
  
 //ROS node handle
 ros::NodeHandle nh;
 //ROS Message publisher
-walrus_firmware_msgs::DiagnositcRXMsg rx_msg;
+walrus_firmware_msgs::DiagnosticRXMsg rx_msg;
 ros::Publisher rx("/walrus/diagnostic_board/rx", &rx_msg);
 //ROS Message subscriber
 ros::Subscriber<walrus_firmware_msgs::DiagnosticTXMsg> tx("/walrus/diagnostic_board/tx", &recv_msg);
@@ -36,7 +38,7 @@ void recv_msg(const walrus_firmware_msgs::DiagnosticTXMsg& msg)
 			if (msg.display[r*20+c] > 0)
 			{
 				lcd.setCursor(c, r);
-				lcd.write(msg.display[r*20+c];
+				lcd.write(msg.display[r*20+c]);
 			}
 		}
 	}
