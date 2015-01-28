@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 2.8.3)
 set(TEENSYDUINO_SDK_PATH "@(CMAKE_CURRENT_SOURCE_DIR)/teensyduino_sdk/arduino-1.0.6")
 set(TEENSYDUINO "@(CMAKE_CURRENT_SOURCE_DIR)/cmake/Teensyduino.cmake")
 @[else]@
-set(TEENSYDUINO_SDK_PATH "${rosserial_teensyduino_DIR}/teensyduino_sdk/arduino-1.0.6")
-set(TEENSYDUINO "${rosserial_teensyduino_DIR}/cmake/Teensyduino.cmake")
+set(TEENSYDUINO_SDK_PATH "${rosserial_teensyduino_DIR}/../teensyduino_sdk/arduino-1.0.6")
+set(TEENSYDUINO "${rosserial_teensyduino_DIR}/../cmake/Teensyduino.cmake")
 @[end if]@
 
 function(rosserial_configure_teensyduino_client)
