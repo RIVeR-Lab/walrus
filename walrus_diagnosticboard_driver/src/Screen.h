@@ -1,3 +1,4 @@
+
 #ifndef SCREEN_H
 #define SCREEN_H
 
@@ -22,7 +23,7 @@ public:
 	//Gets an array of characters to display on the screen when this component is active
 	//Returns an array of exactly 80 characters in row major order (4 rows, 20 columns)
 	virtual char* getDisplay() = 0;
-	
+	//Called to perfom an button press on the component (refer to constants in walrus_firmware_msgs/DiagnosticRXMsg.h)
 	virtual Screen* doAction(int action) = 0;
 }
 
