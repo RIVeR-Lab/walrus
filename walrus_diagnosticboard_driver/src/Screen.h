@@ -1,12 +1,10 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-#define UP 1
-#define RIGHT 2
-#define DOWN 3
-#define LEFT 4
-#define ENTER 5
+//Includes message constants for buttons (UP, RIGHT, DOWN, LEFT, ENTER)
+#include <walrus_firmware_msgs/DiagnosticRXMsg.h>
 
+//Special Character
 #define UP_ARROW 5
 #define DOWN_ARROW 6
 #define LEFT_ARROW 127
@@ -17,10 +15,14 @@
 #define BATT 75 3
 #define BATT 100 4
 
+//Abstract class to generalize displaying and interacting with components of the diagnostic interface
 class Screen
 {
 public:
+	//Gets an array of characters to display on the screen when this component is active
+	//Returns an array of exactly 80 characters in row major order (4 rows, 20 columns)
 	virtual char* getDisplay() = 0;
+	
 	virtual Screen* doAction(int action) = 0;
 }
 

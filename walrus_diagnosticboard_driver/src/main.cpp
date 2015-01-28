@@ -1,7 +1,7 @@
 
 #include <ros/ros.h>
-#include <walrus_msgs/DiagnosticTXMsg.h>
-#include <walurs_msgs/DiagnosticRXMsg.h>
+#include <walrus_firmware_msgs/DiagnosticTXMsg.h>
+#include <walrus_firmware_msgs/DiagnosticRXMsg.h>
 #include <diagnostic_msgs/DiagnosticArray.h>
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <diagnostic_msgs/KeyValue.h>
@@ -26,7 +26,7 @@ MenuScreen mainMenu;
 ros::Time lastBeat;
 	
 
-void OnBoardRX(walrus_msgs::DiagnosticRXMsg msg)
+void OnBoardRX(walrus_firmware_msgs::DiagnosticRXMsg msg)
 {
 	if (msg.button >= 1 && msg.button <= 5
 		currentScreen = currentScreen.doAction(msg.button);
