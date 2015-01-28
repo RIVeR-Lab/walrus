@@ -17,10 +17,15 @@ install:
   - git clone https://github.com/ros-controls/ros_control.git
   - touch ros_control/rqt_controller_manager/CATKIN_IGNORE
   - touch ros_control/joint_limits_interface/CATKIN_IGNORE
-  - git clone https://github.com/ros-drivers/rosserial.git
   - git clone https://github.com/RIVeR-Lab/epos_hardware.git
   - git clone https://github.com/ros-drivers/linux_peripheral_interfaces.git
   - git clone https://github.com/mitchellwills/ros_package_web_server.git
+
+  - git clone https://github.com/ros-drivers/rosserial.git
+  - cd rosserial
+  - git checkout 0.6.3
+  - cd /tmp/ws/src
+
   - cd /tmp/ws
   - rosdep install --from-paths src --ignore-src --rosdistro hydro -y
 
