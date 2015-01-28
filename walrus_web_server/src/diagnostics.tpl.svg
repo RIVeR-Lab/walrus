@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink" version="1.1" style="flex:1" viewBox="0 0 1100 200" preserveAspectRatio="xMinYMid meet">
+  <!-- Body -->
+  <rect x="40" y="20" width="150" height="160" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
+
+  <!-- Pods -->
+  <rect x="10" y="10" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[0])}};stroke-width:3;stroke:rgb(0,0,0)">
+    <md-tooltip>
+      POD 0
+    </md-tooltip>
+  </rect>
+  <rect x="190" y="10" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[1])}};stroke-width:3;stroke:rgb(0,0,0)" />
+  <rect x="10" y="120" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[2])}};stroke-width:3;stroke:rgb(0,0,0)" />
+  <rect x="190" y="120" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[3])}};stroke-width:3;stroke:rgb(0,0,0)" />
+
+  <!-- Drive -->
+  <rect x="40" y="20" width="30" height="160" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
+  <rect x="160" y="20" width="30" height="160" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
+  <!-- State -->
+  <rect x="40" ng-attr-y="{{100 - Math.max(80*diagnostics.drive[0], 0)}}" width="30" ng-attr-height="{{Math.abs(80*diagnostics.drive[0])}}" ng-attr-style="fill:{{percentToColorHighBad(Math.abs(diagnostics.drive[0]))}};stroke-width:3;stroke:rgb(0,0,0)" />
+  <rect x="160" ng-attr-y="{{100 - Math.max(80*diagnostics.drive[1], 0)}}" width="30" ng-attr-height="{{Math.abs(80*diagnostics.drive[1])}}" ng-attr-style="fill:{{percentToColorHighBad(Math.abs(diagnostics.drive[1]))}};stroke-width:3;stroke:rgb(0,0,0)" />
+
+  <!-- Computer -->
+  <rect x="85" y="60" width="60" height="60" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
+  <rect x="85" y="60" width="30" height="60" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
+  <rect x="115" y="60" width="30" height="60" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
+  <!-- State -->
+  <rect x="85" ng-attr-y="{{60 + 60*(1-diagnostics.cpu.value)}}" width="30" ng-attr-height="{{60*diagnostics.cpu.value}}" ng-attr-style="fill:{{stateToColor(diagnostics.cpu.state)}};stroke-width:3;stroke:rgb(0,0,0)" />
+  <rect x="115" ng-attr-y="{{60 + 60*(1-diagnostics.memory.value)}}" width="30" ng-attr-height="{{60*diagnostics.memory.value}}" ng-attr-style="fill:{{stateToColor(diagnostics.memory.state)}};stroke-width:3;stroke:rgb(0,0,0)" />
+  <text x="115" y="150" text-anchor="middle" font-weight="bolder" ng-attr-fill="{{stateToColor(diagnostics.cpu_temp.state)}}">{{diagnostics.cpu_temp.value}}°C</text>
+
+  <!-- Batteries -->
+  <g ng-repeat="i in [0, 1, 2, 3]" ng-init="x=240 + i%2 * 80;y=10 + Math.floor(i/2) * 80;">
+    <rect ng-attr-x="{{x}}" ng-attr-y="{{y}}" width="70" height="70" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
+    <rect ng-attr-x="{{x}}" ng-attr-y="{{y + 70*(1-diagnostics.batteries[i].value)}}" width="70" ng-attr-height="{{70*diagnostics.batteries[i].value}}" ng-attr-style="fill:{{stateToColor(diagnostics.batteries[i].state)}};stroke-width:3;stroke:rgb(0,0,0)" />
+    <g ng-hide="diagnostics.batteries[i].connected">
+      <rect ng-attr-x="{{x}}" ng-attr-y="{{y}}" width="70" height="70" ng-attr-style="fill:{{stateToColor(diagnostics.batteries[i].state)}};stroke-width:3;stroke:rgb(0,0,0)" />
+      <line ng-attr-x1="{{x}}" ng-attr-y1="{{y}}"
+	    ng-attr-x2="{{x+70}}" ng-attr-y2="{{y+70}}"
+	    style="stroke:Black;stroke-width:3" />
+      <line ng-attr-x1="{{x}}" ng-attr-y1="{{y+70}}"
+	    ng-attr-x2="{{x+70}}" ng-attr-y2="{{y}}"
+	    style="stroke:Black;stroke-width:3" />
+    </g>
+  </g>
+
+
+  <!-- ROS -->
+  <rect x="450" y="10" width="70" height="70" rx="10" ry="10" ng-attr-style="fill:{{(ros.connected?'green':'red')}}" />
+  <text x="485" y="45" text-anchor="middle" alignment-baseline="middle" font-weight="bolder" font-size="larger">ROS</text>
+
+  <!-- Gamepad -->
+  <rect x="450" y="90" width="70" height="70" rx="10" ry="10" ng-attr-style="fill:{{(gamepad.connected?'green':'red')}}" />
+  <image xlink:href="img/gamepad.svg" x="450" y="90" width="70px" height="70px"/>
+
+  <rect x="550" y="30" width="110" height="110" rx="10" ry="10" style="fill:green;" />
+  <image xlink:href="img/wifi.svg" x="550" y="30" width="110px" height="110px"/>
+
+
+  <!-- Gas -->
+  <rect x="750" y="10" width="70" height="70" style="fill:green;" rx="10" ry="10" />
+  <text x="785" y="40" text-anchor="middle" font-weight="bolder" font-size="larger">CNG</text>
+  <text x="785" y="70" text-anchor="middle" font-weight="bolder">80 ppm</text>
+
+  <rect x="830" y="10" width="70" height="70" style="fill:red;" rx="10" ry="10" />
+  <text x="865" y="40" text-anchor="middle" font-weight="bolder" font-size="larger">LPG</text>
+  <text x="865" y="70" text-anchor="middle" font-weight="bolder">120 ppm</text>
+
+  <rect x="750" y="90" width="70" height="70" style="fill:green;" rx="10" ry="10" />
+  <text x="785" y="120" text-anchor="middle" font-weight="bolder" font-size="larger">CO</text>
+  <text x="785" y="150" text-anchor="middle" font-weight="bolder">30 ppm</text>
+
+  <rect x="830" y="90" width="70" height="70" style="fill:green;" rx="10" ry="10" />
+  <text x="865" y="120" text-anchor="middle" font-weight="bolder" font-size="larger">H</text>
+  <text x="865" y="150" text-anchor="middle" font-weight="bolder">10 ppm</text>
+
+
+  <!-- Temperature -->
+  <rect x="950" y="10" width="20" height="150" rx="10" ry="10" style="fill:lightgray;" />
+  <circle cx="960" cy="150" r="20" style="fill:lightgray;" />
+  <rect x="955" y="55" width="10" height="100" rx="5" ry="5" style="fill:red;" />
+  <circle cx="960" cy="150" r="15" style="fill:red;" />
+  <text x="960" y="190" text-anchor="middle" font-weight="bolder" style="fill:white;">70°C</text>
+
+  <!-- Humidity -->
+  <circle cx="1050" cy="60" r="40" style="fill:rgb(0,191,255);" />
+  <text x="1050" y="60" text-anchor="middle" alignment-baseline="middle" font-weight="900" font-size="30">%</text>
+  <text x="1050" y="120" text-anchor="middle" font-weight="bolder" style="fill:white;">50%</text>
+
+</svg>
