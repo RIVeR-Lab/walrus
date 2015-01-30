@@ -38,24 +38,12 @@ class WalrusBaseRobot : public RobotHW
   boost::scoped_ptr<TransmissionInterfaceLoader> transmission_loader_;
   boost::shared_ptr<epos_hardware::EposManager> epos_manager_;
   walrus_mainboard_driver::MainBoardDriver mainboard_;
+  walrus_boomboard_driver::BoomBoardDriver boomboard_;
 
   ActuatorStateInterface as_interface_;
   VelocityActuatorInterface av_interface_;
   PositionActuatorInterface ap_interface_;
   EffortActuatorInterface ae_interface_;
-
-  // Temporary fake actuators
-  typedef struct FakeActuatorData {
-    FakeActuatorData(const std::string& name)
-      : name(name), position(0), velocity(0), effort(0), cmd(0) {}
-    std::string name;
-    double position;
-    double velocity;
-    double effort;
-    double cmd;
-  } FakeActuatorData;
-  std::vector<boost::shared_ptr<FakeActuatorData> > fake_actuator_data;
-  void createFakeActuator(const std::string& name);
 
 };
 

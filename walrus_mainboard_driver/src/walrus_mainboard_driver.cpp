@@ -1,4 +1,4 @@
-#include "walrus_mainboard_driver/mainboard_driver.h"
+#include "walrus_mainboard_driver/walrus_mainboard_driver.h"
 
 namespace walrus_mainboard_driverS
 {
@@ -30,8 +30,9 @@ namespace walrus_mainboard_driverS
 		aei.registerHandle(effort_handle3);
 	}
 	
-	void MainBoardDriver::init()
+	bool MainBoardDriver::init()
 	{
+		return true;
 	}
 	
 	void MainBoardDriver::read()

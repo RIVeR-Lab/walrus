@@ -3,23 +3,10 @@
 
 namespace walrus_base_hw {
 
-void WalrusBaseRobot::createFakeActuator(const std::string& name) {
-  boost::shared_ptr<FakeActuatorData> data(new FakeActuatorData(name));
-  hardware_interface::ActuatorStateHandle state_handle(name, &data->position, &data->velocity, &data->effort);
-  as_interface_.registerHandle(state_handle);
-
-  hardware_interface::ActuatorHandle position_handle(state_handle, &data->cmd);
-  ap_interface_.registerHandle(position_handle);
-  hardware_interface::ActuatorHandle velocity_handle(state_handle, &data->cmd);
-  av_interface_.registerHandle(velocity_handle);
-
-  fake_actuator_data.push_back(data);
-}
-
-
 WalrusBaseRobot::WalrusBaseRobot(ros::NodeHandle nh, ros::NodeHandle pnh)
   : nh_(nh), pnh_(pnh),
-    mainboard_(as_interface, ae_interface, nh, phn) {
+    mainboard_(as_interface, ae_interface, nh, phn),
+    boomboard_(as_interface, ae_interface, nh, pnh){
   std::vector<std::string> epos_names;
   epos_names.push_back("left_drive_actuator");
   epos_names.push_back("right_drive_actuator");
@@ -52,12 +39,11 @@ bool WalrusBaseRobot::init() {
 	  ROS_ERROR("Failed to initialize Main Board");
 	  return false;
   }
-
-
-  createFakeActuator("walrus/boom/deploy_joint_actuator");
-  createFakeActuator("walrus/boom/pan_joint_actuator");
-  createFakeActuator("walrus/boom/tilt_joint_actuator");
-
+  
+  if (!boomboard_.init() {
+	ROS_ERROR("Failed to initialize Boom Board");
+	return false;
+	}
 
   // Register ros_control interfaces
   registerInterface(&as_interface_);
@@ -89,6 +75,7 @@ void WalrusBaseRobot::write(){
   // Write actuator commands
   epos_manager_->write();
   mainboard_.write();
+  boomboard_.write();
 
   // Print fake actuator commands
   static ros::Time last = ros::Time::now();
@@ -108,6 +95,7 @@ void WalrusBaseRobot::read(){
   // Read actuator commands
   epos_manager_->read();
   mainboard_.read();
+  boomboard_.read();
 
   robot_transmissions_.get<ActuatorToJointStateInterface>()->propagate();
 }
@@ -115,6 +103,7 @@ void WalrusBaseRobot::read(){
 void WalrusBaseRobot::update_diagnostics(){
   epos_manager_->update_diagnostics();
   mainboard_.update_diagnostics();
+  boomboard_.update_diagnostics();
 }
 
 
