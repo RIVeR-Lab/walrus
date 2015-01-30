@@ -452,8 +452,8 @@
 // Teensy++ 1.0 & 2.0
 ////////////////////////////////////
 #elif defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
-#define CORE_NUM_TOTAL_PINS	46
-#define CORE_NUM_DIGITAL	38
+#define CORE_NUM_TOTAL_PINS	47	//MODIFIED (increased by 1)
+#define CORE_NUM_DIGITAL	39  //MODIFIED (increased by 1)
 #define CORE_NUM_ANALOG		8
 #define CORE_NUM_PWM		9
 #define CORE_NUM_INTERRUPT	8
@@ -507,6 +507,7 @@
 #define PIN_F5		43
 #define PIN_F6		44
 #define PIN_F7		45
+#define PIN_E3		46  //ADDED
 #define CORE_PIN0_BIT		0
 #define CORE_PIN1_BIT		1
 #define CORE_PIN2_BIT		2
@@ -553,6 +554,7 @@
 #define CORE_PIN43_BIT		5
 #define CORE_PIN44_BIT		6
 #define CORE_PIN45_BIT		7
+#define CORE_PIN46_BIT		3	//ADDED
 #define CORE_PIN0_BITMASK	_BV(CORE_PIN0_BIT)
 #define CORE_PIN1_BITMASK	_BV(CORE_PIN1_BIT)
 #define CORE_PIN2_BITMASK	_BV(CORE_PIN2_BIT)
@@ -599,6 +601,7 @@
 #define CORE_PIN43_BITMASK	_BV(CORE_PIN43_BIT)
 #define CORE_PIN44_BITMASK	_BV(CORE_PIN44_BIT)
 #define CORE_PIN45_BITMASK	_BV(CORE_PIN45_BIT)
+#define CORE_PIN46_BITMASK	_BV(CORE_PIN46_BIT) ///ADDED
 #define CORE_PIN0_PORTREG	PORTD
 #define CORE_PIN1_PORTREG	PORTD
 #define CORE_PIN2_PORTREG	PORTD
@@ -645,6 +648,7 @@
 #define CORE_PIN43_PORTREG	PORTF
 #define CORE_PIN44_PORTREG	PORTF
 #define CORE_PIN45_PORTREG	PORTF
+#define CORE_PIN46_PORTREG	PORTE //ADDED
 #define CORE_PIN0_DDRREG	DDRD
 #define CORE_PIN1_DDRREG	DDRD
 #define CORE_PIN2_DDRREG	DDRD
@@ -691,6 +695,7 @@
 #define CORE_PIN43_DDRREG	DDRF
 #define CORE_PIN44_DDRREG	DDRF
 #define CORE_PIN45_DDRREG	DDRF
+#define CORE_PIN46_DDRREG	DDRE //ADDED
 #define CORE_PIN0_PINREG	PIND
 #define CORE_PIN1_PINREG	PIND
 #define CORE_PIN2_PINREG	PIND
@@ -737,6 +742,7 @@
 #define CORE_PIN43_PINREG	PINF
 #define CORE_PIN44_PINREG	PINF
 #define CORE_PIN45_PINREG	PINF
+#define CORE_PIN46_PINREG	PINE
 #define CORE_ADC0_PIN		PIN_F0
 #define CORE_ADC1_PIN		PIN_F1
 #define CORE_ADC2_PIN		PIN_F2
@@ -924,6 +930,8 @@ static inline void digitalWrite(uint8_t pin, uint8_t val)
 				CORE_PIN44_PORTREG |= CORE_PIN44_BITMASK;
 			} else if (pin == 45) {
 				CORE_PIN45_PORTREG |= CORE_PIN45_BITMASK;
+			} else if (pin == 46) {						//ADDED
+				CORE_PIN46_PORTREG |= CORE_PIN46_BITMASK; //ADDED
 			}
 			#endif
 		} else {
@@ -1024,6 +1032,8 @@ static inline void digitalWrite(uint8_t pin, uint8_t val)
 				CORE_PIN44_PORTREG &= ~CORE_PIN44_BITMASK;
 			} else if (pin == 45) {
 				CORE_PIN45_PORTREG &= ~CORE_PIN45_BITMASK;
+			} else if (pin == 46) {
+				CORE_PIN46_PORTREG &= ~CORE_PIN46_BITMASK;
 			}
 			#endif
 		}
@@ -1239,6 +1249,8 @@ static inline uint8_t digitalRead(uint8_t pin)
 			return (CORE_PIN44_PINREG & CORE_PIN44_BITMASK) ? 1 : 0;
 		} else if (pin == 45) {
 			return (CORE_PIN45_PINREG & CORE_PIN45_BITMASK) ? 1 : 0;
+		} else if (pin == 46) {
+			return (CORE_PIN46_PINREG & CORE_PIN46_BITMASK) ? 1 : 0;
 		}
 		#endif
 		  else {
@@ -1361,6 +1373,8 @@ static inline void pinMode(uint8_t pin, uint8_t mode)
 				CORE_PIN44_DDRREG |= CORE_PIN44_BITMASK;
 			} else if (pin == 45) {
 				CORE_PIN45_DDRREG |= CORE_PIN45_BITMASK;
+			} else if (pin == 46) {
+				CORE_PIN46_DDRREG |= CORE_PIN45_BITMASK;
 			}
 			#endif
 		} else if (mode == INPUT_PULLUP) {
@@ -1507,6 +1521,9 @@ static inline void pinMode(uint8_t pin, uint8_t mode)
 			} else if (pin == 45) {
 				CORE_PIN45_DDRREG  &= ~CORE_PIN45_BITMASK;
 				CORE_PIN45_PORTREG |=  CORE_PIN45_BITMASK;
+			} else if (pin == 46) {
+				CORE_PIN46_DDRREG  &= ~CORE_PIN46_BITMASK;
+				CORE_PIN46_PORTREG |= CORE_PIN45_BITMASK;
 			}
 			#endif
 		} else {
@@ -1653,6 +1670,9 @@ static inline void pinMode(uint8_t pin, uint8_t mode)
 			} else if (pin == 45) {
 				CORE_PIN45_DDRREG  &= ~CORE_PIN45_BITMASK;
 				CORE_PIN45_PORTREG &= ~CORE_PIN45_BITMASK;
+			} else if (pin == 46) {
+				CORE_PIN46_DDRREG &= ~CORE_PIN46_BITMASK;
+				CORE_PIN46_PORTREG &= ~CORE_PIN46_BITMASK;
 			}
 			#endif
 		}
