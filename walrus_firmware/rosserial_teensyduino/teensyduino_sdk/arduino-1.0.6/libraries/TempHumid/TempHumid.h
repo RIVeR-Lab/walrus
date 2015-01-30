@@ -11,7 +11,7 @@ Author: Brian Eccles
 #include <Arduino.h>
 #include <Wire.h>
 
-#define CONFIGURATION_BYTE 0x00
+#define CONFIG_BYTE 0x00
 #define MEASURE_TEMP_CMD 0xE3
 #define MEASURE_HUMID_CMD 0xE5
 #define WRITE_REG_CMD 0xE6
@@ -39,6 +39,6 @@ public:
 	//Returns relative humidity as a 16 bit integer in hundredths of a percent
 	int getHumidity();
 	
-}
+};
 
 #endif

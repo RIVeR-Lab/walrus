@@ -4,10 +4,12 @@
 #include <walrus_firmware_msgs/MainBoardTXMsg.h>
 #include <walrus_firmware_msgs/MainBoardRXMsg.h>
 #include "constants.h"
+#include <Wire.h>
 #include <TempHumid.h>
-#include <MLP3115A2.h>
+#include <MPL3115A2.h>
 #include <ExternalADC.h>
 #include <OneWire.h>
+#include <Servo.h>
 #include <SmartBatt.h>
 
 void recv_msg(const walrus_firmware_msgs::MainBoardTXMsg& msg);
@@ -22,7 +24,7 @@ ros::Publisher rx("/walrus/main_board/rx", &rx_msg);
 ros::Subscriber<walrus_firmware_msgs::MainBoardTXMsg> tx("/walrus/main_board/tx", &recv_msg);
 
 //Pressure sensor
-MLP3115A2 pressure_sense;
+MPL3115A2 pressure_sense;
 //External ADC
 ExternalADC extADC;
 //Temperature and humidity sensor
@@ -38,12 +40,12 @@ long last_msg = 0;
 //Stores values read from external temperature sensors
 int temps[10] = {0,0,0,0,0,0,0,0,0,0};
 //Temp sensor addresses
-char temp_addr[10][8] = {TEMP_1_ADDR, TEMP_2_ADDR, TEMP_3_ADDR, TEMP_4_ADDR, TEMP_5_ADDR, TEMP_6_ADDR, TEMP_7_ADDR, TEMP_8_ADDR, TEMP_9_ADDR, TEMP_10_ADDR};
+uint8_t temp_addr[10][8] = {TEMP_1_ADDR, TEMP_2_ADDR, TEMP_3_ADDR, TEMP_4_ADDR, TEMP_5_ADDR, TEMP_6_ADDR, TEMP_7_ADDR, TEMP_8_ADDR, TEMP_9_ADDR, TEMP_10_ADDR};
 bool temp_en[10] = {TEMP_1_EN, TEMP_2_EN, TEMP_3_EN, TEMP_4_EN, TEMP_5_EN, TEMP_6_EN, TEMP_7_EN, TEMP_8_EN, TEMP_9_EN, TEMP_10_EN};
 //Temp sensor buffer;
-char temp_buff[9];
+uint8_t temp_buff[9];
 //Rate to control main loop
-ros::Rate = r(ROS_MSG_RATE);
+long loop_start;
 //Count the number of loops for timing
 long counter = 1;
 //Status of system (to show on LED)
@@ -55,9 +57,9 @@ void recv_msg(const walrus_firmware_msgs::MainBoardTXMsg &msg)
 {
 	//Set motor speeds 
 	motor1.writeMicroseconds(msg.motor_power[1]);
-	motor2.writeMicroseconds[msg.motor_power[2]);
-	motor3.writeMicroseconds[msg.motor_power[3]);
-	motor4.writeMicroseconds[msg.motor_power[4]);
+	motor2.writeMicroseconds(msg.motor_power[2]);
+	motor3.writeMicroseconds(msg.motor_power[3]);
+	motor4.writeMicroseconds(msg.motor_power[4]);
 	//Set contactor power state
 	if (msg.power_off)
 		digitalWrite(P_CONTACTOR, HIGH);
@@ -66,7 +68,7 @@ void recv_msg(const walrus_firmware_msgs::MainBoardTXMsg &msg)
 	//Set external LED intensities
 	analogWrite(P_EXT_LED_1, msg.LED_intensity[0]);
 	analogWrite(P_EXT_LED_2, msg.LED_intensity[1]);
-	analogWrite(P_EXT_LED_3, msg.LED_intensity{2]);
+	analogWrite(P_EXT_LED_3, msg.LED_intensity[2]);
 	//Mark receive time
 	last_msg = millis();
 }
@@ -125,14 +127,14 @@ void setup()
 	pressure_sense.enableEventFlags();
 	
 	//Setup battery SMBus objects
-	upper[0].begin(i2c_bus_0);
-	upper[1].begin(i2c_bus_1);
-	upper[2].begin(i2c_bus_2);
-	upper[3].begin(i2c_bus_3);
-	lower[0].begin(i2c_bus_4);
-	lower[1].begin(i2c_bus_5);
-	lower[2].begin(i2c_bus_6);
-	lower[3].begin(i2c_bus_7);
+	upper[0].begin(i2c_bus0);
+	upper[1].begin(i2c_bus1);
+	upper[2].begin(i2c_bus2);
+	upper[3].begin(i2c_bus3);
+	lower[0].begin(i2c_bus4);
+	lower[1].begin(i2c_bus5);
+	lower[2].begin(i2c_bus6);
+	lower[3].begin(i2c_bus7);
 	
 	//Issue a one-wire convert command
 	exttemp_sense.reset();
@@ -143,6 +145,8 @@ void setup()
 
 void loop()
 {	
+	loop_start = millis();
+	
 	//Disable motors if we lose PC connection
 	if (!nh.connected())
 	{
@@ -161,7 +165,7 @@ void loop()
 	if (counter % (status/ROS_MSG_RATE) == 0)
 	{
 		led_state = !led_state;
-		digital_write(P_LED_STATUS, led_state);
+		digitalWrite(P_LED_STATUS, led_state);
 	}
 	
 	//Read temperature
@@ -176,8 +180,8 @@ void loop()
 				exttemp_sense.select(temp_addr[l]);
 				exttemp_sense.write(READ_SCRATCH);
 				for (int m = 0; m < 9; m++)
-					temp_buff = exttemp_sense.read();
-				temp[l] = (temp_buff[1] << 8) | temp_buff[0];
+					temp_buff[m] = exttemp_sense.read();
+				temps[l] = (temp_buff[1] << 8) | temp_buff[0];
 			}
 		}
 		//Issue new convert command to all devices
@@ -218,18 +222,18 @@ void loop()
 	//Read in humidity
 	rx_msg.humidity = temphumid_sense.getHumidity();	
 	//Read in SMBUS values	
-	for (int l = 0; l < 4)
+	for (int l = 0; l < 4; l++)
 	{
 		rx_msg.ucell_voltage[l] = upper[l].getVoltage();
 		rx_msg.ucell_current[l] = upper[l].getCurrent();
 		rx_msg.ucell_charge[l] = upper[l].getCharge();
-		rx_msg.ucell_temp{l] = upper[l].getTemp();
-		rx_msg.ucell_shutdown[] = (upper[l].getShutdown() ? 1 : 0);
+		rx_msg.ucell_temp[l] = upper[l].getTemp();
+		rx_msg.ucell_shutdown[l] = 0; //(upper[l].getShutdown() ? 1 : 0);
 		rx_msg.lcell_voltage[l] = lower[l].getVoltage();
 		rx_msg.lcell_current[l] = lower[l].getCurrent();
 		rx_msg.lcell_charge[l] = lower[l].getCharge();
-		rx_msg.lcell_temp{l] = lower[l].getTemp();
-		rx_msg.lcell_shutdown[] = (lower[l].getShutdown() ? 1 : 0);
+		rx_msg.lcell_temp[l] = lower[l].getTemp();
+		rx_msg.lcell_shutdown[l] = 0; //(lower[l].getShutdown() ? 1 : 0);
 	}
 	//Publish our message
 	rx.publish(&rx_msg);
@@ -237,7 +241,7 @@ void loop()
 	//Allow ros to receive
 	nh.spinOnce();	
 	//Sleep until next cycle
-	r.sleep();
+	delay(ROS_MSG_RATE-(millis()-loop_start));
 	//Increment loop counter
 	counter++;
 }

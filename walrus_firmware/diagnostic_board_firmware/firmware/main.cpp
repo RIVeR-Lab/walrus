@@ -25,7 +25,7 @@ Bounce up, right, down, left, cent;
 //Booleans to remember if a button was pressed
 bool last_up, last_right, last_down, last_cent, last_left;
 //LED cycle time when spinning LEDs
-int last_cycle = 0;
+int last_time = 0;
 //LED that is currently on when spinning LEDs
 int last_on = 0;
 
@@ -89,7 +89,7 @@ void setup()
 
 
 void loop()
-{s
+{
 	//Make LED's solid if connected and spin them if not
 	if (nh.connected())
 	{
@@ -106,7 +106,7 @@ void loop()
 		lcd.print("Not Connected");
 		digitalWrite(P_LED_STATUS, LOW);
 		digitalWrite(P_LED_CENT, LOW);
-		if (millis() > last_time + LED_CYCLE_TIME)
+		if (millis() > last_time + LED_CYCLE_SPEED)
 		{
 			switch (last_on)
 			{

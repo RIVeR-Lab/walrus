@@ -7,7 +7,7 @@ Author: Brian Eccles
 #ifndef EXTERNALADC_H
 #define EXTERNALADC_H
 
-#include <Arduino.h>
+#include "Arduino.h"
 #include <Wire.h>
 
 #define SETUP_BYTE 0x82
@@ -40,6 +40,6 @@ public:
 	//Returns the sampled analog value on the provided channel (0-4095)
 	int getValue(int channel);
 	
-}
+};
 
 #endif 

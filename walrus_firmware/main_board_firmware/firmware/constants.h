@@ -75,7 +75,7 @@
 //Timing
 #define ROS_MSG_RATE 10
 #define TEMP_READ_RATE 2000
-#define MOTOR_OFF_TIMOUT 500
+#define MOTOR_OFF_TIMEOUT 500
 
 //Status LED blink rates
 #define STATUS_OK 100

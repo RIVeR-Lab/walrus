@@ -22,9 +22,9 @@ Author: Brian Eccles
 
 class Maxon
 {
-private
+private:
 	//Speed mode pins
-	int p_in1, p_int2
+	int p_in1, p_in2;
 	//Direction control pin
 	int p_dir;
 	//Enable pin
@@ -61,6 +61,6 @@ public:
 	
 	//Set the speed mode (see definitions above)
 	void setMode(int mode);
-}
+};
 
 #endif

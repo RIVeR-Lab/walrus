@@ -15,7 +15,7 @@ class Bridge
 {
 private:
 	//Input pins
-	int p_in1, p_in2, p_in3, p_in4
+	int p_in1, p_in2, p_in3, p_in4;
 	//Enable/Disable pins
 	int p_d1, p_d2, p_d3, p_d4;
 	//Status flag pins
@@ -53,7 +53,7 @@ public:
 	//Set the provided channel to brake or coast mode 
 	void setBrake(int channel);
 	void setCoast(int channel);
-}
+};
 
 
 #endif

@@ -1,4 +1,4 @@
-#include "maxon.h"
+#include "Maxon.h"
 
 //Constructor
 Maxon::Maxon()
@@ -38,23 +38,23 @@ void Maxon::begin(int in1, int in2, int dir, int en, int spd, int rdy, int led)
 void Maxon::sustain()
 {
 	if (started)
-		digitalWrite(p_led, !(digitalRead(p_rdy) ^ led_dir))
+		digitalWrite(p_led, !(digitalRead(p_rdy) ^ led_dir));
 }
 
 //Drives the motor at the given speed
-void setMotor(int speed)
+void Maxon::setMotor(int speed)
 {
 	if (started)
 	{
 		if (speed > 0)
 		{
-			digitalWrite(dir, HIGH);
+			digitalWrite(p_dir, HIGH);
 			analogWrite(p_spd, speed);
 		}
 		else if (speed < 0)
 		{
 			speed = speed*-1;
-			digitalWrite(dir, LOW);
+			digitalWrite(p_dir, LOW);
 			analogWrite(p_spd, speed);
 		}
 		else
@@ -63,27 +63,27 @@ void setMotor(int speed)
 }
 
 //Enable the motor drive output
-void enable()
+void Maxon::enable()
 {
 	if (started)
-		digitalWrite(en, HIGH);
+		digitalWrite(p_en, HIGH);
 }
 
 //Disable the motor drive output
-void disable()
+void Maxon::disable()
 {
 	if (started)
-		digitalWrite(en, LOW);
+		digitalWrite(p_en, LOW);
 }
 
 //Sets the direction of the status LED feature (default is 1)
-void setLEDDir(int dir)
+void Maxon::setLEDDir(int dir)
 {
 	led_dir = dir;
 }
 
 //Set the speed mode (see definitions in header file)
-void setMode(int mode)
+void Maxon::setMode(int mode)
 {
 	if (started)
 	{

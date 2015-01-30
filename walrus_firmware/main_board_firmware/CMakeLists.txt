@@ -30,6 +30,7 @@ rosserial_generate_ros_lib(
 
 rosserial_configure_teensyduino_client(
  DIRECTORY firmware
+)
 
 rosserial_add_client_target(firmware main_board_firmware ALL)
 rosserial_add_client_target(firmware main_board_firmware-upload)

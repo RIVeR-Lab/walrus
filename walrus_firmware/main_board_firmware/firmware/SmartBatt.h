@@ -13,7 +13,7 @@ Author: Brian Eccles
 
 class SmartBatt
 {
-private;
+private:
 	//SMBus i2c structure
 	i2c_bus_t i2c_bus;
 	//True if begin has been called
@@ -39,11 +39,11 @@ public:
 	//Get the battery temperature in hundredths of a degree C
 	int getTemp();
 	//Get manufacturer name
-	char* getManufacturer();
+	void getManufacturer(char* buf, int len);
 	//Get device name
-	char* getDeviceName();
+	void getDeviceName(char* buf, int len);
 	//Get device chemistry
-	char* getChemistry();
+	void getChemistry(char* buf, int len);
 	//Get serial number
 	int getSerial();
 	//Get average current
@@ -52,6 +52,6 @@ public:
 	int getRemCap();
 	//Get full capacity
 	int getFullCap();
-}
+};
 
 #endif

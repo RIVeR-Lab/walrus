@@ -35,10 +35,11 @@
 #define P_ANALOG_EXP_4 3 //J10/J11
 
 //LPF Filter
-#define P_LPF_CLK //PB4
+#define P_LPF_CLK 24//PB4
+#define LPF_VALUE 0
 
 //Camera LED pin
-#define P_CAM_LED //PC5
+#define P_CAM_LED 15//PC5
 
 //External ADC Channels
 #define CHAN_CO_SENSE 0
@@ -61,7 +62,7 @@
 
 //Timing
 #define ROS_MSG_RATE 10
-#define MOTOR_OFF_TIMOUT 500
+#define MOTOR_OFF_TIMEOUT 500
 
 //Status LED blink rates
 #define STATUS_OK 100

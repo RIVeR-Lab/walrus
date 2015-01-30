@@ -10,10 +10,10 @@ foreach(COUNT RANGE 7)
   message("Generated SoftI2CMaster${COUNT}.h")
 endforeach(COUNT)
 
-include_directories(${ROS_LIB_DIR})
+include_directories(${ROS_LIB_DIR} "${CMAKE_BINARY_DIR}/include/")
 
 generate_arduino_firmware(main_board_firmware
-  SRCS main.cpp ${ROS_LIB_DIR}/time.cpp SmartBatt.cpp i2c_busses.cpp
+  SRCS main.cpp ${ROS_LIB_DIR}/time.cpp SmartBatt.cpp i2c_buses.cpp
   BOARD teensypp2
   PORT /dev/ttyACM0
 )
