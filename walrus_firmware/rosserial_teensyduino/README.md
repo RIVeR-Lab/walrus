@@ -4,6 +4,12 @@ rosserial_teensyduino
 The teensyduino_sdk is the arduino 1.0.6 with the below modifications
  * Installed teensyduino 1.20 64bit (https://www.pjrc.com/teensy/td_download.html)
  * Installed Bounce2 library (http://playground.arduino.cc/Code/Bounce)
+ * Installed MPL3115A2_Pressure library (https://github.com/sparkfun/MPL3115A2_Breakout)
+ * Installed custom ExternalADC library
+ * Installed custom Bridge library
+ * Installed custom TempHumid library
+ * Installed custom Maxon library 
+ * Modified file teensyduino_sdk\arduino-1.0.6\hardware\teensy\cores\teensy.core_pins.h to map arduous pin 46 to Port E Pin 3
 
 
 #### Usage
