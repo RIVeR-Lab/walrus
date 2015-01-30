@@ -1,6 +1,6 @@
 #include "walrus_mainboard_driver/walrus_mainboard_driver.h"
 
-namespace walrus_mainboard_driverS
+namespace walrus_mainboard_driver
 {
 	
 	MainBoardDriver::MainBoardDriver(hardware_interface::ActuatorStateInterface& asi,
