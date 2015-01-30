@@ -18,16 +18,11 @@ void WalrusBaseRobot::createFakeActuator(const std::string& name) {
 
 
 WalrusBaseRobot::WalrusBaseRobot(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : nh_(nh), pnh_(pnh),
-    epos_manager_(as_interface_, av_interface_, ap_interface_, nh, pnh) {
-
-  XmlRpc::XmlRpcValue epos_motors_xml;
-  if(pnh_.getParam("epos_motors", epos_motors_xml)) {
-    epos_manager_.load(epos_motors_xml);
-  }
-  else {
-    ROS_FATAL("No EPOS motor definitions found");
-  }
+  : nh_(nh), pnh_(pnh) {
+  std::vector<std::string> epos_names;
+  epos_names.push_back("left_drive_actuator");
+  epos_names.push_back("right_drive_actuator");
+  epos_manager_.reset(new epos_hardware::EposManager(as_interface_, av_interface_, ap_interface_, nh, pnh, epos_names));
 }
 
 bool WalrusBaseRobot::init() {
@@ -47,7 +42,7 @@ bool WalrusBaseRobot::init() {
     return false;
   }
 
-  if(!epos_manager_.init()) {
+  if(!epos_manager_->init()) {
     ROS_ERROR("Failed to initialize EPOS");
     return false;
   }
@@ -90,7 +85,7 @@ void WalrusBaseRobot::write(){
   robot_transmissions_.get<JointToActuatorVelocityInterface>()->propagate();
 
   // Write actuator commands
-  epos_manager_.write();
+  epos_manager_->write();
 
   // Print fake actuator commands
   static ros::Time last = ros::Time::now();
@@ -108,13 +103,13 @@ void WalrusBaseRobot::write(){
 // Read robot state
 void WalrusBaseRobot::read(){
   // Read actuator commands
-  epos_manager_.read();
+  epos_manager_->read();
 
   robot_transmissions_.get<ActuatorToJointStateInterface>()->propagate();
 }
 
 void WalrusBaseRobot::update_diagnostics(){
-  epos_manager_.update_diagnostics();
+  epos_manager_->update_diagnostics();
 }
 
 
