@@ -35,7 +35,7 @@ class WalrusBaseRobot : public RobotHW
 
   RobotTransmissions robot_transmissions_;
   boost::scoped_ptr<TransmissionInterfaceLoader> transmission_loader_;
-  epos_hardware::EposManager epos_manager_;
+  boost::shared_ptr<epos_hardware::EposManager> epos_manager_;
 
   ActuatorStateInterface as_interface_;
   VelocityActuatorInterface av_interface_;
