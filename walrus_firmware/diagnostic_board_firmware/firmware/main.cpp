@@ -1,4 +1,5 @@
 
+
 #include <Arduino.h>
 #include <ros.h>
 #include <walrus_firmware_msgs/DiagnosticRXMsg.h>
@@ -23,6 +24,10 @@ LiquidCrystal lcd(P_DISP_RS, P_DISP_RW, P_DISP_EN, P_DISP_D0, P_DISP_D1, P_DISP_
 Bounce up, right, down, left, cent;
 //Booleans to remember if a button was pressed
 bool last_up, last_right, last_down, last_cent, last_left;
+//LED cycle time when spinning LEDs
+int last_cycle = 0;
+//LED that is currently on when spinning LEDs
+int last_on = 0;
 
 
 //Receive TX message from ROS master
@@ -57,22 +62,18 @@ void setup()
 	pinMode(P_LED_DOWN, OUTPUT);
 	pinMode(P_LED_LEFT, OUTPUT);
 	pinMode(P_LED_CENT, OUTPUT);
-	digitalWrite(P_LED_UP, HIGH);
-	digitalWrite(P_LED_RIGHT, HIGH);
-	digitalWrite(P_LED_DOWN, HIGH);
-	digitalWrite(P_LED_LEFT, HIGH);
-	digitalWrite(P_LED_CENT, HIGH);
+	pinMode(P_LED_STATUS, OUTPUT);
 	
 	//Setup LCD Object
 	lcd.noBlink();
 	lcd.noCursor();
 	
 	//Setup Buttons
-	up.interval(200);
-	down.interval(200);
-	right.interval(200);
-	left.interval(200);
-	cent.interval(200);
+	up.interval(DEBOUNCE_TIME);
+	down.interval(DEBOUNCE_TIME);
+	right.interval(DEBOUNCE_TIME);
+	left.interval(DEBOUNCE_TIME);
+	cent.interval(DEBOUNCE_TIME);
 	up.attach(P_BUTT_UP);
 	down.attach(P_BUTT_DOWN);
 	right.attach(P_BUTT_RIGHT);
@@ -88,7 +89,61 @@ void setup()
 
 
 void loop()
-{
+{s
+	//Make LED's solid if connected and spin them if not
+	if (nh.connected())
+	{
+		digitalWrite(P_LED_UP, HIGH);
+		digitalWrite(P_LED_RIGHT, HIGH);
+		digitalWrite(P_LED_DOWN, HIGH);
+		digitalWrite(P_LED_LEFT, HIGH);
+		digitalWrite(P_LED_CENT, HIGH);
+		digitalWrite(P_LED_STATUS, HIGH);
+	}
+	else
+	{
+		lcd.clear();
+		lcd.print("Not Connected");
+		digitalWrite(P_LED_STATUS, LOW);
+		digitalWrite(P_LED_CENT, LOW);
+		if (millis() > last_time + LED_CYCLE_TIME)
+		{
+			switch (last_on)
+			{
+				case 0:
+					digitalWrite(P_LED_UP, HIGH);
+					digitalWrite(P_LED_RIGHT, LOW);
+					digitalWrite(P_LED_DOWN, LOW);
+					digitalWrite(P_LED_LEFT, LOW);
+					last_on = 0;
+				break;
+				case 1:
+					digitalWrite(P_LED_UP, LOW);
+					digitalWrite(P_LED_RIGHT, HIGH);
+					digitalWrite(P_LED_DOWN, LOW);
+					digitalWrite(P_LED_LEFT, LOW);
+					last_on = 1;
+				break;
+				case 2:
+					digitalWrite(P_LED_UP, LOW);
+					digitalWrite(P_LED_RIGHT, LOW);
+					digitalWrite(P_LED_DOWN, HIGH);
+					digitalWrite(P_LED_LEFT, LOW);
+					last_on = 2;
+				break;
+				case 3:
+					digitalWrite(P_LED_UP, LOW);
+					digitalWrite(P_LED_RIGHT, LOW);
+					digitalWrite(P_LED_DOWN, LOW);
+					digitalWrite(P_LED_LEFT, HIGH);
+					last_on = 3;
+				break;
+			}
+			last_time = millis();
+		}
+	}
+	
+	
 	//Update all buttons
 	up.update();
 	down.update();
