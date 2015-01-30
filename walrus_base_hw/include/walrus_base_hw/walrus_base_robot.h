@@ -12,7 +12,8 @@
 #include <transmission_interface/transmission_parser.h>
 #include <boost/scoped_ptr.hpp>
 #include <epos_hardware/epos_manager.h>
-#include <walrus_mainboard_driver/mainboard_driver.h>
+#include <walrus_mainboard_driver/walrus_mainboard_driver.h>
+#include <walrus_boomboard_driver/walrus_boomboard_driver.h>
 
 namespace walrus_base_hw {
 

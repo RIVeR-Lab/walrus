@@ -1,52 +1,57 @@
-#include "walrus_boomboard_driver/walrus_boomboard_driver.h"
 
-namespace walrus_board_driverS
+#ifndef BOOMBOARDDRIVER_H
+#define BOOMBOARDDRIVER_H
+
+#include <ros/ros.h>
+#include <hardware_interface/actuator_command_interface.h>
+#include <hardware_interface/actuator_state_interface.h>
+#include <hardware_interface/robot_hw.h>
+#include <transmission_interface/robot_transmissions.h>
+#include <transmission_interface/transmission_interface_loader.h>
+#include <diagnostic_updater/diagnostic_updater.h>
+#include <walrus_firmware_msgs/BoomBoardTXMsg.h>
+#include <walrus_firmware_msgs/BoomBoardRXMsg.h>
+
+namespace walrus_boomboard_driver
 {
-	
-	BoardDriver::BoardDriver(hardware_interface::ActuatorStateInterface& asi,
-				  hardware_interface::EffortActuatorInterface &aei,
-				  ros::NodeHandle& nh, ros::NodeHandle& pnh)
-	: asi_(&asi), aei_(&aei), diagnostic_updater(nh, pnh)
+	class BoomBoardDriver
 	{
-		tx = nh.advertise<walrus_firmware_msgs::BoardTXMsg>("/walrus/_board/tx", 1000);
-		rx = nh.subscribe("/walrus/_board/rx", boost::bind(&BoardDriver::rx_callback, this, _1));
+		public:
+			BoomBoardDriver(hardware_interface::ActuatorStateInterface& asi,
+				  hardware_interface::EffortActuatorInterface& aei,
+				  ros::NodeHandle& nh, ros::NodeHandle& pnh);
+			bool init();
+			void read();
+			void write();
+			void update_diagnostics();
+			
+		private:
+			diagnostic_updater::Updater diagnostic_updater;
 		
-		hardware_interface::ActuatorStateHandle state_handle0("walrus/boom_deploy_joint_actuator", &rx_msg.deploy_position, NULL, NULL);
-		asi.registerHandle(state_handl0);
-		hardware_interface::ActuatorStateHandle state_handle1("walrus/boom_pan_joint_actuator", &rx_msg.pan_position, NULL, &rx_msg.pan_current);
-		asi.registerHandle(state_handle1);
-		hardware_interface::ActuatorStateHandle state_handle2("walrus/boom_title_joint_acutator", &rx_msg.tilt_position, NULL, &rx_msg.tilt_current);
-		asi.registerHandle(state_handle2);
-		
-		hardware_interface ActuatorHandle effort_handle0(state_handle0, &tx_msg.deploy_power]);
-		aei.registerHandle(effort_handle0);
-		hardware_interface ActuatorHandle effort_handle0(state_handle1, &tx_msg.pan_power);
-		aei.registerHandle(effort_handle1);
-		hardware_interface ActuatorHandle effort_handle0(state_handle2, &tx_msg.tilt_power);
-		aei.registerHandle(effort_handle2);
-	}
-	
-	bool BoardDriver::init()
-	{
-		return true;
-	}
-	
-	void BoardDriver::read()
-	{
-	}
-	
-	void BoardDriver::write()
-	{		
-		tx.publish(tx_msg);
-	}
-	
-	void BoardDriver::rx_callback(const walrus_firmware_msgs::BoardRXMsg& msg)
-	{
-		rx_msgs = msg;
-	}
-	
-	void update_diagnostics()
-	{
-		diagnostic_updater.update();
-	}
+			hardware_interface::ActuatorStateInterface asi_;
+			hardware_interface::EffortActuatorInterface aei_;
+			
+			void rx_callback(const walrus_firmware_msgs::BoomBoardRXMsg& msg);
+			
+			ros::Subscriber rx;
+			ros::Publisher tx;
+			
+			walrus_firmware_msgs::BoomBoardTXMsg tx_msg;
+			walrus_firmware_msgs::BoomBoardRXMsg rx_msg;
+			
+			double deploy_effort_cmd;
+			double deploy_velocity;
+			double deploy_position;
+			double deploy_effort;
+			double pan_effort_cmd;
+			double pan_velocity;
+			double pan_position;
+			double pan_effort;
+			double tilt_effort_cmd;
+			double tilt_velocity;
+			double tilt_position;
+			double tilt_effort;
+	};
 }
+
+#endif

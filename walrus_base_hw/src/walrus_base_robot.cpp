@@ -5,8 +5,8 @@ namespace walrus_base_hw {
 
 WalrusBaseRobot::WalrusBaseRobot(ros::NodeHandle nh, ros::NodeHandle pnh)
   : nh_(nh), pnh_(pnh),
-    mainboard_(as_interface, ae_interface, nh, phn),
-    boomboard_(as_interface, ae_interface, nh, pnh){
+    mainboard_(as_interface_, ae_interface_, nh, phn),
+    boomboard_(as_interface_, ae_interface_, nh, pnh){
   std::vector<std::string> epos_names;
   epos_names.push_back("left_drive_actuator");
   epos_names.push_back("right_drive_actuator");
@@ -40,7 +40,7 @@ bool WalrusBaseRobot::init() {
 	  return false;
   }
   
-  if (!boomboard_.init() {
+  if (!boomboard_.init()) {
 	ROS_ERROR("Failed to initialize Boom Board");
 	return false;
 	}
@@ -76,17 +76,6 @@ void WalrusBaseRobot::write(){
   epos_manager_->write();
   mainboard_.write();
   boomboard_.write();
-
-  // Print fake actuator commands
-  static ros::Time last = ros::Time::now();
-  if(ros::Time::now() - last >= ros::Duration(5.0)) {
-    last = ros::Time::now();
-    ROS_INFO_STREAM("------------------------------------");
-    BOOST_FOREACH(const boost::shared_ptr<FakeActuatorData>& data, fake_actuator_data) {
-      ROS_INFO_STREAM("Fake Actuator (" << data->name << ") Cmd: " << data->cmd);
-    }
-    ROS_INFO_STREAM("------------------------------------");
-  }
 
 }
 

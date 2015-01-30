@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 ###################################
 catkin_package(
    INCLUDE_DIRS include
-   LIBRARIES walrus_mainboard_driver
+   LIBRARIES walrus_boomboard_driver
    CATKIN_DEPENDS walrus_firmware_msgs hardware_interface roscpp controller_manager diagnostic_updater
 )
 
@@ -31,10 +31,9 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-
 add_library(walrus_boomboard_driver
   src/${PROJECT_NAME}/walrus_boomboard_driver.cpp
- )
+)
 
 target_link_libraries(walrus_boomboard_driver
    ${catkin_LIBRARIES}

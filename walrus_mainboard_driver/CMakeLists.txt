@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   diagnostic_updater
 )
 
-
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -35,6 +34,7 @@ include_directories(
 add_library(walrus_mainboard_driver
    src/${PROJECT_NAME}/walrus_mainboard_driver.cpp
 )
+
 target_link_libraries(walrus_mainboard_driver
   ${catkin_LIBRARIES}
 )
