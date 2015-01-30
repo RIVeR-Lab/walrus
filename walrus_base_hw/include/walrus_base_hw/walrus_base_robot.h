@@ -12,6 +12,7 @@
 #include <transmission_interface/transmission_parser.h>
 #include <boost/scoped_ptr.hpp>
 #include <epos_hardware/epos_manager.h>
+#include <walrus_mainboard_driver/mainboard_driver.h>
 
 namespace walrus_base_hw {
 
@@ -36,10 +37,12 @@ class WalrusBaseRobot : public RobotHW
   RobotTransmissions robot_transmissions_;
   boost::scoped_ptr<TransmissionInterfaceLoader> transmission_loader_;
   boost::shared_ptr<epos_hardware::EposManager> epos_manager_;
+  walrus_mainboard_driver::MainBoardDriver mainboard_;
 
   ActuatorStateInterface as_interface_;
   VelocityActuatorInterface av_interface_;
   PositionActuatorInterface ap_interface_;
+  EffortActuatorInterface ae_interface_;
 
   // Temporary fake actuators
   typedef struct FakeActuatorData {
