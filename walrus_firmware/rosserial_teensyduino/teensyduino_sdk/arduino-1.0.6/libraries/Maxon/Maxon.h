@@ -20,6 +20,10 @@ Author: Brian Eccles
 #define SPEED_MODE_MED 1
 #define SPEED_MODE_FAST 3
 
+//LED direction values
+#define LED_SOURCE 1
+#define LED_SINK 0
+
 class Maxon
 {
 private:
@@ -35,7 +39,7 @@ private:
 	int p_rdy;
 	//Status led pin
 	int p_led;
-	//LED Direction (0 = sink, 1 = source)
+	//LED Direction (see macros above)
 	int led_dir;
 	//True if begin has been called
 	bool started;

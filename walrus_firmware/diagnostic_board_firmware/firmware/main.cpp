@@ -115,28 +115,28 @@ void loop()
 					digitalWrite(P_LED_RIGHT, LOW);
 					digitalWrite(P_LED_DOWN, LOW);
 					digitalWrite(P_LED_LEFT, LOW);
-					last_on = 0;
+					last_on = 1;
 				break;
 				case 1:
 					digitalWrite(P_LED_UP, LOW);
 					digitalWrite(P_LED_RIGHT, HIGH);
 					digitalWrite(P_LED_DOWN, LOW);
 					digitalWrite(P_LED_LEFT, LOW);
-					last_on = 1;
+					last_on = 2;
 				break;
 				case 2:
 					digitalWrite(P_LED_UP, LOW);
 					digitalWrite(P_LED_RIGHT, LOW);
 					digitalWrite(P_LED_DOWN, HIGH);
 					digitalWrite(P_LED_LEFT, LOW);
-					last_on = 2;
+					last_on = 3;
 				break;
 				case 3:
 					digitalWrite(P_LED_UP, LOW);
 					digitalWrite(P_LED_RIGHT, LOW);
 					digitalWrite(P_LED_DOWN, LOW);
 					digitalWrite(P_LED_LEFT, HIGH);
-					last_on = 3;
+					last_on = 0;
 				break;
 			}
 			last_time = millis();

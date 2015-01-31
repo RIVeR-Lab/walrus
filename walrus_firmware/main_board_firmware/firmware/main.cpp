@@ -56,10 +56,10 @@ bool led_state = false;
 void recv_msg(const walrus_firmware_msgs::MainBoardTXMsg &msg)
 {
 	//Set motor speeds 
-	motor1.writeMicroseconds(msg.motor_power[1]);
-	motor2.writeMicroseconds(msg.motor_power[2]);
-	motor3.writeMicroseconds(msg.motor_power[3]);
-	motor4.writeMicroseconds(msg.motor_power[4]);
+	motor1.writeMicroseconds(msg.motor_power[0]);
+	motor2.writeMicroseconds(msg.motor_power[1]);
+	motor3.writeMicroseconds(msg.motor_power[2]);
+	motor4.writeMicroseconds(msg.motor_power[3]);
 	//Set contactor power state
 	if (msg.power_off)
 		digitalWrite(P_CONTACTOR, HIGH);
@@ -78,9 +78,9 @@ void disable()
 {
 	//Disable all motors
 	motor1.writeMicroseconds(1500);
-	motor1.writeMicroseconds(1500);
-	motor1.writeMicroseconds(1500);
-	motor1.writeMicroseconds(1500);
+	motor2.writeMicroseconds(1500);
+	motor3.writeMicroseconds(1500);
+	motor4.writeMicroseconds(1500);
 	//Keep contactor on
 	digitalWrite(P_CONTACTOR, LOW);
 	//Turn LED's off

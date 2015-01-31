@@ -62,4 +62,5 @@ int TempHumid::getHumidity()
 		long value = (MSB << 8) | LSB;
 		return (int)((12500*value/65536)-600);
 	}
+	return 0;
 } 

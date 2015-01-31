@@ -157,16 +157,26 @@ void Bridge::setLEDDir(int dir)
 void Bridge::setBrake(int channel)
 {
 	if (channel == CHAN_A)
-		coastA = 0;
+		coastA = MOTOR_BRAKE;
 	else
-		coastB = 0;
+		coastB = MOTOR_BRAKE;
 }
 
 //Set the provided channel to coast mode
 void Bridge::setCoast(int channel)
 {
 	if (channel == CHAN_A)
-		coastA = 1;
+		coastA = MOTOR_COAST;
 	else
-		coastB = 1;
+		coastB = MOTOR_COAST;
 }
+
+//Set the stop mode of the provided channel to the given brake/coast setting
+void Bridge::setStopMode(int channel, int brakecoast)
+{
+	if (channel == CHAN_A)
+		coastA = brakecoast;
+	else
+		coastB = brakecoast;
+}
+

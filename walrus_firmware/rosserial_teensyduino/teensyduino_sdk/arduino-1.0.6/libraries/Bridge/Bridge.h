@@ -11,6 +11,14 @@ Author: Brian Eccles
 #define CHAN_A 0
 #define CHAN_B 1
 
+//LED Direction values
+#define LED_SOURCE 1
+#define LED_SINK 0
+
+//Brake/Coast options
+#define MOTOR_BRAKE 0
+#define MOTOR_COAST 1
+
 class Bridge
 {
 private:
@@ -22,9 +30,9 @@ private:
 	int p_sfA, p_sfB;
 	//Status LED pins
 	int p_ledA, p_ledB;
-	//LED Direction (0 = sink, 1 = source;
+	//LED Direction (see macros above)
 	int led_dir;
-	//BrakeCoast (0 = break, 1 = coast)
+	//BrakeCoast (see macros above)
 	int coastA, coastB;
 	//True if begin has been called
 	bool started;
@@ -47,12 +55,13 @@ public:
 	void enable(int channel);
 	void disable(int channel);
 
-	//Sets the direction of the status led feature
+	//Sets the direction of the status led feature (see macros above)
 	void setLEDDir(int dir);
 	
 	//Set the provided channel to brake or coast mode 
 	void setBrake(int channel);
 	void setCoast(int channel);
+	void setStopMode(int channel, int brakecoast);
 };
 
 

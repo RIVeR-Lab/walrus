@@ -80,7 +80,7 @@ void setup()
 	pinMode(P_LPF_CLK, OUTPUT);
 	
 	//Setup external ADC
-	extADC.begin(ADDR_EXT_ADC, 9);
+	extADC.begin(ADDR_EXT_ADC, NUM_CHANNELS);
 	
 	//Setup temperature/humidity sensor
 	temphumid_sense.begin(ADDR_TEMP_HUMID);
@@ -88,11 +88,11 @@ void setup()
 	//Setup maxon motor controller
 	maxon.begin(P_MAXON_IN1, P_MAXON_IN2, P_MAXON_DIR, P_MAXON_EN, P_MAXON_SPEED, P_MAXON_READY, P_MAXON_STATUS);
 	maxon.setMode(SPEED_MODE_OPEN);
-	maxon.setLEDDir(1);
+	maxon.setLEDDir(LED_SOURCE);
 	
 	//Setup H-bridge motor controller
 	bridge.begin(P_BRIDGE_IN1, P_BRIDGE_IN2, P_BRIDGE_IN3, P_BRIDGE_IN4, P_BRIDGE_D1, P_BRIDGE_D2, P_BRIDGE_D3, P_BRIDGE_D4, P_BRIDGE_SFA, P_BRIDGE_SFB, P_BRIDGE_LEDA, P_BRIDGE_LEDB);
-	bridge.setLEDDir(1);
+	bridge.setLEDDir(LED_SOURCE);
 	bridge.setBrake(CHAN_PAN_MOTOR);
 	bridge.setBrake(CHAN_TILT_MOTOR);
 	

@@ -42,15 +42,16 @@
 #define P_CAM_LED 15//PC5
 
 //External ADC Channels
+#define NUM_CHANNELS 9
 #define CHAN_CO_SENSE 0
 #define CHAN_LPG_SENSE 1
 #define CHAN_CNG_SENSE 2
 #define CHAN_H_SENSE 3
 #define CHAN_PAN_CURRENT 4
 #define CHAN_TILT_CURRENT 5
-#define CHAN_PAN_POT 5
-#define CHAN_TILT_POT 6
-#define CHAN_DEPLOY_POT 7
+#define CHAN_PAN_POT 6
+#define CHAN_TILT_POT 7
+#define CHAN_DEPLOY_POT 8
 
 //I2C Slave addresses
 #define ADDR_EXT_ADC 0x35
