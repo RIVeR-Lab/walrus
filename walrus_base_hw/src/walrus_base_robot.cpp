@@ -5,7 +5,7 @@ namespace walrus_base_hw {
 
 WalrusBaseRobot::WalrusBaseRobot(ros::NodeHandle nh, ros::NodeHandle pnh)
   : nh_(nh), pnh_(pnh),
-    mainboard_(as_interface_, ae_interface_, nh, phn),
+    mainboard_(as_interface_, ae_interface_, nh, pnh),
     boomboard_(as_interface_, ae_interface_, nh, pnh){
   std::vector<std::string> epos_names;
   epos_names.push_back("left_drive_actuator");
