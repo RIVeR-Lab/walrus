@@ -1,4 +1,4 @@
-int16 arm_position
+int16 deploy_position
 int16 tilt_position
 int16 pan_position
 int16 CO_sense
@@ -8,3 +8,5 @@ int16 CNG_sense
 int16 temp
 int16 humidity
 int16[4] analog
+int16 pan_current
+int16 tilt_current
