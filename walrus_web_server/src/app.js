@@ -11,6 +11,6 @@ app.config(function(roslibProvider, gamepadServiceProvider, webrtcRosServiceProv
     gamepadServiceProvider.setPollRate(100);
 
     $mdThemingProvider.theme("normal")
-	.primaryColor("blue")
-	.accentColor("deep-purple");
+	.primaryPalette("blue")
+	.accentPalette("deep-purple");
 });
