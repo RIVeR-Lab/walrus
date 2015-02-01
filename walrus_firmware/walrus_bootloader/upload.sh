@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #Upload bootloader with chip erase
-avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U flash:w:BootloaderCDC.hex:a
+avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U flash:w:$WALRUS_BOOTLOADER_HEX_FILE:a
 
 #Set Fuse bytes
 avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U efuse:w:0x9d:m

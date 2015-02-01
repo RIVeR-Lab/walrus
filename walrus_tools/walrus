@@ -32,8 +32,6 @@ def main():
 
         embeded_project_upload_parser = embeded_project_subparsers.add_parser('upload', help='Upload the project')
         embeded_project_upload_parser.set_defaults(func=embeded_project_upload, project=project)
-        embeded_project_upload_parser.add_argument('device', help='The device to upload to')
-
 
     args = parser.parse_args()
     args.func(args)
@@ -42,14 +40,12 @@ def main():
 def embeded_bootloader_upload(args):
     device = args.device
     print 'Uploading bootloader to: ' + device
-    upload_script = os.path.join(rospack.get_path('rosserial_teensyduino'), '../bootloader/upload.sh')
-    subprocess.call([upload_script, device])
+    subprocess.call(['rosrun', 'walrus_bootloader', 'upload.sh', device])
 
 def embeded_project_upload(args):
     project = args.project
-    device = args.device
-    print 'Uploading ' + project + ' to ' + device
-    print 'TODO: not implemented yet'
+    print 'Uploading ' + project
+    subprocess.call(['catkin', 'build', '--no-deps', '-p1', project+'_firmware', '--make-args', project+'_firmware_firmware_'+project+'_firmware-upload'])
 
 
 

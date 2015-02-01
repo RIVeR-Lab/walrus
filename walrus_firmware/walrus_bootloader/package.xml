@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package>
+  <name>walrus_bootloader</name>
+  <version>0.0.0</version>
+  <description>The walrus_bootloader package</description>
+
+  <maintainer email="bjeccles@wpi.edu">Brian Eccles</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://robot.wpi.edu/walrus</url>
+  <url type="repository">https://github.com/RIVeR-Lab/walrus</url>
+
+  <author email="bjeccles@wpi.edu">Brian Eccles</author>
+  <author email="mwills@wpi.edu">Mitchell Wills</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+  </export>
+</package>
