@@ -6,40 +6,40 @@ import subprocess
 
 rospack = rospkg.RosPack()
 
-EMBEDED_PROJECTS = ['main_board', 'diagnostics_board', 'boom_board']
+EMBEDDED_PROJECTS = ['main_board', 'diagnostics_board', 'boom_board']
 
 def main():
     parser = argparse.ArgumentParser(description='Tool for configuring the WALRUS Robot', prog='walrus')
     subparsers = parser.add_subparsers()
 
-    embeded_parser = subparsers.add_parser('embeded', help='Display the current configuration')
-    embeded_subparsers = embeded_parser.add_subparsers()
+    embedded_parser = subparsers.add_parser('embedded', help='Display the current configuration')
+    embedded_subparsers = embedded_parser.add_subparsers()
 
 
-    embeded_bootloader_parser = embeded_subparsers.add_parser('bootloader', help='Configure the embeded bootloader')
-    embeded_bootloader_subparsers = embeded_bootloader_parser.add_subparsers()
+    embedded_bootloader_parser = embedded_subparsers.add_parser('bootloader', help='Configure the embedded bootloader')
+    embedded_bootloader_subparsers = embedded_bootloader_parser.add_subparsers()
 
-    embeded_bootloader_upload_parser = embeded_bootloader_subparsers.add_parser('upload', help='Upload the bootloader')
-    embeded_bootloader_upload_parser.set_defaults(func=embeded_bootloader_upload)
-    embeded_bootloader_upload_parser.add_argument('device', help='The device to upload to')
+    embedded_bootloader_upload_parser = embedded_bootloader_subparsers.add_parser('upload', help='Upload the bootloader')
+    embedded_bootloader_upload_parser.set_defaults(func=embedded_bootloader_upload)
+    embedded_bootloader_upload_parser.add_argument('device', help='The device to upload to')
 
-    for project in EMBEDED_PROJECTS:
-        embeded_project_parser = embeded_subparsers.add_parser(project, help='Configure the '+project+' board')
-        embeded_project_subparsers = embeded_project_parser.add_subparsers()
+    for project in EMBEDDED_PROJECTS:
+        embedded_project_parser = embedded_subparsers.add_parser(project, help='Configure the '+project+' board')
+        embedded_project_subparsers = embedded_project_parser.add_subparsers()
 
-        embeded_project_upload_parser = embeded_project_subparsers.add_parser('upload', help='Upload the project')
-        embeded_project_upload_parser.set_defaults(func=embeded_project_upload, project=project)
+        embedded_project_upload_parser = embedded_project_subparsers.add_parser('upload', help='Upload the project')
+        embedded_project_upload_parser.set_defaults(func=embedded_project_upload, project=project)
 
     args = parser.parse_args()
     args.func(args)
 
 
-def embeded_bootloader_upload(args):
+def embedded_bootloader_upload(args):
     device = args.device
     print 'Uploading bootloader to: ' + device
     subprocess.call(['rosrun', 'walrus_bootloader', 'upload.sh', device])
 
-def embeded_project_upload(args):
+def embedded_project_upload(args):
     project = args.project
     print 'Uploading ' + project
     subprocess.call(['catkin', 'build', '--no-deps', '-p1', project+'_firmware', '--make-args', project+'_firmware_firmware_'+project+'_firmware-upload'])
