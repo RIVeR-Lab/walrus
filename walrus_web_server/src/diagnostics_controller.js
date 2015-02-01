@@ -52,6 +52,10 @@ angular.module("app").controller("DiagnosticsCtrl",
 	    {value: 0.2, connected: true, state: diagnosticsService.WARN},
 	    {value: 0.5, connected: true, state: diagnosticsService.OK},
 	    {value: 0.8, connected: true, state: diagnosticsService.STALE}
+	],
+	drive: [
+	    {value: 0.1, state: diagnosticsService.STALE},
+	    {value: -0.2, state: diagnosticsService.STALE}
 	]
     };
 
