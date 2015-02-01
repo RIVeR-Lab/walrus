@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import argparse
+from termcolor import colored
+import rospkg
+import subprocess
+
+rospack = rospkg.RosPack()
+
+EMBEDED_PROJECTS = ['main_board', 'diagnostics_board', 'boom_board']
+
+def main():
+    parser = argparse.ArgumentParser(description='Tool for configuring the WALRUS Robot', prog='walrus')
+    subparsers = parser.add_subparsers()
+
+    embeded_parser = subparsers.add_parser('embeded', help='Display the current configuration')
+    embeded_subparsers = embeded_parser.add_subparsers()
+
+
+    embeded_bootloader_parser = embeded_subparsers.add_parser('bootloader', help='Configure the embeded bootloader')
+    embeded_bootloader_subparsers = embeded_bootloader_parser.add_subparsers()
+
+    embeded_bootloader_upload_parser = embeded_bootloader_subparsers.add_parser('upload', help='Upload the bootloader')
+    embeded_bootloader_upload_parser.set_defaults(func=embeded_bootloader_upload)
+    embeded_bootloader_upload_parser.add_argument('device', help='The device to upload to')
+
+    for project in EMBEDED_PROJECTS:
+        embeded_project_parser = embeded_subparsers.add_parser(project, help='Configure the '+project+' board')
+        embeded_project_subparsers = embeded_project_parser.add_subparsers()
+
+        embeded_project_upload_parser = embeded_project_subparsers.add_parser('upload', help='Upload the project')
+        embeded_project_upload_parser.set_defaults(func=embeded_project_upload, project=project)
+        embeded_project_upload_parser.add_argument('device', help='The device to upload to')
+
+
+    args = parser.parse_args()
+    args.func(args)
+
+
+def embeded_bootloader_upload(args):
+    device = args.device
+    print 'Uploading bootloader to: ' + device
+    upload_script = os.path.join(rospack.get_path('rosserial_teensyduino'), '../bootloader/upload.sh')
+    subprocess.call([upload_script, device])
+
+def embeded_project_upload(args):
+    project = args.project
+    device = args.device
+    print 'Uploading ' + project + ' to ' + device
+    print 'TODO: not implemented yet'
+
+
+
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <name>walrus_tools</name>
+  <version>0.0.0</version>
+  <description>Shell tools for the WALRUS Robot</description>
+
+  <maintainer email="mwills@wpi.edu">Mitchell Wills</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://robot.wpi.edu/walrus</url>
+  <url type="repository">https://github.com/RIVeR-Lab/walrus</url>
+
+  <author email="mwills@wpi.edu">Mitchell Wills</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>python</run_depend>
+  <run_depend>python-argparse</run_depend>
+
+  <export>
+  </export>
+</package>
