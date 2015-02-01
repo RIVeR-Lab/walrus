@@ -4,9 +4,9 @@
 avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U flash:w:$WALRUS_BOOTLOADER_HEX_FILE:a
 
 #Set Fuse bytes
-avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U efuse:w:0x9d:m
-avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U hfuse:w:0x9d:m
-avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U lfuse:w:0x9d:m
+avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U efuse:w:0xF3:m
+avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U hfuse:w:0xD8:m
+avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U lfuse:w:0xDE:m
 
 #Set lock bytes
-avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U lock:w:0x00:m
+avrdude -c AVRISP2 -p AT90USB1286 -P $1 -U lock:w:0xEF:m
