@@ -1,5 +1,5 @@
 /*
-This is an Arduino driver for the Freescale Semiconductor MC3392EK H-Bridge.
+This is an Arduino driver for the Freescale Semiconductor MC33932EK H-Bridge.
 Author: Brian Eccles
 */
 

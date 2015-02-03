@@ -27,7 +27,7 @@ void ExternalADC::sustain()
 	int LSB, MSB;
 	for (int l = 0; l < channels; l++)
 	{
-		MSB = Wire.read();
+		MSB = Wire.read() & 0xF;
 		LSB = Wire.read();
 		samples[l] = (MSB << 8) | LSB;
 	}

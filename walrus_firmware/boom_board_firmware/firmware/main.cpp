@@ -1,6 +1,7 @@
 
 #include <Arduino.h>
 #include <ros.h>
+#include <ros/time.h>
 #include <walrus_firmware_msgs/BoomBoardTXMsg.h>
 #include <walrus_firmware_msgs/BoomBoardRXMsg.h>
 #include "constants.h"
@@ -10,16 +11,16 @@
 #include <Bridge.h>
 #include <Maxon.h>
 
-void recv_msg(const walrus_firmware_msgs::BoomBoardTXMsg& msg);
-void disable();
+//void recv_msg(const walrus_firmware_msgs::BoomBoardTXMsg& msg);
+//void disable();
 
 //ROS node handle
-ros::NodeHandle nh;
+//ros::NodeHandle nh;
 //ROS Message publisher
-walrus_firmware_msgs::BoomBoardRXMsg rx_msg;
-ros::Publisher rx("walrus/main_board/rx", &rx_msg);
+//walrus_firmware_msgs::BoomBoardRXMsg rx_msg;
+//ros::Publisher rx("walrus/main_board/rx", &rx_msg);
 //ROS Message subscriber
-ros::Subscriber<walrus_firmware_msgs::BoomBoardTXMsg> tx("/walrus/boom_board/tx", &recv_msg);
+//ros::Subscriber<walrus_firmware_msgs::BoomBoardTXMsg> tx("/walrus/boom_board/tx", &recv_msg);
 
 //External ADC
 ExternalADC extADC;
@@ -37,11 +38,11 @@ long loop_start = 0;
 long counter = 1;
 //Status of system (to show on LED)
 int status = STATUS_NO_PC;
-bool led_state = false;
+bool led_state = HIGH;
 
 
 //Receive TX message from ROS master
-void recv_msg(const walrus_firmware_msgs::BoomBoardTXMsg &msg)
+/*void recv_msg(const walrus_firmware_msgs::BoomBoardTXMsg &msg)
 {
 	//Set motor speeds
 	bridge.setMotor(CHAN_PAN_MOTOR, msg.pan_power);
@@ -65,19 +66,21 @@ void disable()
 	maxon.disable();
 	//Turn CAM LED off
 	analogWrite(P_CAM_LED, 0);
-}
+}*/
 
 void setup()
 {
+	Serial.begin(115200);
 	//Initialize node, publishers and subscribers
-	nh.initNode();
-	nh.advertise(rx);
-	nh.subscribe(tx);
+	//nh.initNode();
+	//nh.advertise(rx);
+	//nh.subscribe(tx);
 	
 	//Setup digital IO
 	pinMode(P_LED_STATUS, OUTPUT);
 	pinMode(P_CAM_LED, OUTPUT);
 	pinMode(P_LPF_CLK, OUTPUT);
+	tone(P_LPF_CLK, 5000);
 	
 	//Setup external ADC
 	extADC.begin(ADDR_EXT_ADC, NUM_CHANNELS);
@@ -89,15 +92,18 @@ void setup()
 	maxon.begin(P_MAXON_IN1, P_MAXON_IN2, P_MAXON_DIR, P_MAXON_EN, P_MAXON_SPEED, P_MAXON_READY, P_MAXON_STATUS);
 	maxon.setMode(SPEED_MODE_OPEN);
 	maxon.setLEDDir(LED_SOURCE);
+	maxon.enable();
 	
 	//Setup H-bridge motor controller
 	bridge.begin(P_BRIDGE_IN1, P_BRIDGE_IN2, P_BRIDGE_IN3, P_BRIDGE_IN4, P_BRIDGE_D1, P_BRIDGE_D2, P_BRIDGE_D3, P_BRIDGE_D4, P_BRIDGE_SFA, P_BRIDGE_SFB, P_BRIDGE_LEDA, P_BRIDGE_LEDB);
 	bridge.setLEDDir(LED_SOURCE);
 	bridge.setBrake(CHAN_PAN_MOTOR);
 	bridge.setBrake(CHAN_TILT_MOTOR);
+	bridge.enable(CHAN_PAN_MOTOR);
+	bridge.enable(CHAN_TILT_MOTOR);
 	
 	//Setup LPF Filter
-	analogWrite(P_LPF_CLK, LPF_VALUE);	
+	//analogWrite(P_LPF_CLK, LPF_VALUE);
 }
 
 void loop()
@@ -105,31 +111,46 @@ void loop()
 	//Mark time of loop start
 	loop_start = millis();
 	
-	//Disable motors if we lose PC connection
-	if (!nh.connected())
+	//Disable motors if we l PC connection
+	/*if (!nh.connected())
 	{
-		disable();
+		//disable();
 		status = STATUS_NO_PC;
 	}
 	//Disable motors if we don't receive a message in a specific amount of time
 	else if (millis() > last_msg + MOTOR_OFF_TIMEOUT)
 	{
-		disable();
+		//disable();
 		status = STATUS_NO_MSG;
 	}
 	else
 	{
-		bridge.enable(CHAN_PAN_MOTOR);
-		bridge.enable(CHAN_TILT_MOTOR);
-		maxon.enable();
+		//bridge.enable(CHAN_PAN_MOTOR);
+		//bridge.enable(CHAN_TILT_MOTOR);
+		//maxon.enable();
 		status = STATUS_OK;	
-	}
+	}*/
+	
 	//Blink status LED based on status
 	if (counter % (status/ROS_MSG_RATE) == 0)
 	{
 		led_state = !led_state;
+		Serial.print("CO: ");
+		Serial.print(extADC.getValue(CHAN_CO_SENSE));
+		Serial.print(" LPG: ");
+		Serial.print(extADC.getValue(CHAN_LPG_SENSE));
+		Serial.print(" H: ");
+		Serial.print(extADC.getValue(CHAN_H_SENSE));
+		Serial.print(" CNG: ");
+		Serial.print(extADC.getValue(CHAN_CNG_SENSE));
+		Serial.print("\r\n");
 		digitalWrite(P_LED_STATUS, led_state);
 	}
+	
+	//maxon.setMotor(extADC.getValue(CHAN_DEPLOY_POT)/16 - 128);
+	//bridge.setMotor(CHAN_TILT_MOTOR, extADC.getValue(CHAN_TILT_POT)/16 - 128);
+	//bridge.setMotor(CHAN_PAN_MOTOR, extADC.getValue(CHAN_PAN_POT)/16 - 128);
+	//analogWrite(P_CAM_LED, extADC.getValue(CHAN_DEPLOY_POT)/16);
 	
 	//Read in external ADC samples
 	extADC.sustain();
@@ -139,8 +160,8 @@ void loop()
 	bridge.sustain();
 	
 	//Read in analog expansion samples
-	rx_msg.analog[0] = analogRead(P_ANALOG_EXP_1);
-	rx_msg.analog[1] = analogRead(P_ANALOG_EXP_2);
+	//rx_msg.analog[0] = analogRead(P_ANALOG_EXP_1);
+	/*rx_msg.analog[1] = analogRead(P_ANALOG_EXP_2);
 	rx_msg.analog[2] = analogRead(P_ANALOG_EXP_3);
 	rx_msg.analog[3] = analogRead(P_ANALOG_EXP_4);
 	//Read in potentiometers
@@ -157,13 +178,13 @@ void loop()
 	rx_msg.humidity = temphumid_sense.getHumidity();
 	//Read in motor currents
 	rx_msg.pan_current = extADC.getValue(CHAN_PAN_CURRENT);
-	rx_msg.tilt_current = extADC.getValue(CHAN_TILT_CURRENT);
+	rx_msg.tilt_current = extADC.getValue(CHAN_TILT_CURRENT);*/
 	//Publish our message
-	rx.publish(&rx_msg);
+	//rx.publish(&rx_msg);
 	
 	//Allow ros to receive
-	nh.spinOnce();
-	//Sleep until next cycle
+	//nh.spinOnce();
+	//Sleep until next cycle;
 	delay(ROS_MSG_RATE-(millis()-loop_start));
 	//Increment loop counter
 	counter++;	

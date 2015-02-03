@@ -51,7 +51,7 @@
 #define CHAN_TILT_CURRENT 5
 #define CHAN_PAN_POT 6
 #define CHAN_TILT_POT 7
-#define CHAN_DEPLOY_POT 8
+#define CHAN_DEPLOY_POT 8s
 
 //I2C Slave addresses
 #define ADDR_EXT_ADC 0x35
