@@ -32,8 +32,6 @@ Maxon maxon;
 Bridge bridge;
 //Time in millisencods of the last received message
 long last_msg = 0; 
-//Rate to control main loop
-long loop_start = 0;
 //Count the number of loops for timing
 long counter = 1;
 //Status of system (to show on LED)
@@ -108,6 +106,7 @@ void setup()
 
 void loop()
 {
+	long loop_start, elapsed;
 	//Mark time of loop start
 	loop_start = millis();
 	
@@ -185,7 +184,9 @@ void loop()
 	//Allow ros to receive
 	//nh.spinOnce();
 	//Sleep until next cycle;
-	delay(ROS_MSG_RATE-(millis()-loop_start));
+	elapsed = millis()-loop_start;
+	if (elapsed < ROS_MSG_RATE)
+		delay(ROS_MSG_RATE-elapsed);
 	//Increment loop counter
 	counter++;	
 }

@@ -1,27 +1,28 @@
 
 #include <Arduino.h>
-#include <ros.h>
-#include <walrus_firmware_msgs/MainBoardTXMsg.h>
-#include <walrus_firmware_msgs/MainBoardRXMsg.h>
+//#include <ros.h>
+//#include <walrus_firmware_msgs/MainBoardTXMsg.h>
+//#include <walrus_firmware_msgs/MainBoardRXMsg.h>
 #include "constants.h"
 #include <Wire.h>
 #include <TempHumid.h>
 #include <MPL3115A2.h>
 #include <ExternalADC.h>
-#include <OneWire.h>
+//#include <OneWire.h>
 #include <Servo.h>
-#include <SmartBatt.h>
+//#include <SmartBatt.h>
 
-void recv_msg(const walrus_firmware_msgs::MainBoardTXMsg& msg);
-void disable();
+//void recv_msg(const walrus_firmware_msgs::MainBoardTXMsg& msg);
+//void disable();
 
+/*
 //ROS node handle
 ros::NodeHandle nh;
 //ROS Message publisher
 walrus_firmware_msgs::MainBoardRXMsg rx_msg;
 ros::Publisher rx("/walrus/main_board/rx", &rx_msg);
 //ROS Message subscriber
-ros::Subscriber<walrus_firmware_msgs::MainBoardTXMsg> tx("/walrus/main_board/tx", &recv_msg);
+ros::Subscriber<walrus_firmware_msgs::MainBoardTXMsg> tx("/walrus/main_board/tx", &recv_msg);*/
 
 //Pressure sensor
 MPL3115A2 pressure_sense;
@@ -30,13 +31,13 @@ ExternalADC extADC;
 //Temperature and humidity sensor
 TempHumid temphumid_sense;
 //OneWire object for temperature sensors
-OneWire exttemp_sense(P_EXT_TEMP);
+//OneWire exttemp_sense(P_EXT_TEMP);
 //Motor servos
 Servo motor1, motor2, motor3, motor4;
 //Battery SMBus objects
-SmartBatt upper[4], lower[4];
+//SmartBatt upper[4], lower[4];
 //Time in milliseconds of the last received message
-long last_msg = 0;
+/*long last_msg = 0;
 //Stores values read from external temperature sensors
 int temps[10] = {0,0,0,0,0,0,0,0,0,0};
 //Temp sensor addresses
@@ -44,15 +45,14 @@ uint8_t temp_addr[10][8] = {TEMP_1_ADDR, TEMP_2_ADDR, TEMP_3_ADDR, TEMP_4_ADDR, 
 bool temp_en[10] = {TEMP_1_EN, TEMP_2_EN, TEMP_3_EN, TEMP_4_EN, TEMP_5_EN, TEMP_6_EN, TEMP_7_EN, TEMP_8_EN, TEMP_9_EN, TEMP_10_EN};
 //Temp sensor buffer;
 uint8_t temp_buff[9];
-//Rate to control main loop
-long loop_start;
+//Rate to control main loop*/
 //Count the number of loops for timing
 long counter = 1;
 //Status of system (to show on LED)
 int status = STATUS_NO_PC;
 bool led_state = false;
 
-//Receive TX message from ROS master
+/*//Receive TX message from ROS master
 void recv_msg(const walrus_firmware_msgs::MainBoardTXMsg &msg)
 {
 	//Set motor speeds 
@@ -88,13 +88,14 @@ void disable()
 	analogWrite(P_EXT_LED_2, 0);
 	analogWrite(P_EXT_LED_3, 0);
 }
-
+*/
 void setup()
 {
+	Serial.begin(115200);
 	//Initialize node, publishers and subscribers
-	nh.initNode();
-	nh.advertise(rx);
-	nh.subscribe(tx);
+	//nh.initNode();
+	//nh.advertise(rx);
+	//nh.subscribe(tx);
 	
 	//Setup Motors
 	motor1.attach(P_MOTOR_1);
@@ -113,6 +114,7 @@ void setup()
 	pinMode(P_EXT_LED_1, OUTPUT);
 	pinMode(P_EXT_LED_2, OUTPUT);
 	pinMode(P_EXT_LED_3, OUTPUT);
+	pinMode(P_CONTACTOR, OUTPUT);
 	
 	//Setup external ADC
 	extADC.begin(ADDR_EXT_ADC, 2);
@@ -127,27 +129,27 @@ void setup()
 	pressure_sense.enableEventFlags();
 	
 	//Setup battery SMBus objects
-	upper[0].begin(i2c_bus0);
+	/*upper[0].begin(i2c_bus0);
 	upper[1].begin(i2c_bus1);
 	upper[2].begin(i2c_bus2);
 	upper[3].begin(i2c_bus3);
 	lower[0].begin(i2c_bus4);
 	lower[1].begin(i2c_bus5);
 	lower[2].begin(i2c_bus6);
-	lower[3].begin(i2c_bus7);
+	lower[3].begin(i2c_bus7);*/
 	
 	//Issue a one-wire convert command
-	exttemp_sense.reset();
-	exttemp_sense.skip();
-	exttemp_sense.write(T_CONVERT);
-	
+	//exttemp_sense.reset();
+	//exttemp_sense.skip();
+	//exttemp_sense.write(T_CONVERT);
 }
 
 void loop()
 {	
+	long loop_start, elapsed;
 	loop_start = millis();
 	
-	//Disable motors if we lose PC connection
+	/*//Disable motors if we lose PC connection
 	if (!nh.connected())
 	{
 		disable();
@@ -160,16 +162,66 @@ void loop()
 		status = STATUS_NO_MSG;
 	}
 	else
-		status = STATUS_OK;	
+		status = STATUS_OK;	*/
 	//Blink status LED based on status
 	if (counter % (status/ROS_MSG_RATE) == 0)
 	{
 		led_state = !led_state;
 		digitalWrite(P_LED_STATUS, led_state);
+		digitalWrite(P_CONTACTOR, led_state);
+		/*Serial.print("Water1: ");
+		Serial.print(digitalRead(P_WATER_1) ? "HIGH" : "LOW");
+		Serial.print(" Water2: ");
+		Serial.print(digitalRead(P_WATER_2) ? "HIGH" : "LOW");
+		Serial.print(" Water3: ");
+		Serial.print(digitalRead(P_WATER_3) ? "HIGH" : "LOW");
+		Serial.print(" Water4: ");
+		Serial.print(digitalRead(P_WATER_4) ? "HIGH" : "LOW");
+		Serial.print(" Water5: ");
+		Serial.print(digitalRead(P_WATER_5) ? "HIGH" : "LOW");
+		Serial.print(" Water6: ");
+		Serial.print(digitalRead(P_WATER_6) ? "HIGH" : "LOW");
+		Serial.print(" Temp: ");
+		Serial.print(digitalRead(P_EXT_TEMP) ? "HIGH" : "LOW");
+		/*Serial.print("Enc1: ");
+		Serial.print(analogRead(P_ENCODER_1));
+		Serial.print(" Enc2: ");
+		Serial.print(analogRead(P_ENCODER_2));
+		Serial.print(" Enc3: ");
+		Serial.print(analogRead(P_ENCODER_3));
+		Serial.print(" Enc4: ");
+		Serial.print(analogRead(P_ENCODER_4));*/
+		Serial.print(" Temp: ");
+		Serial.print(temphumid_sense.getTemp());
+		Serial.print(" Humid: ");
+		Serial.print(temphumid_sense.getHumidity());
+		Serial.print(" pressure: ");
+		Serial.print(pressure_sense.readPressure());
+		/*Serial.print(" Cur1: ");
+		/*Serial.print(analogRead(P_CURRENT_1));
+		Serial.print(" Cur2: ");
+		Serial.print(analogRead(P_CURRENT_2));
+		Serial.print(" Cur3: ");
+		Serial.print(analogRead(P_CURRENT_3));
+		Serial.print(" Cur4: ");
+		Serial.print(analogRead(P_CURRENT_4));
+		/*Serial.print(" Ten1: ");
+		Serial.print(extADC.getValue(CHAN_POT1));
+		Serial.print(" Ten2: ");
+		Serial.print(extADC.getValue(CHAN_POT2));*/
+		Serial.print("\r\n");
 	}
 	
+	int val = analogRead(P_CURRENT_1);
+	motor1.writeMicroseconds(500+val);
+	motor2.writeMicroseconds(500+val);
+	motor3.writeMicroseconds(500+val);
+	motor4.writeMicroseconds(500+val);
+	
+	
+	
 	//Read temperature
-	if (counter % (TEMP_READ_RATE/ROS_MSG_RATE) == 0)
+	/*if (counter % (TEMP_READ_RATE/ROS_MSG_RATE) == 0)
 	{
 		//Get data from temp sensors
 		for (int l = 0; l < 10; l++)
@@ -188,11 +240,12 @@ void loop()
 		exttemp_sense.reset();
 		exttemp_sense.skip();
 		exttemp_sense.write(T_CONVERT);
-	}
+	}*/
 	//Read in external ADC samples
+	
 	extADC.sustain();
 	
-	//Read in motor currents
+	/*//Read in motor currents
 	rx_msg.motor_current[0] = analogRead(P_CURRENT_1);
 	rx_msg.motor_current[1] = analogRead(P_CURRENT_2);
 	rx_msg.motor_current[2] = analogRead(P_CURRENT_3);
@@ -216,7 +269,7 @@ void loop()
 	rx_msg.tension[0] = extADC.getValue(CHAN_POT1);
 	rx_msg.tension[1] = extADC.getValue(CHAN_POT2);
 	//Read in pressure 
-	rx_msg.pressure = pressure_sense.readPressure();
+	rx_msg.pressure = pessure_sense.readPressurre();
 	//Read in board temperature
 	rx_msg.board_temp = temphumid_sense.getTemp();
 	//Read in humidity
@@ -238,10 +291,13 @@ void loop()
 	//Publish our message
 	rx.publish(&rx_msg);
 	
-	//Allow ros to receive
-	nh.spinOnce();	
+	//Allow ros to receive 
+	nh.spinOnce();	*/
 	//Sleep until next cycle
-	delay(ROS_MSG_RATE-(millis()-loop_start));
+	elapsed = millis() - loop_start;
+	if (elapsed < ROS_MSG_RATE)	
+		delay(ROS_MSG_RATE-elapsed);
+	//delay(10);
 	//Increment loop counter
 	counter++;
 }

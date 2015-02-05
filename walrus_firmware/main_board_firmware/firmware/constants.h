@@ -29,13 +29,13 @@
 #define P_WATER_3 19 //PE7
 #define P_WATER_4 2 //PD2
 #define P_WATER_5 3 //PD3
-#define P_WATER_6 4 //PE4
+#define P_WATER_6 36 //PE4
 
 //Temp sensor
 #define P_EXT_TEMP 46 //PE3
 
 //Contactor shut-off 
-#define P_CONTACTOR 0 //PC7
+#define P_CONTACTOR 17 //PC7
 
 //Battery SMBus lines
 //Batter 1
@@ -60,7 +60,7 @@
 #define P_BATT4LWR_SCL 9 //PE1
 
 //External LED pins
-#define P_EXT_LED_1 13 //PC4
+#define P_EXT_LED_1 14 //PC4
 #define P_EXT_LED_2 15 //PC5
 #define P_EXT_LED_3 16 //PC6
 
@@ -87,25 +87,25 @@
 #define READ_SCRATCH 0xBE
 
 //Temperature sensor addresses
-#define TEMP_1_EN true
+#define TEMP_1_EN false
 #define TEMP_1_ADDR {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-#define TEMP_2_EN true
+#define TEMP_2_EN false
 #define TEMP_2_ADDR {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-#define TEMP_3_EN true
+#define TEMP_3_EN false
 #define TEMP_3_ADDR {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-#define TEMP_4_EN true
+#define TEMP_4_EN false
 #define TEMP_4_ADDR {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-#define TEMP_5_EN true
+#define TEMP_5_EN false
 #define TEMP_5_ADDR {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-#define TEMP_6_EN true
+#define TEMP_6_EN false
 #define TEMP_6_ADDR {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-#define TEMP_7_EN true
+#define TEMP_7_EN false
 #define TEMP_7_ADDR {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-#define TEMP_8_EN true
+#define TEMP_8_EN false
 #define TEMP_8_ADDR {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-#define TEMP_9_EN true
+#define TEMP_9_EN false
 #define TEMP_9_ADDR {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
-#define TEMP_10_EN true
+#define TEMP_10_EN false
 #define TEMP_10_ADDR {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}
 
 

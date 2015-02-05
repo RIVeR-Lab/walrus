@@ -143,7 +143,7 @@ static void SetupHardware(void)
 	MCUSR &= ~(1 << WDRF);
 	
 	/* Enable watchdog to timeout if no usb command is received within 2 seconds */
-	wdt_enable(WDTO_2S);
+	//wdt_enable(WDTO_2S);
 	
 	/* Unlock the forced application start mode of the bootloader if it is restarted */
 	MagicBootKey = MAGIC_BOOT_KEY;

@@ -28,16 +28,10 @@ int TempHumid::getTemp()
 		Wire.write(MEASURE_TEMP_CMD);
 		Wire.endTransmission();
 		Wire.requestFrom(address, 2);
-		//int timeout = millis();
-		/*while (Wire.available() < 2)
-		{
-			if (millis() > timeout + 500)
-				return 0;
-		}*/
 		int MSB = Wire.read();
 		int LSB = Wire.read();
-		long value = (MSB << 8) | LSB;
-		return (int)((17572*value/65536)-4685);
+		uint16_t value = (MSB << 8) | LSB;
+		return (int)((17572*(long)value/65536)-4685);
 	}
 	return 0;
 }
@@ -51,16 +45,10 @@ int TempHumid::getHumidity()
 		Wire.write(MEASURE_HUMID_CMD);
 		Wire.endTransmission();
 		Wire.requestFrom(address, 2);
-		//int timeout = millis();
-		/*while (Wire.available() < 2)
-		{
-			if (millis() > timeout + 500)
-				return 0;
-		}*/
 		int MSB = Wire.read();
 		int LSB = Wire.read();
-		long value = (MSB << 8) | LSB;
-		return (int)((12500*value/65536)-600);
+		uint16_t value = (MSB << 8) | LSB;
+		return (int)((12500*(long)value/65536)-600);
 	}
 	return 0;
 } 
