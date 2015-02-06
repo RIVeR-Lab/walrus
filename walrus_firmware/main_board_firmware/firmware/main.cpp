@@ -8,7 +8,7 @@
 #include <TempHumid.h>
 #include <MPL3115A2.h>
 #include <ExternalADC.h>
-//#include <OneWire.h>
+#include <OneWire.h>
 #include <Servo.h>
 //#include <SmartBatt.h>
 
@@ -31,13 +31,13 @@ ExternalADC extADC;
 //Temperature and humidity sensor
 TempHumid temphumid_sense;
 //OneWire object for temperature sensors
-//OneWire exttemp_sense(P_EXT_TEMP);
+OneWire exttemp_sense(P_EXT_TEMP);
 //Motor servos
 Servo motor1, motor2, motor3, motor4;
 //Battery SMBus objects
 //SmartBatt upper[4], lower[4];
 //Time in milliseconds of the last received message
-/*long last_msg = 0;
+long last_msg = 0;
 //Stores values read from external temperature sensors
 int temps[10] = {0,0,0,0,0,0,0,0,0,0};
 //Temp sensor addresses
@@ -45,7 +45,6 @@ uint8_t temp_addr[10][8] = {TEMP_1_ADDR, TEMP_2_ADDR, TEMP_3_ADDR, TEMP_4_ADDR, 
 bool temp_en[10] = {TEMP_1_EN, TEMP_2_EN, TEMP_3_EN, TEMP_4_EN, TEMP_5_EN, TEMP_6_EN, TEMP_7_EN, TEMP_8_EN, TEMP_9_EN, TEMP_10_EN};
 //Temp sensor buffer;
 uint8_t temp_buff[9];
-//Rate to control main loop*/
 //Count the number of loops for timing
 long counter = 1;
 //Status of system (to show on LED)
@@ -168,7 +167,7 @@ void loop()
 	{
 		led_state = !led_state;
 		digitalWrite(P_LED_STATUS, led_state);
-		digitalWrite(P_CONTACTOR, led_state);
+		//digitalWrite(P_CONTACTOR, led_state);
 		/*Serial.print("Water1: ");
 		Serial.print(digitalRead(P_WATER_1) ? "HIGH" : "LOW");
 		Serial.print(" Water2: ");
@@ -191,7 +190,7 @@ void loop()
 		Serial.print(analogRead(P_ENCODER_3));
 		Serial.print(" Enc4: ");
 		Serial.print(analogRead(P_ENCODER_4));*/
-		Serial.print(" Temp: ");
+		/*Serial.print(" Temp: ");
 		Serial.print(temphumid_sense.getTemp());
 		Serial.print(" Humid: ");
 		Serial.print(temphumid_sense.getHumidity());
@@ -209,19 +208,48 @@ void loop()
 		Serial.print(extADC.getValue(CHAN_POT1));
 		Serial.print(" Ten2: ");
 		Serial.print(extADC.getValue(CHAN_POT2));*/
-		Serial.print("\r\n");
+		/*Serial.print(exttemp_sense.reset() ? "GOOD " : "BAD ");
+		exttemp_sense.write(0x33,0);
+		Serial.print("{");
+		uint8_t val;
+		for (int l = 0; l < 8; l++)
+		{
+			val = exttemp_sense.read();
+			Serial.print("0x");
+			if (val < 16)
+				Serial.print("0");
+			Serial.print(val, HEX);
+			if (l == 7)
+				Serial.print("}");
+			else
+				Serial.print(", ");
+		}
+		//Serial.print(temps[0]);
+		//Serial.print(" ");
+		//Serial.print(temps[1]);
+		Serial.print("\r\n");*/
 	}
 	
 	int val = analogRead(P_CURRENT_1);
-	motor1.writeMicroseconds(500+val);
-	motor2.writeMicroseconds(500+val);
-	motor3.writeMicroseconds(500+val);
-	motor4.writeMicroseconds(500+val);
+	if (!digitalRead(P_WATER_1))
+	{
+		motor1.writeMicroseconds(1000+val);
+		motor2.writeMicroseconds(1000+val);
+		motor3.writeMicroseconds(1000+val);
+		motor4.writeMicroseconds(1000+val);
+	}
+	else
+	{
+		motor1.writeMicroseconds(1500);
+		motor2.writeMicroseconds(1500);
+		motor3.writeMicroseconds(1500);
+		motor4.writeMicroseconds(1500);
+	}
 	
 	
 	
 	//Read temperature
-	/*if (counter % (TEMP_READ_RATE/ROS_MSG_RATE) == 0)
+	if (counter % (TEMP_READ_RATE/ROS_MSG_RATE) == 0)
 	{
 		//Get data from temp sensors
 		for (int l = 0; l < 10; l++)
@@ -233,14 +261,15 @@ void loop()
 				exttemp_sense.write(READ_SCRATCH);
 				for (int m = 0; m < 9; m++)
 					temp_buff[m] = exttemp_sense.read();
-				temps[l] = (temp_buff[1] << 8) | temp_buff[0];
+				temps[l] = ((temp_buff[1] << 8) | temp_buff[0]) * 5;
+				Serial.print(temps[l]);
 			}
 		}
 		//Issue new convert command to all devices
 		exttemp_sense.reset();
 		exttemp_sense.skip();
 		exttemp_sense.write(T_CONVERT);
-	}*/
+	}
 	//Read in external ADC samples
 	
 	extADC.sustain();

@@ -894,12 +894,15 @@ void _digitalWrite_HIGH_TABLE(void)
 		"ret"						"\n\t"
 		"sbi	%10, %11"				"\n\t"	// pin 45
 		"ret"						"\n\t"
+		"sbi	%12, %13"				"\n\t"	// pin 45
+		"ret"						"\n\t"
 		:: "I" (_SFR_IO_ADDR(CORE_PIN40_PORTREG)), "I" (CORE_PIN40_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN41_PORTREG)), "I" (CORE_PIN41_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN42_PORTREG)), "I" (CORE_PIN42_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN43_PORTREG)), "I" (CORE_PIN43_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN44_PORTREG)), "I" (CORE_PIN44_BIT),
-		   "I" (_SFR_IO_ADDR(CORE_PIN45_PORTREG)), "I" (CORE_PIN45_BIT)
+		   "I" (_SFR_IO_ADDR(CORE_PIN45_PORTREG)), "I" (CORE_PIN45_BIT),
+		   "I" (_SFR_IO_ADDR(CORE_PIN46_PORTREG)), "I" (CORE_PIN46_BIT)
 	);
 }
 void _digitalWrite_LOW_TABLE(void)
@@ -1053,12 +1056,15 @@ void _digitalWrite_LOW_TABLE(void)
 		"ret"						"\n\t"
 		"cbi	%10, %11"				"\n\t"	// pin 45
 		"ret"						"\n\t"
+		"cbi	%12, %13"				"\n\t"	// pin 46
+		"ret"						"\n\t"
 		:: "I" (_SFR_IO_ADDR(CORE_PIN40_PORTREG)), "I" (CORE_PIN40_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN41_PORTREG)), "I" (CORE_PIN41_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN42_PORTREG)), "I" (CORE_PIN42_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN43_PORTREG)), "I" (CORE_PIN43_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN44_PORTREG)), "I" (CORE_PIN44_BIT),
-		   "I" (_SFR_IO_ADDR(CORE_PIN45_PORTREG)), "I" (CORE_PIN45_BIT)
+		   "I" (_SFR_IO_ADDR(CORE_PIN45_PORTREG)), "I" (CORE_PIN45_BIT),
+		   "I" (_SFR_IO_ADDR(CORE_PIN46_PORTREG)), "I" (CORE_PIN46_BIT)
 	);
 }
 #endif
@@ -1511,12 +1517,17 @@ void _digitalRead_TABLE2(void)
 		"andi	r30, %11"				"\n\t"
 		"brne	_digitalRead_true2"			"\n\t"
 		"ret"						"\n\t"
+		"in	r30, %12"				"\n\t"	// pin 46
+		"andi	r30, %13"				"\n\t"
+		"brne	_digitalRead_true2"			"\n\t"
+		"ret"						"\n\t"
 		:: "I" (_SFR_IO_ADDR(CORE_PIN40_PINREG)), "M" (CORE_PIN40_BITMASK),
 		   "I" (_SFR_IO_ADDR(CORE_PIN41_PINREG)), "M" (CORE_PIN41_BITMASK),
 		   "I" (_SFR_IO_ADDR(CORE_PIN42_PINREG)), "M" (CORE_PIN42_BITMASK),
 		   "I" (_SFR_IO_ADDR(CORE_PIN43_PINREG)), "M" (CORE_PIN43_BITMASK),
 		   "I" (_SFR_IO_ADDR(CORE_PIN44_PINREG)), "M" (CORE_PIN44_BITMASK),
-		   "I" (_SFR_IO_ADDR(CORE_PIN45_PINREG)), "M" (CORE_PIN45_BITMASK)
+		   "I" (_SFR_IO_ADDR(CORE_PIN45_PINREG)), "M" (CORE_PIN45_BITMASK),
+		   "I" (_SFR_IO_ADDR(CORE_PIN46_PINREG)), "M" (CORE_PIN46_BITMASK)
 	);
 }
 #endif
@@ -1572,7 +1583,8 @@ const uint8_t PROGMEM digital_pin_table_PGM[] = {
 	CORE_PIN42_BITMASK,	(int)&CORE_PIN42_PINREG,
 	CORE_PIN43_BITMASK,	(int)&CORE_PIN43_PINREG,
 	CORE_PIN44_BITMASK,	(int)&CORE_PIN44_PINREG,
-	CORE_PIN45_BITMASK,	(int)&CORE_PIN45_PINREG
+	CORE_PIN45_BITMASK,	(int)&CORE_PIN45_PINREG,
+	CORE_PIN46_BITMASK,	(int)&CORE_PIN46_PINREG,
         #endif
 };
 
