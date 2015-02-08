@@ -81,7 +81,7 @@ void setup()
 	tone(P_LPF_CLK, 5000);
 	
 	//Setup external ADC
-	extADC.begin(ADDR_EXT_ADC, NUM_CHANNELS);
+	//extADC.begin(ADDR_EXT_ADC, NUM_CHANNELS);
 	
 	//Setup temperature/humidity sensor
 	temphumid_sense.begin(ADDR_TEMP_HUMID);
@@ -134,14 +134,17 @@ void loop()
 	if (counter % (status/ROS_MSG_RATE) == 0)
 	{
 		led_state = !led_state;
-		Serial.print("CO: ");
+		/*Serial.print("CO: ");
 		Serial.print(extADC.getValue(CHAN_CO_SENSE));
 		Serial.print(" LPG: ");
 		Serial.print(extADC.getValue(CHAN_LPG_SENSE));
 		Serial.print(" H: ");
 		Serial.print(extADC.getValue(CHAN_H_SENSE));
 		Serial.print(" CNG: ");
-		Serial.print(extADC.getValue(CHAN_CNG_SENSE));
+		Serial.print(extADC.getValue(CHAN_CNG_SENSE));*/
+		Serial.print(temphumid_sense.getTemp());
+		Serial.print(" ");
+		Serial.print(temphumid_sense.getHumidity());
 		Serial.print("\r\n");
 		digitalWrite(P_LED_STATUS, led_state);
 	}
@@ -152,7 +155,7 @@ void loop()
 	//analogWrite(P_CAM_LED, extADC.getValue(CHAN_DEPLOY_POT)/16);
 	
 	//Read in external ADC samples
-	extADC.sustain();
+	//extADC.sustain();
 	//Sustain maxon led status
 	maxon.sustain();
 	//Sustain H-bridge led status

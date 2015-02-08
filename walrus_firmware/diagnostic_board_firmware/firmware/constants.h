@@ -5,19 +5,33 @@
 //Status LED (pin sources LED current)
 #define P_LED_STATUS 18 //PE6
 
-//Button pins (normally open, grounded when closed)+
-#define P_BUTT_UP 6	//PD6, Button 1
-#define P_BUTT_RIGHT 5	//PD5, Button 2
-#define P_BUTT_DOWN 8	//PE0, Button 3
-#define P_BUTT_LEFT 7 	//PD7, Button 4
-#define P_BUTT_CENT 9	//PE1, Button 5
+//Buttons (normally open, grounded when closed)
+#define P_BUTT_1 5 //PD5
+#define P_BUTT_2 8 //PE0
+#define P_BUTT_3 6 //PD6
+#define P_BUTT_4 7 //PD7
+#define P_BUTT_5 9 //PE1
 
-//Button LED pins (pins source LED current)
-#define P_LED_UP 26		//PB6, Button 1
-#define P_LED_RIGHT 27 	//PB7, Button 2
-#define P_LED_DOWN 14	//PC4, Button 3
-#define P_LED_LEFT 15	//PC5, Button 4
-#define P_LED_CENT 16	//PC6, Button 5
+//LEDs (pins source LED current)
+#define P_LED_1 27 //PB7
+#define P_LED_2 14 //PC4
+#define P_LED_3 26 //PB6
+#define P_LED_4 15 //PC5
+#define P_LED_5 16 //PC6
+
+//Physical button mapping
+#define P_BUTT_UP P_BUTT_3
+#define P_BUTT_RIGHT P_BUTT_1
+#define P_BUTT_DOWN P_BUTT_5	
+#define P_BUTT_LEFT P_BUTT_4	
+#define P_BUTT_CENT P_BUTT_2	
+
+//Physical LED mapping
+#define P_LED_UP P_LED_3	
+#define P_LED_RIGHT P_LED_1	
+#define P_LED_DOWN P_LED_5	
+#define P_LED_LEFT P_LED_4	
+#define P_LED_CENT P_LED_2 
 
 //Display pins
 #define P_DISP_RS 41 //PF3
@@ -33,7 +47,7 @@
 #define P_DISP_D7 35 //PA7
 
 //Button debounce interval
-#define DEBOUNCE_TIME 200
+#define DEBOUNCE_TIME 5
 
 //LED cycle speed
 #define LED_CYCLE_SPEED 250

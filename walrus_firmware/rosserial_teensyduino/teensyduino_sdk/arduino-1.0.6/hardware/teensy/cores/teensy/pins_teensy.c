@@ -1517,17 +1517,27 @@ void _digitalRead_TABLE2(void)
 		"andi	r30, %11"				"\n\t"
 		"brne	_digitalRead_true2"			"\n\t"
 		"ret"						"\n\t"
-		"in	r30, %12"				"\n\t"	// pin 46
-		"andi	r30, %13"				"\n\t"
-		"brne	_digitalRead_true2"			"\n\t"
-		"ret"						"\n\t"
 		:: "I" (_SFR_IO_ADDR(CORE_PIN40_PINREG)), "M" (CORE_PIN40_BITMASK),
 		   "I" (_SFR_IO_ADDR(CORE_PIN41_PINREG)), "M" (CORE_PIN41_BITMASK),
 		   "I" (_SFR_IO_ADDR(CORE_PIN42_PINREG)), "M" (CORE_PIN42_BITMASK),
 		   "I" (_SFR_IO_ADDR(CORE_PIN43_PINREG)), "M" (CORE_PIN43_BITMASK),
 		   "I" (_SFR_IO_ADDR(CORE_PIN44_PINREG)), "M" (CORE_PIN44_BITMASK),
-		   "I" (_SFR_IO_ADDR(CORE_PIN45_PINREG)), "M" (CORE_PIN45_BITMASK),
-		   "I" (_SFR_IO_ADDR(CORE_PIN46_PINREG)), "M" (CORE_PIN46_BITMASK)
+		   "I" (_SFR_IO_ADDR(CORE_PIN45_PINREG)), "M" (CORE_PIN45_BITMASK)
+	);
+	asm volatile (
+		"in	r30, %0"				"\n\t"	// pin 46
+		"andi	r30, %1"				"\n\t"
+		"brne	_digitalRead_true3"			"\n\t"
+		"ret"						"\n\t"
+		:: "I" (_SFR_IO_ADDR(CORE_PIN46_PINREG)), "M" (CORE_PIN46_BITMASK)
+	);
+}
+
+void _digitalRead_true3(void)
+{
+	asm volatile (
+		"ldi	r30, 1"						"\n\t"
+		"ret"							"\n"
 	);
 }
 #endif
