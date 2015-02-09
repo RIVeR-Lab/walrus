@@ -13,10 +13,10 @@ void TempHumid::begin(int address)
 	started = true;
 	this->address = address;
 	Wire.begin();
-	Wire.beginTransmission(address);
+	/*Wire.beginTransmission(address);
 	Wire.write(WRITE_REG_CMD);
 	Wire.write(CONFIG_BYTE);
-	Wire.endTransmission();
+	Wire.endTransmission();*/
 }
 
 //Get the current temperature from the sensor

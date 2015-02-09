@@ -36,7 +36,7 @@
 
 //LPF Filter
 #define P_LPF_CLK 24//PB4
-#define LPF_VALUE 0
+#define LPF_VALUE 5000
 
 //Camera LED pin
 #define P_CAM_LED 15//PC5
@@ -51,7 +51,7 @@
 #define CHAN_TILT_CURRENT 5
 #define CHAN_PAN_POT 6
 #define CHAN_TILT_POT 7
-#define CHAN_DEPLOY_POT 8s
+#define CHAN_DEPLOY_POT 8
 
 //I2C Slave addresses
 #define ADDR_EXT_ADC 0x35

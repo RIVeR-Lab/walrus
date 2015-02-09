@@ -8,7 +8,7 @@ import os.path
 
 rospack = rospkg.RosPack()
 
-EMBEDDED_PROJECTS = ['main_board', 'diagnostics_board', 'boom_board']
+EMBEDDED_PROJECTS = ['main_board', 'diagnostic_board', 'boom_board']
 
 def main():
     parser = argparse.ArgumentParser(description='Tool for configuring the WALRUS Robot', prog='walrus')

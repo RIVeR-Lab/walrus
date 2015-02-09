@@ -192,14 +192,26 @@ void loop()
 		exttemp_sense.write(T_CONVERT);
 	}*/
 	
+	/*int val = analogRead(P_CURRENT_1);
+	if (val > 500)
+	{
+		motor1.writeMicroseconds(1500+((val-500)/2));
+		motor2.writeMicroseconds(1500+((val-500)/2));
+	}
+	else
+	{*/ 
+		motor1.writeMicroseconds(1500);
+		motor2.writeMicroseconds(1500);
+	//}
+	
 	//Read in external ADC samples
 	extADC.sustain();
 	
 	//Read in motor currents
-	rx_msg.motor_current[0] = analogRead(P_CURRENT_1);
-	rx_msg.motor_current[1] = analogRead(P_CURRENT_2);
-	rx_msg.motor_current[2] = analogRead(P_CURRENT_3);
-	rx_msg.motor_current[3] = analogRead(P_CURRENT_4);
+	//rx_msg.motor_current[0] = analogRead(P_CURRENT_1);
+	//rx_msg.motor_current[1] = analogRead(P_CURRENT_2);
+	//rx_msg.motor_current[2] = analogRead(P_CURRENT_3);
+	//rx_msg.motor_current[3] = analogRead(P_CURRENT_4);
 	/*//Read in motor encoders
 	rx_msg.pod_position[0] = analogRead(P_ENCODER_1);
 	rx_msg.pod_position[1] = analogRead(P_ENCODER_2);
@@ -239,7 +251,7 @@ void loop()
 		rx_msg.lcell_shutdown[l] = 0; //(lower[l].getShutdown() ? 1 : 0);
 	}*/
 	//Publish our message
-	rx.publish(&rx_msg);
+	//rx.publish(&rx_msg);
 	
 	//Allow ros to receive 
 	nh.spinOnce();	

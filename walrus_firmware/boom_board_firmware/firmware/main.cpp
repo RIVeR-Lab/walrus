@@ -78,7 +78,7 @@ void setup()
 	pinMode(P_LED_STATUS, OUTPUT);
 	pinMode(P_CAM_LED, OUTPUT);
 	pinMode(P_LPF_CLK, OUTPUT);
-	tone(P_LPF_CLK, 5000);
+	tone(P_LPF_CLK, LPF_VALUE);
 	
 	//Setup external ADC
 	//extADC.begin(ADDR_EXT_ADC, NUM_CHANNELS);

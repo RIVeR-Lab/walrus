@@ -49,8 +49,9 @@
 //Button debounce interval
 #define DEBOUNCE_TIME 5
 
-//LED cycle speed
-#define LED_CYCLE_SPEED 250
-
+//LED cycle constants
+#define LED_CYCLE_SPEED 100
+#define LED_FIRST_DIMM 32
+#define LED_SECOND_DIMM 16
 
 #endif
