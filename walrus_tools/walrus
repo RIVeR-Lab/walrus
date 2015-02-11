@@ -3,6 +3,8 @@
 import argparse
 import rospkg
 import subprocess
+from catkin.find_in_workspaces import find_in_workspaces
+import os.path
 
 rospack = rospkg.RosPack()
 
@@ -41,9 +43,17 @@ def embedded_bootloader_upload(args):
 
 def embedded_project_upload(args):
     project = args.project
-    print 'Uploading ' + project
-    subprocess.call(['catkin', 'build', '--no-deps', '-p1', project+'_firmware', '--make-args', project+'_firmware_firmware_'+project+'_firmware-upload'])
-
+    device = '/dev/ttyACM0'
+    hex_filename = project+'_firmware.hex'
+    hex_file_path_list = find_in_workspaces(project=project+'_firmware', path=hex_filename, first_matching_workspace_only=True)
+    if len(hex_file_path_list) > 0:
+        hex_file_path = hex_file_path_list[0]
+        hex_file_dir = os.path.dirname(hex_file_path)
+        print 'Uploading ' + project + ' to device: ' + device
+        subprocess.call(['avrdude', '-p', 'AT90USB1286', '-c', 'avrisp2', '-P', device, '-U', 'flash:w:'+hex_filename],
+                        cwd=hex_file_dir)
+    else:
+        print 'ERROR: no hexfile found'
 
 
 
