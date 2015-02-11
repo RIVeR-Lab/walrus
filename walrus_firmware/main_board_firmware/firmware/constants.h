@@ -11,6 +11,10 @@
 #define P_MOTOR_3 24
 #define P_MOTOR_4 26
 
+#define REG_MOTOR_2 OCR1A
+#define REG_MOTOR_3 OCR1B
+#define REG_MOTOR_4 OCR1A
+
 //Current sensor pins (analog)
 #define P_CURRENT_1 4
 #define P_CURRENT_2 5

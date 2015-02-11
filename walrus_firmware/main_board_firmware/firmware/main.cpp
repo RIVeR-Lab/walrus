@@ -17,7 +17,7 @@ void disable();
 
 
 //ROS node handle
-ros::NodeHandle nh;
+//ros::NodeHandle nh;
 //ROS Message publisher
 walrus_firmware_msgs::MainBoardRXMsg rx_msg;
 ros::Publisher rx("/walrus/main_board/rx", &rx_msg);
@@ -33,7 +33,7 @@ TempHumid temphumid_sense;
 //OneWire object for temperature sensors
 OneWire exttemp_sense(P_EXT_TEMP);
 //Motor servos
-Servo motor1, motor2, motor3, motor4;
+//Servo motor1, motor2, motor3, motor4;
 //Battery SMBus objects
 SmartBatt upper[4], lower[4];
 //Time in milliseconds of the last received message
@@ -56,10 +56,10 @@ bool led_state = false;
 void recv_msg(const walrus_firmware_msgs::MainBoardTXMsg &msg)
 {
 	//Set motor speeds 
-	motor1.writeMicroseconds(msg.motor_power[0]);
-	motor2.writeMicroseconds(msg.motor_power[1]);
-	motor3.writeMicroseconds(msg.motor_power[2]);
-	motor4.writeMicroseconds(msg.motor_power[3]);
+	//motor1.writeMicroseconds(msg.motor_power[0]);
+	//motor2.writeMicroseconds(msg.motor_power[1]);
+	//motor3.writeMicroseconds(msg.motor_power[2]);
+	//motor4.writeMicroseconds(msg.motor_power[3]);
 	//Set contactor power state
 	if (msg.power_off)
 		digitalWrite(P_CONTACTOR, HIGH);
@@ -77,30 +77,30 @@ void recv_msg(const walrus_firmware_msgs::MainBoardTXMsg &msg)
 void disable()
 {
 	//Disable all motors
-	motor1.writeMicroseconds(1500);
-	motor2.writeMicroseconds(1500);
-	motor3.writeMicroseconds(1500);
-	motor4.writeMicroseconds(1500);
+	//motor1.writeMicroseconds(1500);
+	//motor2.writeMicroseconds(1500);
+	//motor3.writeMicroseconds(1500);
+	//motor4.writeMicroseconds(1500);
 	//Keep contactor on
-	digitalWrite(P_CONTACTOR, LOW);
+	//digitalWrite(P_CONTACTOR, LOW);
 	//Turn LED's off
-	analogWrite(P_EXT_LED_1, 0);
-	analogWrite(P_EXT_LED_2, 0);
-	analogWrite(P_EXT_LED_3, 0);
+	//analogWrite(P_EXT_LED_1, 0);
+	//analogWrite(P_EXT_LED_2, 0);
+	//analogWrite(P_EXT_LED_3, 0);
 }
 
 void setup()
 {
 	//Initialize node, publishers and subscribers
-	nh.initNode();
-	nh.advertise(rx);
-	nh.subscribe(tx);
+	//nh.initNode();
+	//nh.advertise(rx);
+	//nh.subscribe(tx);
 	
 	//Setup Motors
-	motor1.attach(P_MOTOR_1);
+	/*motor1.attach(P_MOTOR_1);
 	motor2.attach(P_MOTOR_2);
 	motor3.attach(P_MOTOR_3);
-	motor4.attach(P_MOTOR_4);
+	motor4.attach(P_MOTOR_4);*/
 	
 	//Setup digital IO
 	pinMode(P_LED_STATUS, OUTPUT);
@@ -141,6 +141,13 @@ void setup()
 	exttemp_sense.reset();
 	exttemp_sense.skip();
 	exttemp_sense.write(T_CONVERT);
+	
+	ICR1 = 20000; 
+	TCCR1A = 0xA8; //1010_1000
+	TCCR1B = 0x12; //0001_0010
+	OCR1A = 1500; //Microseconds
+	OCR1B = 1500; //Microseconds
+	OCR1C = 1500; //Microseconds
 }
 
 void loop()
@@ -148,6 +155,7 @@ void loop()
 	long loop_start, elapsed;
 	loop_start = millis();
 	
+	int time = millis();
 	//Disable motors if we lose PC connection
 	if (!nh.connected())
 	{
@@ -168,41 +176,44 @@ void loop()
 		led_state = !led_state;
 		digitalWrite(P_LED_STATUS, led_state);
 	}
+	int now = millis();
+	Serial.print("LED CONTROL: ");
+	Serial.print(now-time);
+	Serial.print("\r\n");
 	
 	//Read temperature
-	/*if (counter % (TEMP_READ_RATE/ROS_MSG_RATE) == 0)
+	if (counter % (TEMP_READ_RATE/ROS_MSG_RATE) == 0)
 	{
 		//Get data from temp sensors
 		for (int l = 0; l < 10; l++)
 		{
 			if (temp_en[l])
 			{
+				Serial.print(" Sensor: ");
+				time = millis();
 				exttemp_sense.reset();
 				exttemp_sense.select(temp_addr[l]);
 				exttemp_sense.write(READ_SCRATCH);
 				for (int m = 0; m < 9; m++)
 					temp_buff[m] = exttemp_sense.read();
 				temps[l] = ((temp_buff[1] << 8) | temp_buff[0]) * 5;
+				now = millis();
 				Serial.print(temps[l]);
+				Serial.print(" ");
+				Serial.print(time-now)
 			}
 		}
 		//Issue new convert command to all devices
 		exttemp_sense.reset();
 		exttemp_sense.skip();
 		exttemp_sense.write(T_CONVERT);
-	}*/
-	
-	/*int val = analogRead(P_CURRENT_1);
-	if (val > 500)
-	{
-		motor1.writeMicroseconds(1500+((val-500)/2));
-		motor2.writeMicroseconds(1500+((val-500)/2));
 	}
-	else
-	{*/ 
-		motor1.writeMicroseconds(1500);
-		motor2.writeMicroseconds(1500);
-	//}
+	
+	
+	//analogWrite(P_EXT_LED_1, 128);
+	//analogWrite(P_EXT_LED_2, 128);
+	//analogWrite(P_EXT_LED_3, 128);
+	
 	
 	//Read in external ADC samples
 	extADC.sustain();
@@ -254,7 +265,7 @@ void loop()
 	//rx.publish(&rx_msg);
 	
 	//Allow ros to receive 
-	nh.spinOnce();	
+	//nh.spinOnce();	
 	//Sleep until next cycle
 	elapsed = millis() - loop_start;
 	if (elapsed < ROS_MSG_RATE)	

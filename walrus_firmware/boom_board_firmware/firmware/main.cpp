@@ -80,6 +80,19 @@ void setup()
 	pinMode(P_LPF_CLK, OUTPUT);
 	tone(P_LPF_CLK, LPF_VALUE);
 	
+	pinMode(0, OUTPUT);
+	pinMode(1, OUTPUT);
+	digitalWrite(1, LOW);
+	delayMicroseconds(10);
+	digitalWrite(0, LOW);
+	delayMicroseconds(10);
+	digitalWrite(0, HIGH);
+	delayMicroseconds(10);
+	digitalWrite(1, HIGH);
+	delayMicroseconds(10); 
+	pinMode(0, INPUT);
+	pinMode(1, INPUT);
+	
 	//Setup external ADC
 	//extADC.begin(ADDR_EXT_ADC, NUM_CHANNELS);
 	
