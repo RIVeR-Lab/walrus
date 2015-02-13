@@ -98,7 +98,7 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include)
+include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
@@ -107,6 +107,13 @@ include_directories(
 # add_library(walrus_stair_detector
 #   src/${PROJECT_NAME}/walrus_stair_detector.cpp
 # )
+
+add_library(walrus_stair_detector src/walrus_stair_detector.cpp)
+target_link_libraries(walrus_stair_detector
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
+
 
 add_executable(normal_test src/normal_test.cpp)
 target_link_libraries(normal_test
