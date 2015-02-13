@@ -21,12 +21,304 @@
 #include <boost/foreach.hpp>
 #include <pcl/filters/project_inliers.h>
 #include <boost/assign/list_of.hpp>
+#include <queue>
+#include <boost/random.hpp>
+#include <boost/random/normal_distribution.hpp>
 
   typedef struct {
+    pcl::ModelCoefficients::Ptr coefficients;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull;
     pcl::PointXYZ plane_center;
     Eigen::Vector3f plane_normal;
   } DetectedPlane;
+
+
+
+// From http://stackoverflow.com/questions/10847007/using-the-gaussian-probability-density-function-in-c
+double normal_pdf(double x, double m, double s)
+{
+  static const double inv_sqrt_2pi = 0.3989422804014327;
+  double a = (x - m) / s;
+  return inv_sqrt_2pi / s * std::exp(-0.5f * a * a);
+}
+
+
+class Histogram {
+public:
+  Histogram(double min, double max, double sigma, int num_buckets) : min_(min), max_(max), sigma_(sigma), num_buckets_(num_buckets) {
+    buckets.resize(num_buckets);
+    bucket_size_ = (max_ - min_) / num_buckets;
+  }
+  void add(double value, double weight = 1.0) {
+    for(int i = 0; i < num_buckets_; ++i) {
+      buckets[i] += normal_pdf(valueAtIndex(i), value, sigma_) * weight;
+    }
+  }
+  double largestBucket() {
+    double max = -1;
+    int max_index = -1;
+    for(int i = 0; i < num_buckets_; ++i) {
+      if(buckets[i] > max) {
+	max = buckets[i];
+	max_index = i;
+      }
+    }
+    return valueAtIndex(max_index);
+  }
+  void print() {
+    double max = 0;
+    for(int i = 0; i < num_buckets_; ++i) {
+      if(buckets[i] > max)
+	max = buckets[i];
+    }
+    std::cerr << "Histogram:" << std::endl;
+    std::cerr.precision(6);
+    for(int i = 0; i < num_buckets_; ++ i) {
+      std::cerr << valueAtIndex(i) << ": ";
+      for(int j = 0; j < 40 * buckets[i] / max; ++j)
+	std::cerr << "*";
+      std::cerr << "        " << buckets[i] << std::endl;
+    }
+    std::cerr.unsetf ( std::ios::floatfield );
+  }
+private:
+  double valueAtIndex(int i) {
+    return min_ + i * bucket_size_ + bucket_size_ / 2;
+  }
+
+  double min_;
+  double max_;
+  double sigma_;
+  double bucket_size_;
+  int num_buckets_;
+  std::vector<double> buckets;
+};
+
+
+void selectRandomIndices(int num_to_select, int sample_size, std::vector<int>* items) {
+  items->clear();
+  if(sample_size < num_to_select)
+    return;
+  for(int i = 0; i < num_to_select; ++i) {
+    int index;
+    do {
+      index = rand() % sample_size;
+    } while(std::find(items->begin(), items->end(), index) != items->end());
+    items->push_back(index);
+  }
+}
+void alignedPlaneRansac(const std::vector<boost::shared_ptr<DetectedPlane> >& planes, std::vector<int>* inliers, Eigen::Vector3f* model) {
+  int max_iterations = 30;
+  int items_to_fit = 2;
+
+  double best_fit = std::numeric_limits<double>::infinity();
+
+  int iteration = 0;
+  while(iteration < max_iterations) {
+    std::vector<int> selected_items;
+    selectRandomIndices(items_to_fit, planes.size(), &selected_items);
+
+    Eigen::Vector3f qa = planes[selected_items[0]]->plane_normal;
+    Eigen::Vector3f qb =planes[selected_items[1]]->plane_normal;
+
+    if((-qa).dot(qb) > qa.dot(qb)){
+      qa = -qa;
+    }
+
+    Eigen::Vector3f estimated_model = (qa + qb)/2;
+
+    std::vector<int> estimate_inliers;
+    for(int i = 0; i < planes.size(); ++i) {
+      if(std::find(selected_items.begin(), selected_items.end(), i) != selected_items.end())
+	continue;
+      const boost::shared_ptr<DetectedPlane>& plane = planes[i];
+      if(plane->plane_normal.dot(estimated_model) > 0.92)
+	estimate_inliers.push_back(i);
+    }
+    std::vector<int> all_inliers;
+    all_inliers.insert(all_inliers.end(), selected_items.begin(), selected_items.end());
+    all_inliers.insert(all_inliers.end(), estimate_inliers.begin(), estimate_inliers.end());
+    if(all_inliers.size() > planes.size()/2) {
+      Eigen::Vector3f new_model;
+      for(int i = 0; i < all_inliers.size(); ++i) {
+	new_model += planes[all_inliers[i]]->plane_normal;
+      }
+      new_model /= all_inliers.size();
+      new_model.normalize();
+
+      double fit = 0;
+      for(int i = 0; i < all_inliers.size(); ++i) {
+	fit += M_PI/2 - new_model.dot(planes[all_inliers[i]]->plane_normal);
+      }
+      fit /= all_inliers.size();
+      if(fit < best_fit) {
+	*model = new_model;
+	*inliers = all_inliers;
+	best_fit = fit;
+	std::cerr << "Better fit: " << fit << " (" << iteration << ")[" << all_inliers.size() << "]" <<  std::endl;
+      }
+    }
+
+    ++iteration;
+  }
+}
+
+
+void planeDistanceRansac(const std::multimap<double, int> index_with_dist, double initial_estimate, std::vector<int>* inliers, double* model) {
+  int max_iterations = 30;
+  int items_to_fit = 1;
+
+  double best_fit = std::numeric_limits<double>::infinity();
+
+  int iteration = 0;
+  while(iteration < max_iterations) {
+    std::vector<int> selected_items;
+    selectRandomIndices(items_to_fit, index_with_dist.size(), &selected_items);
+
+    std::multimap<double, int>::const_iterator selected_point_itr = index_with_dist.begin();
+    std::advance(selected_point_itr, selected_items[0]);
+    double estimated_start = selected_point_itr->first;
+
+    std::multimap<double, int> estimate_inliers;
+    std::multimap<double, int>::const_iterator estimate_inliers_itr = index_with_dist.begin();
+    for(;estimate_inliers_itr != index_with_dist.end(); ++estimate_inliers_itr) {
+      double offset = fmod(std::fabs(estimate_inliers_itr->first - estimated_start), initial_estimate);
+      if(offset < 0.03 || initial_estimate - offset < 0.03)
+	estimate_inliers.insert(*estimate_inliers_itr);
+    }
+
+    double new_model = initial_estimate;
+    // TODO: actually calculate new model
+
+    if(estimate_inliers.size() > index_with_dist.size() * 0.3) {
+      std::vector<int> all_inliers;
+      double fit = 0;
+      std::multimap<double, int>::const_iterator final_inliers_itr = estimate_inliers.begin();
+      for(;final_inliers_itr != estimate_inliers.end(); ++final_inliers_itr) {
+	double offset = std::fmod(std::fabs(final_inliers_itr->first - estimated_start), new_model);
+	if(offset > new_model / 2)
+	  fit += new_model - offset;
+	else
+	  fit += offset;
+	all_inliers.push_back(final_inliers_itr->second);
+      }
+      fit /= all_inliers.size();
+      fit *= pow(1.02, (index_with_dist.size() - all_inliers.size()));
+      if(fit < best_fit) {
+	*model = new_model;
+	*inliers = all_inliers;
+	best_fit = fit;
+	std::cerr << "Better fit: " << fit << " (" << iteration << ")[" << all_inliers.size() << "] = " << new_model <<  std::endl;
+      }
+    }
+
+    ++iteration;
+  }
+}
+void planeSpacing(const std::vector<boost::shared_ptr<DetectedPlane> >& planes, const Eigen::Vector3f& stair_direction, std::vector<int>* inliers, double* model) {
+  double min_spacing = 0.15;
+  double max_spacing = 0.4;
+  if(planes.size() == 0){
+    std::cerr << "No planes: planeSpacing" << std::endl;
+    return;
+  }
+  boost::shared_ptr<DetectedPlane> p0 = planes[0];// pick an arbitrary plane to compute relative distances off of
+
+  // compute distance between planes along stair direction
+  std::multimap<double, int> inliers_with_dist;
+  for(int i = 0; i < planes.size(); ++i) {
+    const boost::shared_ptr<DetectedPlane>& plane = planes[i];
+    Eigen::Vector3f vec_to_p =  plane->plane_center.getVector3fMap() - p0->plane_center.getVector3fMap();
+    double dist = stair_direction.dot(vec_to_p);
+    inliers_with_dist.insert(std::pair<double, int>(dist, i));
+  }
+
+  std::vector<double> dists;
+  for(std::multimap<double, int>::const_iterator itr = inliers_with_dist.begin(); itr != inliers_with_dist.end(); ++itr) {
+    std::multimap<double, int>::const_iterator itr2 = itr;
+    ++itr2;
+    for(; itr2 != inliers_with_dist.end(); ++itr2) {
+      Eigen::Vector3f vec = planes[itr2->second]->plane_center.getVector3fMap() - planes[itr->second]->plane_center.getVector3fMap();
+      double dist = stair_direction.dot(vec);
+      if(dist > max_spacing*3)
+	break;
+      dists.push_back(dist);
+    }
+  }
+
+  Histogram hist(min_spacing, max_spacing, 0.02, 100);
+  BOOST_FOREACH(double dist, dists) {
+    if(dist < max_spacing)
+      hist.add(dist);
+    for(int i = 2; i < 4; ++i) {
+      double new_dist = dist / i;
+      if(new_dist > min_spacing && new_dist < max_spacing)
+	hist.add(dist, 1.0 / i);
+    }
+  }
+  //hist.print();
+  std::cerr << "Hist Distance: " << hist.largestBucket() << std::endl;
+
+  planeDistanceRansac(inliers_with_dist, hist.largestBucket(), inliers, model);
+}
+
+void planeSlopeRansac(const std::vector<boost::shared_ptr<DetectedPlane> >& planes, Eigen::Vector3f& vertical, Eigen::Vector3f& stair_direction, std::vector<int>* inliers, double* model) {
+  if(planes.size() == 0){
+    std::cerr << "No planes: planeVerticalRansac" << std::endl;
+    return;
+  }
+  int max_iterations = 30;
+  int items_to_fit = 2;
+
+  double best_fit = std::numeric_limits<double>::infinity();
+
+  int iteration = 0;
+  while(iteration < max_iterations) {
+    std::vector<int> selected_items;
+    selectRandomIndices(items_to_fit, planes.size(), &selected_items);
+
+    Eigen::Vector3f qa = planes[selected_items[0]]->plane_center.getVector3fMap();
+    Eigen::Vector3f qb =planes[selected_items[1]]->plane_center.getVector3fMap();
+
+    double estimated_model = (qa - qb).dot(vertical) / (qa - qb).dot(stair_direction);
+
+    std::vector<int> estimate_inliers;
+    for(int i = 0; i < planes.size(); ++i) {
+      if(std::find(selected_items.begin(), selected_items.end(), i) != selected_items.end())
+	continue;
+      const boost::shared_ptr<DetectedPlane> plane = planes[i];
+      Eigen::Vector3f q = plane->plane_center.getVector3fMap();
+      double offset = std::fabs((qa - q).dot(vertical) - (qa - q).dot(stair_direction) * estimated_model);
+      if(offset < 0.2)
+	estimate_inliers.push_back(i);
+    }
+    std::vector<int> all_inliers;
+    all_inliers.insert(all_inliers.end(), selected_items.begin(), selected_items.end());
+    all_inliers.insert(all_inliers.end(), estimate_inliers.begin(), estimate_inliers.end());
+    if(all_inliers.size() > planes.size() / 2) {
+      double new_model = estimated_model;
+      // TODO: actually calculate new model
+
+      double fit = 0;
+      for(int i = 0; i < all_inliers.size(); ++i) {
+	Eigen::Vector3f q = planes[all_inliers[i]]->plane_center.getVector3fMap();
+	double offset = std::fabs((qa - q).dot(vertical) - (qa - q).dot(stair_direction) * new_model);
+	fit += offset;
+      }
+      fit /= all_inliers.size();
+      fit *= pow(1.05, (planes.size() - all_inliers.size()));
+
+      if(fit < best_fit) {
+	*model = new_model;
+	*inliers = all_inliers;
+	best_fit = fit;
+	std::cerr << "Better fit: " << fit << " (" << iteration << ")[" << all_inliers.size() << "] = " << new_model <<  std::endl;
+      }
+    }
+
+    ++iteration;
+  }
+}
 
 
 
@@ -40,16 +332,20 @@ int main (int argc, char** argv)
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in (new pcl::PointCloud<pcl::PointXYZ>);
   pcl::io::loadPCDFile (argv[1], *cloud_in);
 
+  std::clock_t start = std::clock();
+
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
   pcl::VoxelGrid<pcl::PointXYZ> sor;
   sor.setInputCloud (cloud_in);
   sor.setLeafSize (0.03f, 0.03f, 0.03f);
   sor.filter (*cloud);
 
+  std::clock_t voxel = std::clock();
+
   pcl::IndicesPtr indices (new std::vector <int>);
   pcl::removeNaNFromPointCloud(*cloud, *indices);
 
-  std::clock_t start = std::clock();
+  std::clock_t filter = std::clock();
 
   pcl::search::Search<pcl::PointXYZ>::Ptr tree = boost::shared_ptr<pcl::search::Search<pcl::PointXYZ> > (new pcl::search::KdTree<pcl::PointXYZ>);
   pcl::PointCloud <pcl::Normal>::Ptr normals (new pcl::PointCloud <pcl::Normal>);
@@ -85,8 +381,15 @@ int main (int argc, char** argv)
   viewer.initCameraParameters();
   viewer.setCameraPosition(0, 0, -1, 0, -1, 0);
 
+  Eigen::Vector3f vertical;
+  vertical[0] = 0;
+  vertical[1] = -1;
+  vertical[2] = 0;
+
 
   std::vector<boost::shared_ptr<DetectedPlane> > horizontal_planes;
+  std::vector<boost::shared_ptr<DetectedPlane> > potential_riser_planes;
+  std::vector<boost::shared_ptr<DetectedPlane> > other_vertical_planes;
 
   int plane_id = 0;
   BOOST_FOREACH(const pcl::PointIndices& cluster, clusters) {
@@ -115,10 +418,10 @@ int main (int argc, char** argv)
       std::cout << "Could not find any points that fitted the plane model." << std::endl;
     else
       {
-	std::cerr << "Model coefficients: " << coefficients->values[0] << " "
+	/*std::cerr << "Model coefficients: " << coefficients->values[0] << " "
 		  << coefficients->values[1] << " "
 		  << coefficients->values[2] << " "
-		  << coefficients->values[3] << std::endl;
+		  << coefficients->values[3] << std::endl;*/
 
 	pcl::IndicesPtr inlier_indices (new std::vector <int>);
 	*inlier_indices = inlierIndices.indices;
@@ -164,100 +467,46 @@ int main (int argc, char** argv)
 	plane->cloud_hull = cloud_hull;
 	plane->plane_center = plane_center;
 	plane->plane_normal = n;
-
-	Eigen::Vector3f vertical;
-	vertical[0] = 0;
-	vertical[1] = -1;
-	vertical[2] = 0;
-	std::cerr << vertical.dot(n) << std::endl;
-
-	pcl::PointCloud<pcl::PointXYZ> points2d;
-	BOOST_FOREACH(const pcl::PointXYZ& abs_point, *cloud_hull) {
-	  Eigen::Vector3f p;// = abs_point.getVector3fMap() - plane_center.getVector3fMap();
-	  p[0] = abs_point.x - plane_center.x;
-	  p[1] = abs_point.y - plane_center.y;
-	  p[2] = abs_point.z - plane_center.z;
-	  pcl::PointXYZ point2d;
-	  point2d.y = (u[1] * p[0] - u[0] * p[1]) / (u[1] * v[0] - u[0] * v[1]);
-	  point2d.x = (p[0] - v[0] * point2d.y) / u[0];// TODO: Divide by zero?
-	  points2d.push_back(point2d);
-	}
-
-	float min_area = std::numeric_limits<float>::infinity();
-	float min_area_pts[4][2];
-
-	for(int i = 0; i < points2d.size() - 1; ++i) {
-	  double theta = atan2(points2d[i + 1].y - points2d[i].y, points2d[i + 1].x - points2d[i].x);
-
-	  bool first = true;
-	  float pts[4]; // minx, miny, maxx, maxy
-	  BOOST_FOREACH(const pcl::PointXYZ& p_orig, points2d) {
-	    float x = p_orig.x * cos(theta) - p_orig.y * sin(theta);
-	    float y = p_orig.x * sin(theta) + p_orig.y * cos(theta);
-
-	    if(first || x < pts[0])
-	      pts[0] = x;
-	    if(first || y < pts[1])
-	      pts[1] = y;
-
-	    if(first || x > pts[2])
-	      pts[2] = x;
-	    if(first || y > pts[3])
-	      pts[3] = y;
-
-	    first = false;
-	  }
-
-	  double area = (pts[2] - pts[0]) * (pts[3] - pts[1]);
-	  if(area < min_area) {
-	    min_area = area;
-	    for(int j = 0; j < 2; ++j) {
-	      for(int k = 0; k < 2; ++k) {
-		min_area_pts[j+2*k][0] = pts[j*2] * cos(-theta) - pts[j*2+1] * sin(-theta);
-		min_area_pts[j+2*k][1] = pts[k*2] * sin(-theta) + pts[k*2+1] * cos(-theta);
-	      }
-	    }
-	    std::cerr << min_area << std::endl;
-	  }
-	}
-
-
-	Eigen::Vector4f min_pt, max_pt;
-	pcl::getMinMax3D(points2d, min_pt, max_pt);
-
-	pcl::PointCloud<pcl::PointXYZ>::Ptr rect2d (new pcl::PointCloud<pcl::PointXYZ>);
-	std::vector<int> is = boost::assign::list_of(0)(1)(3)(2);
-	BOOST_FOREACH(int i, is) {
-	  pcl::PointXYZ minmin_pt;
-	  minmin_pt.x = min_area_pts[i][0] * u[0] + min_area_pts[i][1] * v[0] + plane_center.x;
-	  minmin_pt.y = min_area_pts[i][0] * u[1] + min_area_pts[i][1] * v[1] + plane_center.y;
-	  minmin_pt.z = min_area_pts[i][0] * u[2] + min_area_pts[i][1] * v[2] + plane_center.z;
-	  rect2d->push_back(minmin_pt);
-	}
+	plane->coefficients = coefficients;
 
 
 
-	if(std::abs(vertical.dot(n) - 1) < 0.1) {
+	if(std::fabs(vertical.dot(n) - 1) < 0.1) {
 	  std::stringstream plane_ss;
 	  plane_ss << "plane_" << plane_id;
 	  viewer.addPolygon<pcl::PointXYZ>(cloud_hull, 1, 0, 0, plane_ss.str());
-	  plane_ss << "_rect";
-	  viewer.addPolygon<pcl::PointXYZ>(rect2d, 1, 0, 0, plane_ss.str());
+	  horizontal_planes.push_back(plane);
 	}
 
-	else if(std::abs(vertical.dot(n)) < 0.4) {
-	  std::stringstream plane_ss;
-	  plane_ss << "plane_" << plane_id;
-	  viewer.addPolygon<pcl::PointXYZ>(cloud_hull, 0, 0, 1, plane_ss.str());
-	  plane_ss << "_rect";
-	  viewer.addPolygon<pcl::PointXYZ>(rect2d, 0, 0, 1, plane_ss.str());
+	else if(std::fabs(vertical.dot(n)) < 0.4) {
+	  Eigen::Vector3f horizontal = vertical.cross(n);
+	  double max_width = 0;
+	  double max_height = 0;
+	  BOOST_FOREACH(const pcl::PointXYZ& abs_point, *cloud_hull) {
+	    Eigen::Vector3f p = abs_point.getVector3fMap() - plane_center.getVector3fMap();
+	    Eigen::Vector3f p_vertical = p.cwiseProduct(vertical);
+	    Eigen::Vector3f p_horizontal = p.cwiseProduct(horizontal);
+
+	    double width = p_horizontal.norm();
+	    double height = p_vertical.norm();
+	    if(width > max_width)
+	      max_width = width;
+	    if(height > max_height)
+	      max_height = height;
+	  }
+	  if(max_width > max_height * 1.25)
+	    potential_riser_planes.push_back(plane);
+	  else {
+	    other_vertical_planes.push_back(plane);
+	    std::stringstream plane_ss;
+	    plane_ss << "plane_" << plane_id;
+	    viewer.addPolygon<pcl::PointXYZ>(cloud_hull, 0, 1, 1, plane_ss.str());
+	  }
 	}
 	else {
 	  std::stringstream plane_ss;
 	  plane_ss << "plane_" << plane_id;
 	  viewer.addPolygon<pcl::PointXYZ>(cloud_hull, 0, 1, 0, plane_ss.str());
-	  plane_ss << "_rect";
-	  viewer.addPolygon<pcl::PointXYZ>(rect2d, 0, 1, 0, plane_ss.str());
 	}
 
 	++plane_id;
@@ -267,10 +516,68 @@ int main (int argc, char** argv)
   std::clock_t model_and_hull = std::clock();
 
 
-  std::cout << "Normal: " << (normal - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+  std::vector<boost::shared_ptr<DetectedPlane> > riser_planes;
+  std::vector<int> inliers;
+  Eigen::Vector3f model;
+  alignedPlaneRansac(potential_riser_planes, &inliers, &model);
+
+  for(int i = 0; i < potential_riser_planes.size(); ++i) {
+    std::stringstream plane_ss;
+    plane_ss << "asdfvplane_" << i;
+    if(std::find(inliers.begin(), inliers.end(), i) != inliers.end()) {
+      riser_planes.push_back(potential_riser_planes[i]);
+    }
+    else{
+      viewer.addPolygon<pcl::PointXYZ>(potential_riser_planes[i]->cloud_hull, 1, 1, 0, plane_ss.str());
+    }
+  }
+
+  double spacing_model;
+  std::vector<int> spacing_inliers;
+  std::vector<boost::shared_ptr<DetectedPlane> > actual_riser_planes;
+  planeSpacing(riser_planes, model, &spacing_inliers, &spacing_model);
+
+  for(int i = 0; i < riser_planes.size(); ++i) {
+    std::stringstream plane_ss;
+    plane_ss << "asplane_" << i;
+    if(std::find(spacing_inliers.begin(), spacing_inliers.end(), i) != spacing_inliers.end()) {
+      viewer.addPolygon<pcl::PointXYZ>(riser_planes[i]->cloud_hull, 0, 0, 1, plane_ss.str());
+      actual_riser_planes.push_back(riser_planes[i]);
+    }
+    else{
+      viewer.addPolygon<pcl::PointXYZ>(riser_planes[i]->cloud_hull, 1, 0, 0.5, plane_ss.str());
+    }
+  }
+  std::cerr << "Horizontal Distance: " << spacing_model << std::endl;
+
+
+  std::vector<int> vertical_inliers;
+  double slope_model;
+  planeSlopeRansac(actual_riser_planes, vertical, model, &vertical_inliers, &slope_model);
+
+  for(int i = 0; i < actual_riser_planes.size(); ++i) {
+    std::stringstream plane_ss;
+    plane_ss << "adddplane_" << i;
+    if(std::find(vertical_inliers.begin(), vertical_inliers.end(), i) != vertical_inliers.end()) {
+      viewer.addPolygon<pcl::PointXYZ>(actual_riser_planes[i]->cloud_hull, 0, 0, 1, plane_ss.str());
+    }
+    else{
+      viewer.addPolygon<pcl::PointXYZ>(actual_riser_planes[i]->cloud_hull, 0.5, 1, 0.5, plane_ss.str());
+    }
+  }
+  std::cerr << "vertical Distance: " << slope_model * spacing_model << std::endl;
+
+
+
+  std::clock_t vertical_ransac = std::clock();
+
+  std::cout << "Voxel: " << (voxel - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+  std::cout << "Filter: " << (filter - voxel) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+  std::cout << "Normal: " << (normal - filter) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
   std::cout << "Region Grow: " << (region_grow - normal) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
   std::cout << "Model and Hull: " << (model_and_hull - region_grow) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
-  std::cout << "Total Time: " << (model_and_hull - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+  std::cout << "Vertical Ransac: " << (vertical_ransac - model_and_hull) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+  std::cout << "Total Time: " << (vertical_ransac - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 
 
 
