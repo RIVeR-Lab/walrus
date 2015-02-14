@@ -16,11 +16,12 @@ public:
   virtual ~RansacModel() {}
 
   // Get the miminum number of elements to generate a model
-  int getMinimumModelSize() { return minimum_model_size_; }
-  virtual bool gemerateInitialModel(const SequenceView<DataT>& data, ModelT* model_out) = 0;
-  virtual bool fitsModel(const ModelT& model, const DataT& value) = 0;
-  virtual bool gemerateCompleteModel(const SequenceView<DataT>& data, ModelT* model_out) = 0;
-  virtual bool getModelError(const SequenceView<DataT>& data, const ModelT& model_out) = 0;
+  int getMinimumModelSize() const { return minimum_model_size_; }
+  virtual bool generateInitialModel(const SequenceView<DataT>& data, ModelT* model_out) const = 0;
+  virtual bool fitsModel(const ModelT& model, const DataT& value) const = 0;
+  virtual bool generateCompleteModel(const SequenceView<DataT>& data, ModelT* model_out) const = 0;
+  virtual bool enoughInliers(int num_inliers, int data_size) const = 0;
+  virtual double getModelError(const SequenceView<DataT>& data, const ModelT& model) const = 0;
 
 
 private:
@@ -34,10 +35,10 @@ public:
 
   }
 
-  void setInput(const std::vector<DataT>* data) {
+  void setInput(std::vector<DataT>* data) {
     data_ = new ProxySequenceView<std::vector<DataT> >(data);
   }
-  void setInput(const std::vector<DataT>* data, const std::vector<int>* indices) {
+  void setInput(std::vector<DataT>* data, const std::vector<int>* indices) {
     data_ = new IndexSequenceView<std::vector<DataT> >(data, indices);
   }
 
@@ -54,42 +55,57 @@ public:
     double best_fit = std::numeric_limits<double>::infinity();
 
     for(int iteration = 0; iteration < max_iterations_; ++iteration) {
-      if(!selectRandomIndices())
+      if(!selectRandomIndices()) {
+	std::cerr << "failed to select initial RANSAC indices" << std::endl;
 	continue;
+      }
 
       IndexSequenceView<SequenceView<DataT> > initial_data(data_, &initial_indices_);
-      if(!model_->generateInitialModel(initial_data, &initial_model_))
+      if(!model_->generateInitialModel(initial_data, &initial_model_)) {
+	std::cerr << "failed to generate initial RANSAC model" << std::endl;
 	continue;
+      }
 
       estimate_inlier_indices_.clear();
       for(int i = 0; i < data_->size(); ++i) {
 	if(std::find(initial_indices_.begin(), initial_indices_.end(), i) != initial_indices_.end())
 	  continue;
-	if(model_->fitsModel(*model_, (*data_)[i]))
+	if(model_->fitsModel(initial_model_, (*data_)[i]))
 	  estimate_inlier_indices_.push_back(i);
       }
 
-      if(model_->enoughInliers(estimate_inlier_indices_.size())) {
+      if(model_->enoughInliers(estimate_inlier_indices_.size(), data_->size())) {
 	all_inlier_indices_.clear();
 	all_inlier_indices_.insert(all_inlier_indices_.end(), initial_indices_.begin(), initial_indices_.end());
 	all_inlier_indices_.insert(all_inlier_indices_.end(), estimate_inlier_indices_.begin(), estimate_inlier_indices_.end());
 
 	IndexSequenceView<SequenceView<DataT> > all_inlier_data(data_, &all_inlier_indices_);
-	if(!model_->generateCompleteModel(all_inlier_data, &final_model_))
+	if(!model_->generateCompleteModel(all_inlier_data, &final_model_)) {
+	  std::cerr << "failed to generate complete RANSAC model" << std::endl;
 	  continue;
+	}
 
 	double error = model_->getModelError(all_inlier_data, final_model_);
 	if(error < best_fit) {
+	  std::cerr << "Better fit: " << error << " (" << iteration << ")[" << all_inlier_indices_.size() << "]" <<  std::endl;
 	  best_fit = error;
 	  *inliers_out = all_inlier_indices_;
 	  *model_out = final_model_;
 	}
+	else
+	  std::cerr << "Worse fit: " << error << " (" << iteration << ")[" << all_inlier_indices_.size() << "]" <<  std::endl;
+      }
+      else {
+	std::cerr << "not enough ransac inliers " << estimate_inlier_indices_.size() << " / " << data_->size() << std::endl;
       }
     }
 
-    if(best_fit == std::numeric_limits<double>::infinity()) // never found a model
+    if(best_fit == std::numeric_limits<double>::infinity()) { // never found a model
+      std:: cerr << "No valid RANSAC model found" << std::endl;
       return false;
+    }
 
+    std:: cerr << "Found RANSAC model matching " << inliers_out->size() << "/" << data_->size() << std::endl;
     return true;
   }
 
@@ -108,11 +124,12 @@ private:
       } while(std::find(initial_indices_.begin(), initial_indices_.end(), index) != initial_indices_.end());
       initial_indices_[i] = index;
     }
+    return true;
   }
 
 private:
   const RansacModel<DataT, ModelT>* model_;
-  const SequenceView<DataT>* data_;
+  SequenceView<DataT>* data_;
 
   std::vector<int> initial_indices_;
   ModelT initial_model_;

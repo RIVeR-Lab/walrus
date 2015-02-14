@@ -6,6 +6,8 @@
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <boost/thread.hpp>
+#include <walrus_stair_detector/detected_plane.h>
+#include <walrus_stair_detector/parallel_plane_ransac_model.h>
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -21,57 +23,10 @@ using namespace ::boost;
 using namespace ::boost::multi_index;
 using namespace ::boost::logic;
 
-struct DetectedPlane {
-  DetectedPlane(int id)
-    : id(id),
-      orientation(OtherOrientation),
-      coefficients(new pcl::ModelCoefficients),
-      inliers(new pcl::PointIndices()),
-      cluster_projected(new pcl::PointCloud<pcl::PointXYZ>),
-      cluster_hull(new pcl::PointCloud<pcl::PointXYZ>),
-      is_riser(indeterminate), is_tread(indeterminate), is_wall(indeterminate) {}
-  typedef shared_ptr<DetectedPlane> Ptr;
-
-  struct ById {};
-  struct ByOrientation {};
-
-  enum Orientation {
-    Horizontal,
-    Vertical,
-    OtherOrientation
-  };
-
-
-  int id;
-  Orientation orientation;
-  tribool is_riser;
-  tribool is_tread;
-  tribool is_wall;
-
-  pcl::ModelCoefficients::Ptr coefficients;
-  pcl::PointIndices::Ptr inliers;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cluster_projected;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cluster_hull;
-
-  Eigen::Vector3f centroid;
-  Eigen::Vector3f normal;
-
-  double vertical_width;
-  double vertical_height;
-};
 
 class WalrusStairDetector {
 public:
   typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
-typedef multi_index_container<
-  DetectedPlane::Ptr,
-  indexed_by<
-    // sort by id
-    ordered_unique<tag<DetectedPlane::ById>, member<DetectedPlane,int,&DetectedPlane::id> >,
-    ordered_non_unique<tag<DetectedPlane::ByOrientation>, member<DetectedPlane,DetectedPlane::Orientation,&DetectedPlane::orientation> >
-    >
-  > DetectedPlaneSet;
-  typedef DetectedPlaneSet::index<DetectedPlane::ById>::type DetectedPlaneSetById;
 
   WalrusStairDetector();
   ~WalrusStairDetector();
@@ -90,6 +45,7 @@ private:
   void computeVerticalPlaneSize(DetectedPlane::Ptr plane, const Eigen::Vector3f& vertical);
   void computePlaneOrientation(DetectedPlane::Ptr plane, const Eigen::Vector3f& vertical);
   void guessPlaneType(DetectedPlane::Ptr plane);
+  bool findParallelRiserPlanes(std::vector<DetectedPlane::Ptr>& planes);
 
   double min_riser_height_;
   double max_riser_height_;

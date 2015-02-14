@@ -63,10 +63,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
   timer.end("region grow");
 
 
-#if VISUALIZE
-  plane_visual_.clear();
-#endif
-  DetectedPlaneSet planes;
+  std::vector<DetectedPlane::Ptr> planes;
   int plane_id = 0;
   BOOST_FOREACH(const pcl::PointIndices& cluster, clusters) {
     DetectedPlane::Ptr plane(new DetectedPlane(plane_id++));
@@ -108,25 +105,18 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
     timer.end("plane properties");
 
 
-    planes.insert(plane);
-#if VISUALIZE
-    plane_visual_.push_back(plane);
-#endif
+    planes.push_back(plane);
     timer.skip();
   }
 
-  Ransac<DetectedPlane::Ptr, double> ransac(NULL);
-  std::vector<int> inliers;
-  double model;
-  ransac.estimate(&inliers, &model);
-
-
-  std::pair<DetectedPlaneSetById::iterator, DetectedPlaneSetById::iterator> itrs = planes.get<DetectedPlane::ById>().equal_range(1);
-  for(DetectedPlaneSetById::iterator itr = itrs.first; itr != itrs.second; itr++)
-    ROS_INFO("Plane %d", (*itr)->id);
+  bool parallel_risers_result = findParallelRiserPlanes(planes);
+  timer.end("find parallel risers");
 
 
 
+#if VISUALIZE
+  plane_visual_ = planes;
+#endif
   timer.print();
 }
 
@@ -249,6 +239,31 @@ void WalrusStairDetector::guessPlaneType(DetectedPlane::Ptr plane) {
   }
 }
 
+
+bool WalrusStairDetector::findParallelRiserPlanes(std::vector<DetectedPlane::Ptr>& planes) {
+  std::vector<DetectedPlane::Ptr> potential_risers;
+  BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
+    if(plane->is_riser || indeterminate(plane->is_riser)) {
+      potential_risers.push_back(plane);
+    }
+  }
+
+  ParallelPlaneRansacModel model_description;
+  Ransac<DetectedPlane::Ptr, Eigen::Vector3f> ransac(&model_description);
+  ransac.setInput(&potential_risers);
+  ransac.setMaxIterations(30);
+  std::vector<int> inliers;
+  Eigen::Vector3f model;
+  bool result = ransac.estimate(&inliers, &model);
+  if(result) {
+    for(int i = 0; i < potential_risers.size(); ++i) {
+      if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
+	potential_risers[i]->is_tread = false;
+      }
+    }
+  }
+  return result;
+}
 
 #if VISUALIZE
 static std::string visName(const std::string& name, int index) {
