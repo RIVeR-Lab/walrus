@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <limits>
+#include <walrus_stair_detector/sequence_view.h>
 
 namespace walrus_stair_detector {
 
@@ -16,13 +17,10 @@ public:
 
   // Get the miminum number of elements to generate a model
   int getMinimumModelSize() { return minimum_model_size_; }
-  virtual bool gemerateInitialModel(const std::vector<DataT>& data, const std::vector<int>& indices,
-				    ModelT* model_out) = 0;
+  virtual bool gemerateInitialModel(const SequenceView<DataT>& data, ModelT* model_out) = 0;
   virtual bool fitsModel(const ModelT& model, const DataT& value) = 0;
-  virtual bool gemerateCompleteModel(const std::vector<DataT>& data, const std::vector<int>& indices,
-				     ModelT* model_out) = 0;
-  virtual bool getModelError(const std::vector<DataT>& data, const std::vector<int>& initial_indices,
-			     const ModelT& model_out) = 0;
+  virtual bool gemerateCompleteModel(const SequenceView<DataT>& data, ModelT* model_out) = 0;
+  virtual bool getModelError(const SequenceView<DataT>& data, const ModelT& model_out) = 0;
 
 
 private:
@@ -37,7 +35,10 @@ public:
   }
 
   void setInput(const std::vector<DataT>* data) {
-    data_ = data;
+    data_ = new ProxySequenceView<std::vector<DataT> >(data);
+  }
+  void setInput(const std::vector<DataT>* data, const std::vector<int>* indices) {
+    data_ = new IndexSequenceView<std::vector<DataT> >(data, indices);
   }
 
   void setMaxIterations(int num_itr) {
@@ -56,7 +57,8 @@ public:
       if(!selectRandomIndices())
 	continue;
 
-      if(!model_->generateInitialModel(data_, initial_indices_, &initial_model_))
+      IndexSequenceView<SequenceView<DataT> > initial_data(data_, &initial_indices_);
+      if(!model_->generateInitialModel(initial_data, &initial_model_))
 	continue;
 
       estimate_inlier_indices_.clear();
@@ -72,10 +74,11 @@ public:
 	all_inlier_indices_.insert(all_inlier_indices_.end(), initial_indices_.begin(), initial_indices_.end());
 	all_inlier_indices_.insert(all_inlier_indices_.end(), estimate_inlier_indices_.begin(), estimate_inlier_indices_.end());
 
-	if(!model_->generateCompleteModel(data_, all_inlier_indices_, &final_model_))
+	IndexSequenceView<SequenceView<DataT> > all_inlier_data(data_, &all_inlier_indices_);
+	if(!model_->generateCompleteModel(all_inlier_data, &final_model_))
 	  continue;
 
-	double error = model_->getModelError(data_, all_inlier_indices_, final_model_);
+	double error = model_->getModelError(all_inlier_data, final_model_);
 	if(error < best_fit) {
 	  best_fit = error;
 	  *inliers_out = all_inlier_indices_;
@@ -109,7 +112,7 @@ private:
 
 private:
   const RansacModel<DataT, ModelT>* model_;
-  const std::vector<DataT>* data_;
+  const SequenceView<DataT>* data_;
 
   std::vector<int> initial_indices_;
   ModelT initial_model_;
