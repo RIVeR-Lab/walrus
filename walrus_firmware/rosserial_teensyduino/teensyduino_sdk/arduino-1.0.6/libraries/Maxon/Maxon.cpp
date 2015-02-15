@@ -27,8 +27,6 @@ void Maxon::begin(int in1, int in2, int dir, int en, int spd, int rdy, int led)
 	pinMode(p_rdy, INPUT);
 	pinMode(p_led, OUTPUT);
 	
-	DDRE |= (1 << 3);
-	
 	//Set defaults
 	setMode(SPEED_MODE_OPEN);
 	setLEDDir(LED_SOURCE);
@@ -39,12 +37,8 @@ void Maxon::begin(int in1, int in2, int dir, int en, int spd, int rdy, int led)
 //Sustain status led reading
 void Maxon::sustain()
 {
-	//if (started)
-	//	digitalWrite(p_led, !(digitalRead(p_rdy) ^ led_dir));
-	if (!digitalRead(p_rdy) ^ led_dir)
-		PORTE |= (1 << 3);
-	else
-		PORTE &= ~(1 << 3);
+	if (started)
+		digitalWrite(p_led, !(digitalRead(p_rdy) ^ led_dir));
 }
 
 //Drives the motor at the given speed

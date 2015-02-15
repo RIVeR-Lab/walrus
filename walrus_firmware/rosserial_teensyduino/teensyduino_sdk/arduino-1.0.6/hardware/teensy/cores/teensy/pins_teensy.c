@@ -1693,27 +1693,6 @@ void _reboot_Teensyduino_(void)
 {
     wdt_enable(WDTO_250MS);
     while(true);
-	/*cli();
-	// stop watchdog timer, if running
-	MCUSR &= ~(1<<WDFR);
-	WDTCSR |= (1<<WDCE);
-	WDTCSR = 0;
-	delayMicroseconds(5000);
-	UDCON = 1;
-	USBCON = (1<<FRZCLK);
-	delayMicroseconds(15000);
-	disable_peripherals();
-	#if defined(__AVR_AT90USB162__)
-	asm volatile("jmp 0x3E00");
-	#elif defined(__AVR_ATmega32U4__)
-	asm volatile("jmp 0x7E00");
-	#elif defined(__AVR_AT90USB646__)
-	asm volatile("jmp 0xFC00");
-	#elif defined(__AVR_AT90USB1286__)
-	asm volatile("jmp 0x1E000");
-	#endif
-	//__builtin_unreachable();  // available in gcc 4.5
-	while (1) ;*/
 }
 
 void _restart_Teensyduino_(void)
