@@ -19,7 +19,6 @@ private:
 	//True if begin has been called
 	bool started;
 	
-	
 	//Private bus functions
 	int read_block(i2c_bus_t* bus, byte addr, byte command_code, byte* buf, int buf_size);
 	int read_word(i2c_bus_t* bus, byte addr, byte command_code);
@@ -34,7 +33,7 @@ public:
 	int getVoltage();
 	//Get the battery output current in mA
 	int getCurrent();
-	//Get the battery output charge in hundredths of a percent (0.01%)
+	//Get the battery charge in hundredths of a percent (0.01%)
 	int getCharge();
 	//Get the battery temperature in hundredths of a degree C
 	int getTemp();

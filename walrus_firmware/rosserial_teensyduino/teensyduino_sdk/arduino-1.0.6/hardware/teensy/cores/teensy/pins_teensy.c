@@ -25,6 +25,7 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
+#include <avr/wdt.h>
 #include "wiring_private.h"
 #include "pins_arduino.h"
 #include "usb_private.h"
@@ -1690,7 +1691,9 @@ static void disable_peripherals(void)
 
 void _reboot_Teensyduino_(void)
 {
-	cli();
+    wdt_enable(WDTO_250MS);
+    while(true);
+	/*cli();
 	// stop watchdog timer, if running
 	MCUSR &= ~(1<<WDFR);
 	WDTCSR |= (1<<WDCE);
@@ -1707,10 +1710,10 @@ void _reboot_Teensyduino_(void)
 	#elif defined(__AVR_AT90USB646__)
 	asm volatile("jmp 0xFC00");
 	#elif defined(__AVR_AT90USB1286__)
-	asm volatile("jmp 0x1FC00");
+	asm volatile("jmp 0x1E000");
 	#endif
 	//__builtin_unreachable();  // available in gcc 4.5
-	while (1) ;
+	while (1) ;*/
 }
 
 void _restart_Teensyduino_(void)

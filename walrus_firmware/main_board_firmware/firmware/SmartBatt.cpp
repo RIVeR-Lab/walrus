@@ -55,8 +55,8 @@ void SmartBatt::getManufacturer(char* buf, int len)
 	if (started)
 	{
 		 int len;
-		 len = read_block(i2c_bus, 11, 0x20, (byte*)buf, len);
-		 buf[len] = '\0';		 
+		 len = read_block(i2c_bus, 11, 0x20, (byte*)buf, len-1);
+		 buf[len-1] = '\0';		 
 	}
 }
 
@@ -66,8 +66,8 @@ void SmartBatt::getDeviceName(char* buf, int len)
 	if (started)
 	{
 		 int len;
-		 len = read_block(i2c_bus, 11, 0x21, (byte*)buf, len);
-		 buf[len] = '\0';		 
+		 len = read_block(i2c_bus, 11, 0x21, (byte*)buf, len-1);
+		 buf[len-1] = '\0';		 
 	}
 }
 
@@ -77,8 +77,8 @@ void SmartBatt::getChemistry(char* buf, int len)
 	if (started)
 	{
 		 int len;
-		 len = read_block(i2c_bus, 11, 0x22, (byte*)buf, len);
-		 buf[len] = '\0';		 
+		 len = read_block(i2c_bus, 11, 0x22, (byte*)buf, len-1);
+		 buf[len-1] = '\0';		 
 	}
 }
 
