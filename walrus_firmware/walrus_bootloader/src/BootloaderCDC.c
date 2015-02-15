@@ -88,7 +88,7 @@ void Application_Jump_Check(void)
 	#endif
 
 	/* If the reset source was the bootloader and the key is correct, clear it and jump to the application */
-	if ((MCUSR & (1 << WDRF)) && (MagicBootKey == MAGIC_BOOT_KEY))
+	if (!(MCUSR & ((1 << WDRF) | (1 << EXTRF))) || (MagicBootKey == MAGIC_BOOT_KEY))
 	  JumpToApplication |= true;
 
 	/* If a request has been made to jump to the user application, honor it */
@@ -129,6 +129,9 @@ int main(void)
 
 	/* Disconnect from the host - USB interface will be reset later along with the AVR */
 	USB_Detach();
+	
+	/* Unlock the forced application start mode of the bootloader if it is restarted */
+	MagicBootKey = MAGIC_BOOT_KEY;
 
 	/* Enable the watchdog and force a timeout to reset the AVR */
 	wdt_enable(WDTO_250MS);
@@ -141,12 +144,7 @@ static void SetupHardware(void)
 {
 	/* Disable watchdog if enabled by bootloader/fuses */
 	MCUSR &= ~(1 << WDRF);
-	
-	/* Enable watchdog to timeout if no usb command is received within 2 seconds */
-	wdt_enable(WDTO_2S);
-	
-	/* Unlock the forced application start mode of the bootloader if it is restarted */
-	MagicBootKey = MAGIC_BOOT_KEY;
+	wdt_disable();
 
 	/* Disable clock division */
 	clock_prescale_set(clock_div_1);
@@ -415,9 +413,6 @@ static void CDC_Task(void)
 	/* Check if endpoint has a command in it sent from the host */
 	if (!(Endpoint_IsOUTReceived()))
 	  return;
-	
-	/* Reset the watchdog timer after every command is received */
-	wdt_reset();
 
 	/* Read in the bootloader command (first byte sent from host) */
 	uint8_t Command = FetchNextCommandByte();

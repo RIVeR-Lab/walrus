@@ -1,1 +1,1 @@
-int8[80] display
+uint8[80] display

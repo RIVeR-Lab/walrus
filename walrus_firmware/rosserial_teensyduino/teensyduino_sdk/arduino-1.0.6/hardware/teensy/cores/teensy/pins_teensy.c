@@ -25,6 +25,7 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
+#include <avr/wdt.h>
 #include "wiring_private.h"
 #include "pins_arduino.h"
 #include "usb_private.h"
@@ -894,12 +895,15 @@ void _digitalWrite_HIGH_TABLE(void)
 		"ret"						"\n\t"
 		"sbi	%10, %11"				"\n\t"	// pin 45
 		"ret"						"\n\t"
+		"sbi	%12, %13"				"\n\t"	// pin 45
+		"ret"						"\n\t"
 		:: "I" (_SFR_IO_ADDR(CORE_PIN40_PORTREG)), "I" (CORE_PIN40_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN41_PORTREG)), "I" (CORE_PIN41_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN42_PORTREG)), "I" (CORE_PIN42_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN43_PORTREG)), "I" (CORE_PIN43_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN44_PORTREG)), "I" (CORE_PIN44_BIT),
-		   "I" (_SFR_IO_ADDR(CORE_PIN45_PORTREG)), "I" (CORE_PIN45_BIT)
+		   "I" (_SFR_IO_ADDR(CORE_PIN45_PORTREG)), "I" (CORE_PIN45_BIT),
+		   "I" (_SFR_IO_ADDR(CORE_PIN46_PORTREG)), "I" (CORE_PIN46_BIT)
 	);
 }
 void _digitalWrite_LOW_TABLE(void)
@@ -1053,12 +1057,15 @@ void _digitalWrite_LOW_TABLE(void)
 		"ret"						"\n\t"
 		"cbi	%10, %11"				"\n\t"	// pin 45
 		"ret"						"\n\t"
+		"cbi	%12, %13"				"\n\t"	// pin 46
+		"ret"						"\n\t"
 		:: "I" (_SFR_IO_ADDR(CORE_PIN40_PORTREG)), "I" (CORE_PIN40_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN41_PORTREG)), "I" (CORE_PIN41_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN42_PORTREG)), "I" (CORE_PIN42_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN43_PORTREG)), "I" (CORE_PIN43_BIT),
 		   "I" (_SFR_IO_ADDR(CORE_PIN44_PORTREG)), "I" (CORE_PIN44_BIT),
-		   "I" (_SFR_IO_ADDR(CORE_PIN45_PORTREG)), "I" (CORE_PIN45_BIT)
+		   "I" (_SFR_IO_ADDR(CORE_PIN45_PORTREG)), "I" (CORE_PIN45_BIT),
+		   "I" (_SFR_IO_ADDR(CORE_PIN46_PORTREG)), "I" (CORE_PIN46_BIT)
 	);
 }
 #endif
@@ -1518,6 +1525,21 @@ void _digitalRead_TABLE2(void)
 		   "I" (_SFR_IO_ADDR(CORE_PIN44_PINREG)), "M" (CORE_PIN44_BITMASK),
 		   "I" (_SFR_IO_ADDR(CORE_PIN45_PINREG)), "M" (CORE_PIN45_BITMASK)
 	);
+	asm volatile (
+		"in	r30, %0"				"\n\t"	// pin 46
+		"andi	r30, %1"				"\n\t"
+		"brne	_digitalRead_true3"			"\n\t"
+		"ret"						"\n\t"
+		:: "I" (_SFR_IO_ADDR(CORE_PIN46_PINREG)), "M" (CORE_PIN46_BITMASK)
+	);
+}
+
+void _digitalRead_true3(void)
+{
+	asm volatile (
+		"ldi	r30, 1"						"\n\t"
+		"ret"							"\n"
+	);
 }
 #endif
 
@@ -1572,7 +1594,8 @@ const uint8_t PROGMEM digital_pin_table_PGM[] = {
 	CORE_PIN42_BITMASK,	(int)&CORE_PIN42_PINREG,
 	CORE_PIN43_BITMASK,	(int)&CORE_PIN43_PINREG,
 	CORE_PIN44_BITMASK,	(int)&CORE_PIN44_PINREG,
-	CORE_PIN45_BITMASK,	(int)&CORE_PIN45_PINREG
+	CORE_PIN45_BITMASK,	(int)&CORE_PIN45_PINREG,
+	CORE_PIN46_BITMASK,	(int)&CORE_PIN46_PINREG,
         #endif
 };
 
@@ -1668,27 +1691,8 @@ static void disable_peripherals(void)
 
 void _reboot_Teensyduino_(void)
 {
-	cli();
-	// stop watchdog timer, if running
-	MCUSR &= ~(1<<WDFR);
-	WDTCSR |= (1<<WDCE);
-	WDTCSR = 0;
-	delayMicroseconds(5000);
-	UDCON = 1;
-	USBCON = (1<<FRZCLK);
-	delayMicroseconds(15000);
-	disable_peripherals();
-	#if defined(__AVR_AT90USB162__)
-	asm volatile("jmp 0x3E00");
-	#elif defined(__AVR_ATmega32U4__)
-	asm volatile("jmp 0x7E00");
-	#elif defined(__AVR_AT90USB646__)
-	asm volatile("jmp 0xFC00");
-	#elif defined(__AVR_AT90USB1286__)
-	asm volatile("jmp 0x1FC00");
-	#endif
-	//__builtin_unreachable();  // available in gcc 4.5
-	while (1) ;
+    wdt_enable(WDTO_250MS);
+    while(true);
 }
 
 void _restart_Teensyduino_(void)

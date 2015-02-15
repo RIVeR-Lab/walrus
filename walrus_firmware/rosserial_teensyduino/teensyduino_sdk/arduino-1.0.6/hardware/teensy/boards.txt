@@ -331,7 +331,7 @@ teensy2.menu.keys.usint.name=US International
 teensy2.menu.keys.usint.build.define1=-DLAYOUT_US_INTERNATIONAL
 
 teensypp2.name=Teensy++ 2.0
-teensypp2.upload.protocol=halfkay
+teensypp2.upload.protocol=avrisp2
 teensypp2.upload.maximum_size=130048
 teensypp2.upload.maximum_ram_size=8192
 teensypp2.upload.speed=12000000

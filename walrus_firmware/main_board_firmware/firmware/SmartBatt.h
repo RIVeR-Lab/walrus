@@ -15,10 +15,9 @@ class SmartBatt
 {
 private:
 	//SMBus i2c structure
-	i2c_bus_t i2c_bus;
+	i2c_bus_t* i2c_bus;
 	//True if begin has been called
 	bool started;
-	
 	
 	//Private bus functions
 	int read_block(i2c_bus_t* bus, byte addr, byte command_code, byte* buf, int buf_size);
@@ -28,13 +27,13 @@ public:
 	SmartBatt();
 	
 	//Setup this object, must be called before using other functions
-	void begin(i2c_bus_t i2c_bus);
+	void begin(i2c_bus_t* i2c_bus);
 	
 	//Get the battery output voltage in mV
 	int getVoltage();
 	//Get the battery output current in mA
 	int getCurrent();
-	//Get the battery output charge in hundredths of a percent (0.01%)
+	//Get the battery charge in hundredths of a percent (0.01%)
 	int getCharge();
 	//Get the battery temperature in hundredths of a degree C
 	int getTemp();

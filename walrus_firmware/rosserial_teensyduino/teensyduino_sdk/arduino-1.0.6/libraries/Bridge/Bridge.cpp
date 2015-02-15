@@ -16,7 +16,7 @@ void Bridge::begin(int in1, int in2, int in3, int in4, int d1, int d2, int d3, i
 	p_in4 = in4;
 	p_d1 = d1;
 	p_d2 = d2;
-	p_d3 = d4;
+	p_d3 = d3;
 	p_d4 = d4;
 	p_sfA = sfa;
 	p_sfB = sfb;
@@ -44,7 +44,7 @@ void Bridge::begin(int in1, int in2, int in3, int in4, int d1, int d2, int d3, i
 	//Set Defaults
 	setCoast(CHAN_A);
 	setCoast(CHAN_B);
-	setLEDDir(1);
+	setLEDDir(LED_SOURCE);
 	setMotor(CHAN_A, 0);
 	setMotor(CHAN_B, 0);
 	disable(CHAN_A);
@@ -74,23 +74,23 @@ void Bridge::setMotor(int channel, int speed)
 			{
 				analogWrite(p_in1, speed);
 				digitalWrite(p_in2, LOW);
-				digitalWrite(p_d1, HIGH);
+				digitalWrite(p_d1, LOW);
 			}
 			else if (speed < 0)
 			{
 				speed = speed*-1;
 				analogWrite(p_in2, speed);
 				digitalWrite(p_in1, LOW);
-				digitalWrite(p_d1, HIGH);
+				digitalWrite(p_d1, LOW);
 			}
 			else
 			{
 				digitalWrite(p_in1, LOW);
 				digitalWrite(p_in2, LOW);
 				if (coastA)
-					digitalWrite(p_d1, LOW);
-				else
 					digitalWrite(p_d1, HIGH);
+				else
+					digitalWrite(p_d1, LOW);
 			}
 				
 		}
@@ -100,23 +100,23 @@ void Bridge::setMotor(int channel, int speed)
 			{
 				analogWrite(p_in3, speed);
 				digitalWrite(p_in4, LOW);
-				digitalWrite(p_d3, HIGH);
+				digitalWrite(p_d3, LOW);
 			}
 			else if (speed < 0)
 			{
 				speed = speed*-1;
 				analogWrite(p_in4, speed);
 				digitalWrite(p_in3, LOW);
-				digitalWrite(p_d3, HIGH);
+				digitalWrite(p_d3, LOW);
 			}
 			else
 			{
 				digitalWrite(p_in3, LOW);
 				digitalWrite(p_in4, LOW);
 				if (coastA)
-					digitalWrite(p_d3, LOW);
-				else
 					digitalWrite(p_d3, HIGH);
+				else
+					digitalWrite(p_d3, LOW);
 			}
 				
 		}

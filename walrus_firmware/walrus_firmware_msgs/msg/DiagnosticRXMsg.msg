@@ -1,1 +1,1 @@
-int8 button
+uint8 button

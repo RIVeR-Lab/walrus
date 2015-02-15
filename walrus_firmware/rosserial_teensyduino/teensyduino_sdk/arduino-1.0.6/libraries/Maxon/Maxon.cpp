@@ -29,7 +29,7 @@ void Maxon::begin(int in1, int in2, int dir, int en, int spd, int rdy, int led)
 	
 	//Set defaults
 	setMode(SPEED_MODE_OPEN);
-	setLEDDir(1);
+	setLEDDir(LED_SOURCE);
 	disable();
 	setMotor(0);
 }

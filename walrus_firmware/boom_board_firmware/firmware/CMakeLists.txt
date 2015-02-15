@@ -4,6 +4,9 @@ include(${TEENSYDUINO})
 
 include_directories(${ROS_LIB_DIR})
 
+add_definitions(-DSTR_MANUFACTURER=L"WALRUS Rover MQP Team")
+add_definitions(-DSTR_PRODUCT=L"WALRUS Boom Payload Board")
+
 generate_arduino_firmware(boom_board_firmware
   SRCS main.cpp ${ROS_LIB_DIR}/time.cpp
   BOARD teensypp2

@@ -4,67 +4,67 @@
 #include <Arduino.h>
 
 
-#define SDA_PORT_0 PORTD
-#define SDA_PIN_0 2
-#define SCL_PORT_0 PORTD
-#define SCL_PIN_0 3
-#define I2C_TIMEOUT_0 500
+#define SDA_PORT_0 PORTA
+#define SDA_PIN_0 0
+#define SCL_PORT_0 PORTA
+#define SCL_PIN_0 1
+#define I2C_TIMEOUT_0 20
 #define I2C_NOINTERRUPT_0 0
 #define I2C_SLOWMODE_0 1
 
-#define SDA_PORT_1 PORTD
-#define SDA_PIN_1 4
-#define SCL_PORT_1 PORTD
-#define SCL_PIN_1 5
-#define I2C_TIMEOUT_1 500
+#define SDA_PORT_1 PORTA
+#define SDA_PIN_1 2
+#define SCL_PORT_1 PORTA
+#define SCL_PIN_1 3
+#define I2C_TIMEOUT_1 20
 #define I2C_NOINTERRUPT_1 0
 #define I2C_SLOWMODE_1 1
 
-#define SDA_PORT_2 PORTD
-#define SDA_PIN_2 3
-#define SCL_PORT_2 PORTD
-#define SCL_PIN_2 2
-#define I2C_TIMEOUT_2 500
+#define SDA_PORT_2 PORTA
+#define SDA_PIN_2 4
+#define SCL_PORT_2 PORTA
+#define SCL_PIN_2 5
+#define I2C_TIMEOUT_2 20
 #define I2C_NOINTERRUPT_2 0
 #define I2C_SLOWMODE_2 1
 
-#define SDA_PORT_3 PORTD
-#define SDA_PIN_3 3
-#define SCL_PORT_3 PORTD
-#define SCL_PIN_3 2
-#define I2C_TIMEOUT_3 500
+#define SDA_PORT_3 PORTA
+#define SDA_PIN_3 6
+#define SCL_PORT_3 PORTA
+#define SCL_PIN_3 7
+#define I2C_TIMEOUT_3 20
 #define I2C_NOINTERRUPT_3 0
 #define I2C_SLOWMODE_3 1
 
-#define SDA_PORT_4 PORTD
-#define SDA_PIN_4 3
-#define SCL_PORT_4 PORTD
-#define SCL_PIN_4 2
-#define I2C_TIMEOUT_4 500
+#define SDA_PORT_4 PORTC
+#define SDA_PIN_4 0
+#define SCL_PORT_4 PORTC
+#define SCL_PIN_4 1
+#define I2C_TIMEOUT_4 20
 #define I2C_NOINTERRUPT_4 0
 #define I2C_SLOWMODE_4 1
 
 #define SDA_PORT_5 PORTD
-#define SDA_PIN_5 3
+#define SDA_PIN_5 4
 #define SCL_PORT_5 PORTD
-#define SCL_PIN_5 2
-#define I2C_TIMEOUT_5 500
+#define SCL_PIN_5 5
+#define I2C_TIMEOUT_5 20
 #define I2C_NOINTERRUPT_5 0
 #define I2C_SLOWMODE_5 1
 
 #define SDA_PORT_6 PORTD
-#define SDA_PIN_6 3
+#define SDA_PIN_6 6
 #define SCL_PORT_6 PORTD
-#define SCL_PIN_6 2
-#define I2C_TIMEOUT_6 500
+#define SCL_PIN_6 7
+#define I2C_TIMEOUT_6 20
 #define I2C_NOINTERRUPT_6 0
 #define I2C_SLOWMODE_6 1
 
-#define SDA_PORT_7 PORTD
-#define SDA_PIN_7 3
-#define SCL_PORT_7 PORTD
-#define SCL_PIN_7 2
-#define I2C_TIMEOUT_7 500
+#define SDA_PORT_7 PORTE
+#define SDA_PIN_7 0
+#define SCL_PORT_7 PORTE
+#define SCL_PIN_7 1
+#define I2C_TIMEOUT_7 20
 #define I2C_NOINTERRUPT_7 0
 #define I2C_SLOWMODE_7 1
 

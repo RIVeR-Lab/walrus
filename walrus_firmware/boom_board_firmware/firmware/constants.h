@@ -36,7 +36,7 @@
 
 //LPF Filter
 #define P_LPF_CLK 24//PB4
-#define LPF_VALUE 0
+#define LPF_VALUE 5000
 
 //Camera LED pin
 #define P_CAM_LED 15//PC5
