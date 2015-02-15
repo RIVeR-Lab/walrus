@@ -13,8 +13,11 @@ namespace walrus_mainboard_driver
 				  ros::NodeHandle& nh, ros::NodeHandle& pnh)
 	: asi_(asi), aei_(aei), diagnostic_updater(nh, pnh)
 	{
-		tx = nh.advertise<walrus_firmware_msgs::MainBoardTXMsg>("/walrus/main_board/tx", 1000);
-		rx = nh.subscribe("/walrus/main_board/rx", 1000, &MainBoardDriver::rx_callback, this);
+		hs_control = nh.advertise<walrus_firmware_msgs::MainBoardHighSpeedControl>("/walrus/main_board/hs_control", 1000);
+		to_board = nh.advertise<walrus_firmware_msgs::MainBoardControl>("/walrus/main_board/PC_to_board_control", 1000);
+		hs_feedback = nh.subscribe("/walrus/main_board/hs_feedback", 1000, &MainBoardDriver::hs_feedback_callback, this);
+		ls_control = nh.subscribe("/walrus/main_board/ls_data", 1000, &MainBoardDriver::ls_data_callback, this);
+		from_board = nh.subscribe("/walrus/main_board/board_to_PC_control", 1000, &MainBoardDriver::from_board_callback, this);
 		
 		hardware_interface::ActuatorStateHandle state_handle0("walrus/front_left_pod_joint_actuator", &FLPod_position, &FLPod_velocity, &FLPod_effort);
 		asi.registerHandle(state_handle0);
@@ -65,13 +68,21 @@ namespace walrus_mainboard_driver
 		tx.publish(tx_msg);
 	}
 	
-	void MainBoardDriver::rx_callback(const walrus_firmware_msgs::MainBoardRXMsg& msg)
-	{
-		rx_msg = msg;
-	}
-	
 	void MainBoardDriver::update_diagnostics()
 	{
 		diagnostic_updater.update();
 	}
+	
+	void MainBoardDriver::hs_feedback_callback(const walrus_firmware_msgs::MainBoardHighSpeedFeedback& msg)
+	{
+	}
+	
+	void MainBoardDriver::ls_data_callback(const walrus_firmware_msgs::MainBoardLowSpeedDatak& msg)
+	{
+    }
+    
+	void MainBoardDriver::from_board_callback(const walrus_firmware_msgs::MainBoardControl& msg)
+	{
+    }
+
 }

@@ -37,10 +37,12 @@ namespace walrus_mainboard_driver
 			hardware_interface::ActuatorStateInterface asi_;
 			hardware_interface::EffortActuatorInterface aei_;
 			
-			void rx_callback(const walrus_firmware_msgs::MainBoardRXMsg& msg);
+			void hs_feedback_callback(const walrus_firmware_msgs::MainBoardHighSpeedFeedback& msg);
+			void ls_data_callback(const walrus_firmware_msgs::MainBoardLowSpeedDatak& msg);
+			void from_board_callback(const walrus_firmware_msgs::MainBoardControl& msg);
 			
-			ros::Subscriber rx;
-			ros::Publisher tx;
+			ros::Subscriber hs_feedback, ls_data, from_board;
+			ros::Publisher hs_control, to_board;
 			
 			walrus_firmware_msgs::MainBoardTXMsg tx_msg;
 			walrus_firmware_msgs::MainBoardRXMsg rx_msg;
