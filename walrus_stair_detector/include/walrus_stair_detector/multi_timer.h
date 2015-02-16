@@ -43,10 +43,12 @@ public:
 	std::cout << segment_name << ": " << boost::timer::format(segment_times[0], 3, "User: %us, System: %ss, Wall: %ws") << std::endl;
       }
     }
+    std::cout << "TOTAL: " << boost::timer::format(total_timer.elapsed(), 3, "User: %us, System: %ss, Wall: %ws") << std::endl;
   }
 private:
   typedef std::map<std::string, std::vector<boost::timer::cpu_times> > TimesCollection;
   boost::timer::cpu_timer timer;
+  boost::timer::cpu_timer total_timer;
   std::vector<std::string> segment_order;
   TimesCollection times;
 };

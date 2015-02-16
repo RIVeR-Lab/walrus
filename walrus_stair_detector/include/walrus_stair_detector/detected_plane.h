@@ -18,7 +18,9 @@ struct DetectedPlane {
       inliers(new pcl::PointIndices()),
       cluster_projected(new pcl::PointCloud<pcl::PointXYZ>),
       cluster_hull(new pcl::PointCloud<pcl::PointXYZ>),
-      is_riser(indeterminate), is_tread(indeterminate), is_wall(indeterminate) {}
+      flag(false),
+      is_riser(indeterminate), is_tread(indeterminate), is_wall(indeterminate),
+      stair_group(-1) {}
   typedef shared_ptr<DetectedPlane> Ptr;
 
   enum Orientation {
@@ -28,20 +30,24 @@ struct DetectedPlane {
   };
 
 
-  int id;
+  const int id;
   Orientation orientation;
   tribool is_riser;
   tribool is_tread;
   tribool is_wall;
+
+  int stair_group;
+
+  bool flag;
 
   pcl::ModelCoefficients::Ptr coefficients;
   pcl::PointIndices::Ptr inliers;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cluster_projected;
   pcl::PointCloud<pcl::PointXYZ>::Ptr cluster_hull;
 
-  Eigen::Vector3f centroid;
   Eigen::Vector3f normal;
 
+  Eigen::Vector3f vertical_center;
   double vertical_width;
   double vertical_height;
 };

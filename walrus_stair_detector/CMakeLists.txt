@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(walrus_stair_detector)
 
+set(CMAKE_BUILD_TYPE Debug)
 
 find_package(catkin REQUIRED COMPONENTS
   pcl_ros
@@ -57,6 +58,9 @@ catkin_package(
 ###########
 ## Build ##
 ###########
+
+add_definitions(-DVISUALIZE=1 -DVISUALIZE_POINT_CLOUD=1 -DVISUALIZE_DETECTED_PLANES=0)
+add_definitions(-DDEBUG_RANSAC=0)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations

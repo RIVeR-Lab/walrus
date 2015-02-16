@@ -7,16 +7,14 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <boost/thread.hpp>
 #include <walrus_stair_detector/detected_plane.h>
-#include <walrus_stair_detector/parallel_plane_ransac_model.h>
+#include <walrus_stair_detector/distance_ransac_model.h>
+#include <walrus_stair_detector/slope_ransac_model.h>
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/identity.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/logic/tribool.hpp>
-
-#define VISUALIZE 1
-#define VISUALIZE_POINT_CLOUD 0
 
 namespace walrus_stair_detector {
 using namespace ::boost;
@@ -45,13 +43,18 @@ private:
   void computeVerticalPlaneSize(DetectedPlane::Ptr plane, const Eigen::Vector3f& vertical);
   void computePlaneOrientation(DetectedPlane::Ptr plane, const Eigen::Vector3f& vertical);
   void guessPlaneType(DetectedPlane::Ptr plane);
-  bool findParallelRiserPlanes(std::vector<DetectedPlane::Ptr>& planes);
+  bool computeStairOrientation(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, Eigen::Vector3f* model);
+  bool computeRiserSpacing(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& stair_orientation, DistanceModel* model, int* start_index);
+  bool computeRise(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_stair_index, SlopeModel* model);
+
 
   double min_riser_height_;
   double max_riser_height_;
 
-  double min_tread_length_;
-  double max_tread_length_;
+  double min_riser_spacing_;
+  double max_riser_spacing_;
+
+  int max_skipped_risers_;
 
   bool shutdown_;
 #if VISUALIZE
@@ -64,6 +67,16 @@ private:
   pcl::PointCloud <pcl::PointXYZRGB>::Ptr region_growing_cloud_visual_;
   std::vector<DetectedPlane::Ptr> plane_visual_;
   int previous_plane_visual_count_;
+
+  Eigen::Vector3f vertical_;
+  Eigen::Vector3f stair_orientation_;
+  DistanceModel riser_spacing_;
+  int riser_start_index_;
+  int stair_count_;
+  int previous_stair_count_;
+  double stair_rise_;
+  double stair_vertical_offset_;
+  double stair_width_;
 #endif
 };
 

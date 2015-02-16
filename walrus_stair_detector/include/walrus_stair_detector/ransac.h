@@ -19,9 +19,9 @@ public:
   int getMinimumModelSize() const { return minimum_model_size_; }
   virtual bool generateInitialModel(const SequenceView<DataT>& data, ModelT* model_out) const = 0;
   virtual bool fitsModel(const ModelT& model, const DataT& value) const = 0;
-  virtual bool generateCompleteModel(const SequenceView<DataT>& data, ModelT* model_out) const = 0;
+  virtual bool generateCompleteModel(const SequenceView<DataT>& data, const ModelT& initial_model, ModelT* model_out) const = 0;
   virtual bool enoughInliers(int num_inliers, int data_size) const = 0;
-  virtual double getModelError(const SequenceView<DataT>& data, const ModelT& model) const = 0;
+  virtual double getModelError(const SequenceView<DataT>& data, int num_outliers, const ModelT& model) const = 0;
 
 
 private:
@@ -55,74 +55,94 @@ public:
     double best_fit = std::numeric_limits<double>::infinity();
 
     for(int iteration = 0; iteration < max_iterations_; ++iteration) {
-      if(!selectRandomIndices()) {
+      std::vector<int> initial_indices;
+      if(!selectRandomIndices(&initial_indices)) {
+#if DEBUG_RANSAC
 	std::cerr << "failed to select initial RANSAC indices" << std::endl;
+#endif
 	continue;
       }
 
-      IndexSequenceView<SequenceView<DataT> > initial_data(data_, &initial_indices_);
-      if(!model_->generateInitialModel(initial_data, &initial_model_)) {
+      IndexSequenceView<SequenceView<DataT> > initial_data(data_, &initial_indices);
+      ModelT initial_model;
+      if(!model_->generateInitialModel(initial_data, &initial_model)) {
+#if DEBUG_RANSAC
 	std::cerr << "failed to generate initial RANSAC model" << std::endl;
+#endif
 	continue;
       }
 
-      estimate_inlier_indices_.clear();
+      std::vector<int> estimate_inlier_indices;
       for(int i = 0; i < data_->size(); ++i) {
-	if(std::find(initial_indices_.begin(), initial_indices_.end(), i) != initial_indices_.end())
+	if(std::find(initial_indices.begin(), initial_indices.end(), i) != initial_indices.end())
 	  continue;
-	if(model_->fitsModel(initial_model_, (*data_)[i]))
-	  estimate_inlier_indices_.push_back(i);
+	if(model_->fitsModel(initial_model, (*data_)[i]))
+	  estimate_inlier_indices.push_back(i);
       }
 
-      if(model_->enoughInliers(estimate_inlier_indices_.size(), data_->size())) {
-	all_inlier_indices_.clear();
-	all_inlier_indices_.insert(all_inlier_indices_.end(), initial_indices_.begin(), initial_indices_.end());
-	all_inlier_indices_.insert(all_inlier_indices_.end(), estimate_inlier_indices_.begin(), estimate_inlier_indices_.end());
+      if(model_->enoughInliers(estimate_inlier_indices.size(), data_->size())) {
+	std::vector<int> all_inlier_indices;
+	all_inlier_indices.insert(all_inlier_indices.end(), initial_indices.begin(), initial_indices.end());
+	all_inlier_indices.insert(all_inlier_indices.end(), estimate_inlier_indices.begin(), estimate_inlier_indices.end());
 
-	IndexSequenceView<SequenceView<DataT> > all_inlier_data(data_, &all_inlier_indices_);
-	if(!model_->generateCompleteModel(all_inlier_data, &final_model_)) {
+	IndexSequenceView<SequenceView<DataT> > all_inlier_data(data_, &all_inlier_indices);
+	ModelT final_model;
+	if(!model_->generateCompleteModel(all_inlier_data, initial_model, &final_model)) {
+#if DEBUG_RANSAC
 	  std::cerr << "failed to generate complete RANSAC model" << std::endl;
+#endif
 	  continue;
 	}
 
-	double error = model_->getModelError(all_inlier_data, final_model_);
+	double error = model_->getModelError(all_inlier_data, data_->size() - all_inlier_data.size(), final_model);
 	if(error < best_fit) {
-	  std::cerr << "Better fit: " << error << " (" << iteration << ")[" << all_inlier_indices_.size() << "]" <<  std::endl;
+#if DEBUG_RANSAC
+	  std::cerr << "Better fit: " << error << " (" << iteration << ")[" << all_inlier_indices.size() << "]" <<  std::endl;
+#endif
 	  best_fit = error;
-	  *inliers_out = all_inlier_indices_;
-	  *model_out = final_model_;
+	  *inliers_out = all_inlier_indices;
+	  *model_out = final_model;
 	}
-	else
-	  std::cerr << "Worse fit: " << error << " (" << iteration << ")[" << all_inlier_indices_.size() << "]" <<  std::endl;
+	else {
+#if DEBUG_RANSAC
+	  std::cerr << "Worse fit: " << error << " (" << iteration << ")[" << all_inlier_indices.size() << "]" <<  std::endl;
+#endif
+        }
       }
       else {
-	std::cerr << "not enough ransac inliers " << estimate_inlier_indices_.size() << " / " << data_->size() << std::endl;
+#if DEBUG_RANSAC
+	std::cerr << "not enough ransac inliers " << estimate_inlier_indices.size() << " / " << data_->size() << std::endl;
+#endif
       }
     }
 
     if(best_fit == std::numeric_limits<double>::infinity()) { // never found a model
-      std:: cerr << "No valid RANSAC model found" << std::endl;
+#if DEBUG_RANSAC
+      std::cerr << "No valid RANSAC model found" << std::endl;
+#endif
       return false;
     }
 
-    std:: cerr << "Found RANSAC model matching " << inliers_out->size() << "/" << data_->size() << std::endl;
+#if DEBUG_RANSAC
+    std::cerr << "Found RANSAC model matching " << inliers_out->size() << "/" << data_->size() << std::endl;
+#endif
     return true;
   }
 
 private:
-  bool selectRandomIndices() {
+  bool selectRandomIndices(std::vector<int>* initial_indices) {
     std::size_t number_to_select = model_->getMinimumModelSize();
     std::size_t sample_size = data_->size();
     if(sample_size < number_to_select)
       return false;
 
-    initial_indices_.resize(number_to_select);
+    initial_indices->resize(number_to_select);
     for(int i = 0; i < number_to_select; ++i) {
       int index;
       do {
 	index = rand() % sample_size;
-      } while(std::find(initial_indices_.begin(), initial_indices_.end(), index) != initial_indices_.end());
-      initial_indices_[i] = index;
+      } while(std::find(initial_indices->begin(), initial_indices->end(), index) != initial_indices->end());
+      initial_indices->at(i) = index;
     }
     return true;
   }
@@ -131,15 +151,9 @@ private:
   const RansacModel<DataT, ModelT>* model_;
   SequenceView<DataT>* data_;
 
-  std::vector<int> initial_indices_;
-  ModelT initial_model_;
-
   int max_iterations_;
 
-  std::vector<int> estimate_inlier_indices_;
-  std::vector<int> all_inlier_indices_;
 
-  ModelT final_model_;
 };
 
 

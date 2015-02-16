@@ -36,8 +36,9 @@ public:
     return num_inliers > data_size / 2;
   }
 
-  virtual bool generateCompleteModel(const SequenceView<DetectedPlane::Ptr>& data, Eigen::Vector3f* model_out) const {
+  virtual bool generateCompleteModel(const SequenceView<DetectedPlane::Ptr>& data, const Eigen::Vector3f& initial_model, Eigen::Vector3f* model_out) const {
     Eigen::Vector3f new_model;
+    new_model << 0.0, 0.0, 0.0;
     for(int i = 0; i < data.size(); ++i) {
       new_model += data[i]->normal;
     }
@@ -47,7 +48,7 @@ public:
     return true;
   }
 
-  virtual double getModelError(const SequenceView<DetectedPlane::Ptr>& data, const Eigen::Vector3f& model) const {
+  virtual double getModelError(const SequenceView<DetectedPlane::Ptr>& data, int num_outliers, const Eigen::Vector3f& model) const {
     double fit = 0;
     for(int i = 0; i < data.size(); ++i) {
       fit += M_PI/2 - model.dot(data[i]->normal);
