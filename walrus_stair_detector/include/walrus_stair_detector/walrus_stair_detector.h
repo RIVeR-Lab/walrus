@@ -21,6 +21,15 @@ using namespace ::boost;
 using namespace ::boost::multi_index;
 using namespace ::boost::logic;
 
+struct StairModel {
+  Eigen::Vector3f origin; // center bottom of the base riser
+  Eigen::Vector3f vertical; // normal of a stair tread
+  Eigen::Vector3f direction; // vector in tread plane in the direction of the stair case
+  double rise;
+  double run;
+  double width;
+  int count; // number of stairs (defined as number of risers)
+};
 
 class WalrusStairDetector {
 public:
@@ -45,7 +54,7 @@ private:
   void guessPlaneType(DetectedPlane::Ptr plane);
   bool computeStairOrientation(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, Eigen::Vector3f* model);
   bool computeRiserSpacing(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& stair_orientation, DistanceModel* model, int* start_index);
-  bool computeRise(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_stair_index, SlopeModel* model);
+  bool computeRise(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_start_index, SlopeModel* model);
 
 
   double min_riser_height_;
@@ -67,16 +76,9 @@ private:
   pcl::PointCloud <pcl::PointXYZRGB>::Ptr region_growing_cloud_visual_;
   std::vector<DetectedPlane::Ptr> plane_visual_;
   int previous_plane_visual_count_;
-
-  Eigen::Vector3f vertical_;
-  Eigen::Vector3f stair_orientation_;
-  DistanceModel riser_spacing_;
-  int riser_start_index_;
-  int stair_count_;
   int previous_stair_count_;
-  double stair_rise_;
-  double stair_vertical_offset_;
-  double stair_width_;
+
+  StairModel model_;
 #endif
 };
 

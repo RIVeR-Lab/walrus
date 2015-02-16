@@ -25,8 +25,6 @@ WalrusStairDetector::WalrusStairDetector() : shutdown_(false),
   visualizer_thread_.reset(new boost::thread(boost::bind(&WalrusStairDetector::visualize, this)));
   previous_plane_visual_count_ = 0;
   previous_stair_count_ = 0;
-  stair_count_ = 0;
-  stair_width_ = 0.7;
 #endif
 }
 WalrusStairDetector::~WalrusStairDetector() {
@@ -40,9 +38,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
   boost::mutex::scoped_lock lock(visualizer_mutex_);
   visualizer_update_ = true;
   plane_visual_ = std::vector<DetectedPlane::Ptr>();
-  riser_spacing_ = DistanceModel();
-  riser_start_index_ = -1;
-  stair_count_ = 0;
+  model_ = StairModel();
 #endif
 
   ROS_INFO("Cloud: width = %d, height = %d, size = %ld\n", original_cloud->width, original_cloud->height, original_cloud->points.size());
@@ -50,9 +46,6 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
 
   Eigen::Vector3f vertical;
   vertical << 0, -1, 0;
-#if VISUALIZE
-  vertical_ = vertical;
-#endif
 
   // Downsize the pointcloud
   PointCloud::Ptr downsized_cloud (new PointCloud);
@@ -118,20 +111,20 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
   plane_visual_ = planes;
 #endif
 
+  StairModel model;
+  model.vertical = vertical;
+
   Eigen::Vector3f stair_orientation;
-   bool stair_orientation_result = computeStairOrientation(planes, vertical, &stair_orientation);
+  bool stair_orientation_result = computeStairOrientation(planes, vertical, &stair_orientation);
   timer.end("compute stair direction");
 
   if(!stair_orientation_result) {
     ROS_WARN("Could not compute riser orientation");
     return;
   }
-  else {
-    ROS_INFO("Found stair orientation: %f, %f, %f", stair_orientation[0], stair_orientation[1], stair_orientation[2]);
-  }
-#if VISUALIZE
-  stair_orientation_ = stair_orientation;
-#endif
+
+  ROS_INFO("Found stair orientation: %f, %f, %f", stair_orientation[0], stair_orientation[1], stair_orientation[2]);
+  model.direction = stair_orientation;
 
   DistanceModel riser_spacing;
   int riser_start_index;
@@ -142,13 +135,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
     ROS_WARN("Could not compute riser spacing");
     return;
   }
-  else {
-#if VISUALIZE
-  riser_spacing_ = riser_spacing;
-  riser_start_index_ = riser_start_index;
-  stair_count_ = 10;
-#endif
-  }
+  model.run = riser_spacing.spacing;
 
   SlopeModel stair_rise;
   bool rise_result = computeRise(planes, vertical, stair_orientation, riser_spacing, riser_start_index, &stair_rise);
@@ -158,15 +145,17 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
     ROS_WARN("Could not compute stair rise");
     return;
   }
-  else {
+  model.rise = stair_rise.slope * model.run;
+
+  model.count = 10;
+  model.width = 0.7;
+
+  model.origin = planes[riser_start_index]->vertical_center + model.vertical * (stair_rise.offset - model.rise/2);
+
+
 #if VISUALIZE
-  stair_rise_ = stair_rise.slope * riser_spacing_.spacing;
-  stair_vertical_offset_ = stair_rise.offset;
+  model_ = model;
 #endif
-  }
-
-
-
   timer.print();
 }
 
@@ -418,8 +407,8 @@ bool WalrusStairDetector::computeRiserSpacing(std::vector<DetectedPlane::Ptr>& p
 
 
 
-bool WalrusStairDetector::computeRise(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_stair_index, SlopeModel* model) {
-  DetectedPlane::Ptr start_plane = planes[riser_start_index_];
+bool WalrusStairDetector::computeRise(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_start_index, SlopeModel* model) {
+  DetectedPlane::Ptr start_plane = planes[riser_start_index];
 
   std::vector<std::pair<double, double> > points;
   std::vector<DetectedPlane::Ptr> potential_risers;
@@ -510,52 +499,48 @@ void WalrusStairDetector::visualize() {
 	previous_plane_visual_count_ = plane_visual_.size();
 #endif
 
-	std::stringstream riser_spacing_text;
-	riser_spacing_text << "Riser Spacing: " << riser_spacing_.spacing << "m";
-	if(!visualizer_->updateText(riser_spacing_text.str(), 30, 30, "riser_spacing")) {
-	  visualizer_->addText(riser_spacing_text.str(), 30, 30, 16, 1, 1, 1, "riser_spacing");
+	std::stringstream run_text;
+	run_text << "Run: " << model_.run << "m";
+	if(!visualizer_->updateText(run_text.str(), 30, 30, "run")) {
+	  visualizer_->addText(run_text.str(), 30, 30, 16, 1, 1, 1, "run");
 	}
 
 	std::stringstream rise_text;
-	rise_text << "Rise: " << stair_rise_ << "m";
+	rise_text << "Rise: " << model_.rise << "m";
 	if(!visualizer_->updateText(rise_text.str(), 30, 50, "rise")) {
 	  visualizer_->addText(rise_text.str(), 30, 50, 16, 1, 1, 1, "rise");
 	}
 
+	// Remove old shapes
 	for(int i = 0; i < previous_stair_count_; ++i) {
 	  visualizer_->removeShape(visName("riser", i));
 	  visualizer_->removeShape(visName("tread", i));
 	}
 
-	Eigen::Vector3f horizontal = vertical_.cross(stair_orientation_);
-	previous_stair_count_ = 0;
-	if(riser_start_index_ >= 0) {
-	  // Remove old shapes
-	  Eigen::Vector3f start = plane_visual_[riser_start_index_]->vertical_center;
-	  for(int i = 0; i < stair_count_; ++i) {
-	    Eigen::Vector3f center = start + vertical_ * (stair_rise_ * i + stair_vertical_offset_) + stair_orientation_ * riser_spacing_.spacing * i;
+	Eigen::Vector3f horizontal = model_.vertical.cross(model_.direction);
+	for(int i = 0; i < model_.count; ++i) {
+	  Eigen::Vector3f base = model_.origin + model_.vertical * model_.rise * i + model_.direction * model_.run * i;
 
-	    pcl::PointCloud<pcl::PointXYZ>::Ptr riser_points(new pcl::PointCloud<pcl::PointXYZ>());
-	    riser_points->resize(4);
-	    riser_points->at(0).getVector3fMap() = center + horizontal * stair_width_/2 + vertical_*stair_rise_/2;
-	    riser_points->at(1).getVector3fMap() = center - horizontal * stair_width_/2 + vertical_*stair_rise_/2;
-	    riser_points->at(2).getVector3fMap() = center - horizontal * stair_width_/2 - vertical_*stair_rise_/2;
-	    riser_points->at(3).getVector3fMap() = center + horizontal * stair_width_/2 - vertical_*stair_rise_/2;
-	    visualizer_->addPolygon<pcl::PointXYZ>(riser_points, CYAN[0], CYAN[1], CYAN[2], visName("riser", i));
-	    visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("riser", i));
+	  pcl::PointCloud<pcl::PointXYZ>::Ptr riser_points(new pcl::PointCloud<pcl::PointXYZ>());
+	  riser_points->resize(4);
+	  riser_points->at(0).getVector3fMap() = base + horizontal * model_.width/2 + model_.vertical*model_.rise;
+	  riser_points->at(1).getVector3fMap() = base - horizontal * model_.width/2 + model_.vertical*model_.rise;
+	  riser_points->at(2).getVector3fMap() = base - horizontal * model_.width/2;
+	  riser_points->at(3).getVector3fMap() = base + horizontal * model_.width/2;
+	  visualizer_->addPolygon<pcl::PointXYZ>(riser_points, CYAN[0], CYAN[1], CYAN[2], visName("riser", i));
+	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("riser", i));
 
 
-	    pcl::PointCloud<pcl::PointXYZ>::Ptr tread_points(new pcl::PointCloud<pcl::PointXYZ>());
-	    tread_points->resize(4);
-	    tread_points->at(0).getVector3fMap() = center + vertical_*stair_rise_/2 + horizontal * stair_width_/2 + stair_orientation_*riser_spacing_.spacing;
-	    tread_points->at(1).getVector3fMap() = center + vertical_*stair_rise_/2 - horizontal * stair_width_/2 + stair_orientation_*riser_spacing_.spacing;
-	    tread_points->at(2).getVector3fMap() = center + vertical_*stair_rise_/2 - horizontal * stair_width_/2;
-	    tread_points->at(3).getVector3fMap() = center + vertical_*stair_rise_/2 + horizontal * stair_width_/2;
-	    visualizer_->addPolygon<pcl::PointXYZ>(tread_points, PINK[0], PINK[1], PINK[2], visName("tread", i));
-	    visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("tread", i));
-	  }
-	  previous_stair_count_ = stair_count_;
+	  pcl::PointCloud<pcl::PointXYZ>::Ptr tread_points(new pcl::PointCloud<pcl::PointXYZ>());
+	  tread_points->resize(4);
+	  tread_points->at(0).getVector3fMap() = base + model_.vertical*model_.rise + horizontal * model_.width/2 + model_.direction*model_.run;
+	  tread_points->at(1).getVector3fMap() = base + model_.vertical*model_.rise - horizontal * model_.width/2 + model_.direction*model_.run;
+	  tread_points->at(2).getVector3fMap() = base + model_.vertical*model_.rise - horizontal * model_.width/2;
+	  tread_points->at(3).getVector3fMap() = base + model_.vertical*model_.rise + horizontal * model_.width/2;
+	  visualizer_->addPolygon<pcl::PointXYZ>(tread_points, PINK[0], PINK[1], PINK[2], visName("tread", i));
+	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("tread", i));
 	}
+	previous_stair_count_ = model_.count;
 
 
 	visualizer_update_ = false;
