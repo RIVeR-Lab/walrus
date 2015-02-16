@@ -1,16 +1,25 @@
 #ifndef WALRUS_STAIR_DETECTOR_MULTI_TIMER_H_
 #define WALRUS_STAIR_DETECTOR_MULTI_TIMER_H_
 
+#if DEBUG_TIMING
+
 #include <map>
 #include <vector>
 #include <boost/timer/timer.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
 
+#endif
+
 namespace walrus_stair_detector {
 
+
+#if DEBUG_TIMING
 class MultiTimer {
 public:
+  ~MultiTimer () {
+    print();
+  }
   void end(const std::string& segment_name) {
     if(std::find(segment_order.begin(), segment_order.end(), segment_name) == segment_order.end())
       segment_order.push_back(segment_name);
@@ -52,8 +61,16 @@ private:
   std::vector<std::string> segment_order;
   TimesCollection times;
 };
+#else
+class MultiTimer {
+public:
+  void end(const std::string& segment_name) {}
+  void skip() {}
+};
+#endif
 
 }
+
 
 #endif
 

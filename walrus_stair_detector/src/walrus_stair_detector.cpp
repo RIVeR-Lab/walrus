@@ -42,6 +42,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
 #endif
 
   ROS_INFO("Cloud: width = %d, height = %d, size = %ld\n", original_cloud->width, original_cloud->height, original_cloud->points.size());
+
   MultiTimer timer;
 
   Eigen::Vector3f vertical;
@@ -156,7 +157,6 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
 #if VISUALIZE
   model_ = model;
 #endif
-  timer.print();
 }
 
 void WalrusStairDetector::downsizePointCloud(const PointCloud::ConstPtr& cloud, PointCloud::Ptr out) {

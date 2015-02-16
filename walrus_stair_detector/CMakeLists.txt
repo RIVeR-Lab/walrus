@@ -3,6 +3,11 @@ project(walrus_stair_detector)
 
 set(CMAKE_BUILD_TYPE Debug)
 
+OPTION(ENABLE_TIMING "Enable timing" ON)
+OPTION(ENABLE_VISUALIZATION "Enable visualization" ON)
+OPTION(ENABLE_RANSAC_DEBUG "Enable RANSAC debug output" OFF)
+
+
 find_package(catkin REQUIRED COMPONENTS
   pcl_ros
   roscpp
@@ -13,7 +18,7 @@ include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-find_package(Boost REQUIRED timer)
+find_package(Boost COMPONENTS timer)
 include_directories(${Boost_INCLUDE_DIRS})
 
 
@@ -59,11 +64,20 @@ catkin_package(
 ## Build ##
 ###########
 
-add_definitions(-DVISUALIZE=1 -DVISUALIZE_POINT_CLOUD=1 -DVISUALIZE_DETECTED_PLANES=0)
-add_definitions(-DDEBUG_RANSAC=0)
+if(ENABLE_VISUALIZATION)
+  add_definitions(-DVISUALIZE=1 -DVISUALIZE_POINT_CLOUD=1 -DVISUALIZE_DETECTED_PLANES=0)
+endif(ENABLE_VISUALIZATION)
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
+if(ENABLE_RANSAC_DEBUG)
+  add_definitions(-DDEBUG_RANSAC=1)
+endif(ENABLE_RANSAC_DEBUG)
+
+if(ENABLE_TIMING AND Boost_TIMER_FOUND)
+  add_definitions(-DDEBUG_TIMING=1)
+endif(ENABLE_TIMING AND Boost_TIMER_FOUND)
+
+
+
 include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
@@ -116,29 +130,19 @@ target_link_libraries(multi_pcd_pub
 ## Install ##
 #############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
 ## Mark executables and/or libraries for installation
-# install(TARGETS walrus_stair_detector walrus_stair_detector_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(TARGETS walrus_stair_detector walrus_stair_detector_ros walrus_stair_detector_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE
+)
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
