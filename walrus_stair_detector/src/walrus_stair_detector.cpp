@@ -148,7 +148,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
   }
   model.rise = stair_rise.slope * model.run;
 
-  model.count = 10;
+  model.num_stairs = 10;
   model.width = 0.7;
 
   model.origin = planes[riser_start_index]->vertical_center + model.vertical * (stair_rise.offset - model.rise/2);
@@ -518,7 +518,7 @@ void WalrusStairDetector::visualize() {
 	}
 
 	Eigen::Vector3f horizontal = model_.vertical.cross(model_.direction);
-	for(int i = 0; i < model_.count; ++i) {
+	for(int i = 0; i < model_.num_stairs; ++i) {
 	  Eigen::Vector3f base = model_.origin + model_.vertical * model_.rise * i + model_.direction * model_.run * i;
 
 	  pcl::PointCloud<pcl::PointXYZ>::Ptr riser_points(new pcl::PointCloud<pcl::PointXYZ>());
@@ -540,7 +540,7 @@ void WalrusStairDetector::visualize() {
 	  visualizer_->addPolygon<pcl::PointXYZ>(tread_points, PINK[0], PINK[1], PINK[2], visName("tread", i));
 	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("tread", i));
 	}
-	previous_stair_count_ = model_.count;
+	previous_stair_count_ = model_.num_stairs;
 
 
 	visualizer_update_ = false;

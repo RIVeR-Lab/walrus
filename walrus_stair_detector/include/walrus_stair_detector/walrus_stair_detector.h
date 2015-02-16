@@ -28,7 +28,7 @@ struct StairModel {
   double rise;
   double run;
   double width;
-  int count; // number of stairs (defined as number of risers)
+  int num_stairs; // number of stairs (defined as number of risers)
 };
 
 class WalrusStairDetector {
