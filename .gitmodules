@@ -1,0 +1,4 @@
+[submodule "walrus_testdata"]
+	path = walrus_testdata
+	url = https://github.com/RIVeR-Lab/walrus_testdata.git
+	branch = master
