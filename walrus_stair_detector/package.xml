@@ -18,6 +18,7 @@
   <depend>roscpp</depend>
   <depend>boost</depend>
 
+  <test_depend>rosunit</test_depend>
   <test_depend>walrus_testdata</test_depend>
   <test_depend>yaml-cpp</test_depend>
 

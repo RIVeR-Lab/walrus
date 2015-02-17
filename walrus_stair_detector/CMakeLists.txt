@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(walrus_stair_detector)
 
-set(CMAKE_BUILD_TYPE Debug)
-
-OPTION(ENABLE_TIMING "Enable timing" ON)
-OPTION(ENABLE_VISUALIZATION "Enable visualization" ON)
-OPTION(ENABLE_RANSAC_DEBUG "Enable RANSAC debug output" OFF)
+option(walrus_stair_detector_ENABLE_TIMING "Enable timing" ON)
+option(walrus_stair_detector_ENABLE_VISUALIZATION "Enable visualization" ON)
+option(walrus_stair_detector_ENABLE_RANSAC_DEBUG "Enable RANSAC debug output" OFF)
 
 
 find_package(catkin REQUIRED COMPONENTS
@@ -64,17 +62,17 @@ catkin_package(
 ## Build ##
 ###########
 
-if(ENABLE_VISUALIZATION)
+if(walrus_stair_detector_ENABLE_VISUALIZATION)
   add_definitions(-DVISUALIZE=1 -DVISUALIZE_POINT_CLOUD=1 -DVISUALIZE_DETECTED_PLANES=0)
-endif(ENABLE_VISUALIZATION)
+endif()
 
-if(ENABLE_RANSAC_DEBUG)
+if(walrus_stair_detector_ENABLE_RANSAC_DEBUG)
   add_definitions(-DDEBUG_RANSAC=1)
-endif(ENABLE_RANSAC_DEBUG)
+endif()
 
-if(ENABLE_TIMING AND Boost_TIMER_FOUND)
+if(walrus_stair_detector_ENABLE_TIMING AND Boost_TIMER_FOUND)
   add_definitions(-DDEBUG_TIMING=1)
-endif(ENABLE_TIMING AND Boost_TIMER_FOUND)
+endif()
 
 
 
@@ -131,7 +129,7 @@ target_link_libraries(multi_pcd_pub
 #############
 
 ## Mark executables and/or libraries for installation
-install(TARGETS walrus_stair_detector walrus_stair_detector_ros walrus_stair_detector_node
+install(TARGETS walrus_stair_detector walrus_stair_detector_ros walrus_stair_detector_node multi_pcd_pub
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -160,7 +158,7 @@ if(CATKIN_ENABLE_TESTING)
   pkg_search_module(YAMLCPP REQUIRED yaml-cpp)
   include_directories(${YAMLCPP_INCLUDE_DIRS})
 
-  find_package(catkin REQUIRED COMPONENTS walrus_testdata)
+  find_package(walrus_testdata REQUIRED)
 
   catkin_add_gtest(stair_detector_test test/stair_detector_test.cpp)
   target_link_libraries(stair_detector_test walrus_stair_detector ${YAMLCPP_LIBRARIES} ${catkin_LIBRARIES})
