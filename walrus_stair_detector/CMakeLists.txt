@@ -104,8 +104,8 @@ target_link_libraries(walrus_stair_detector_node
   walrus_stair_detector_ros
 )
 
-add_executable(multi_pcd_pub src/multi_pcd_pub.cpp)
-target_link_libraries(multi_pcd_pub
+add_executable(walrus_stair_detector_multi_pcd_pub src/multi_pcd_pub.cpp)
+target_link_libraries(walrus_stair_detector_multi_pcd_pub
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )
@@ -116,7 +116,7 @@ target_link_libraries(multi_pcd_pub
 #############
 
 ## Mark executables and/or libraries for installation
-install(TARGETS walrus_stair_detector walrus_stair_detector_ros walrus_stair_detector_node multi_pcd_pub
+install(TARGETS walrus_stair_detector walrus_stair_detector_ros walrus_stair_detector_node walrus_stair_detector_multi_pcd_pub
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
