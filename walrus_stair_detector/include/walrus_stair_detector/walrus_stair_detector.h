@@ -37,7 +37,7 @@ public:
 
   WalrusStairDetector();
   ~WalrusStairDetector();
-  void detect(const PointCloud::ConstPtr& cloud);
+  void detect(const PointCloud::ConstPtr& cloud, const Eigen::Vector3f& vertical_estimate, std::vector<StairModel>* stairs);
 private:
   void downsizePointCloud(const PointCloud::ConstPtr& cloud, PointCloud::Ptr out);
   void computeNormals(const PointCloud::ConstPtr cloud, const pcl::IndicesPtr indices,

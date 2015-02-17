@@ -155,11 +155,13 @@ install(DIRECTORY include/${PROJECT_NAME}/
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_walrus_stair_detector.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+if(CATKIN_ENABLE_TESTING)
+  find_package(PkgConfig REQUIRED)
+  pkg_search_module(YAMLCPP REQUIRED yaml-cpp)
+  include_directories(${YAMLCPP_INCLUDE_DIRS})
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
+  find_package(catkin REQUIRED COMPONENTS walrus_testdata)
+
+  catkin_add_gtest(stair_detector_test test/stair_detector_test.cpp)
+  target_link_libraries(stair_detector_test walrus_stair_detector ${YAMLCPP_LIBRARIES} ${catkin_LIBRARIES})
+endif()

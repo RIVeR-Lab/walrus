@@ -33,7 +33,8 @@ WalrusStairDetector::~WalrusStairDetector() {
   visualizer_thread_->join();
 #endif
 }
-void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
+void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, const Eigen::Vector3f& vertical_estimate, std::vector<StairModel>* stairs) {
+  stairs->clear();
 #if VISUALIZE
   boost::mutex::scoped_lock lock(visualizer_mutex_);
   visualizer_update_ = true;
@@ -45,8 +46,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
 
   MultiTimer timer;
 
-  Eigen::Vector3f vertical;
-  vertical << 0, -1, 0;
+  Eigen::Vector3f vertical = vertical_estimate;
 
   // Downsize the pointcloud
   PointCloud::Ptr downsized_cloud (new PointCloud);
@@ -153,7 +153,10 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud) {
 
   model.origin = planes[riser_start_index]->vertical_center + model.vertical * (stair_rise.offset - model.rise/2);
 
+  std::cout << "Origin: " << model.origin[0] << ", " << model.origin[1] << ", " << model.origin[2] << std::endl;
+  std::cout << "Direction: " << model.direction[0] << ", " << model.direction[1] << ", " << model.direction[2] << std::endl;
 
+  stairs->push_back(model);
 #if VISUALIZE
   model_ = model;
 #endif

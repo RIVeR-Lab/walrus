@@ -1,0 +1,3 @@
+<launch>
+  <test test-name="stair_1424117027438416" pkg="walrus_stair_detector" type="stair_detector_test" args="$(find walrus_testdata)/kinectv2/stairs/higgins_stair_near/1424117027438416.pcd $(find walrus_testdata)/kinectv2/stairs/higgins_stair_near/description.yaml" />
+</launch>
