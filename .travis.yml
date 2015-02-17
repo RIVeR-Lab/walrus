@@ -35,7 +35,7 @@ install:
 script:
   - cd /tmp/ws
   - source /opt/ros/hydro/setup.bash
-  - catkin build -p4 --no-status
+  - catkin build -p2 --no-status
   - source devel/setup.bash
   - catkin lint src/package -W2 --ignore description_meaningless  --ignore description_boilerplate --ignore link_directory --strict
   - catkin config --install
