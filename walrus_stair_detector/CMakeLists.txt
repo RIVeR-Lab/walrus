@@ -104,19 +104,6 @@ target_link_libraries(walrus_stair_detector_node
   walrus_stair_detector_ros
 )
 
-
-add_executable(normal_test src/normal_test.cpp)
-target_link_libraries(normal_test
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-)
-
-add_executable(plane_test src/plane_test.cpp)
-target_link_libraries(plane_test
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-)
-
 add_executable(multi_pcd_pub src/multi_pcd_pub.cpp)
 target_link_libraries(multi_pcd_pub
   ${catkin_LIBRARIES}
@@ -141,13 +128,6 @@ install(DIRECTORY include/${PROJECT_NAME}/
   FILES_MATCHING PATTERN "*.h"
   PATTERN ".svn" EXCLUDE
 )
-
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
 
 #############
 ## Testing ##
