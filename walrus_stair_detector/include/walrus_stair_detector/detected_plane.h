@@ -47,9 +47,9 @@ struct DetectedPlane {
 
   Eigen::Vector3f normal;
 
-  Eigen::Vector3f vertical_center;
-  double vertical_width;
-  double vertical_height;
+  Eigen::Vector3f center;
+  double width;
+  double height;
 };
 
 }

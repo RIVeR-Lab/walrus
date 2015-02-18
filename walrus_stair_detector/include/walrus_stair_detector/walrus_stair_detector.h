@@ -50,12 +50,12 @@ private:
   void computeVertical(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical_estimate, Eigen::Vector3f* vertical);
   void projectPoints(const PointCloud::ConstPtr cloud, const pcl::PointIndices::ConstPtr cluster_inliers,
 		     pcl::ModelCoefficients::ConstPtr coefficients, pcl::PointCloud<pcl::PointXYZ>::Ptr projected_cloud);
-  void computeVerticalPlaneSize(DetectedPlane::Ptr plane, const Eigen::Vector3f& vertical);
+  void computePlaneSize(DetectedPlane::Ptr plane, const Eigen::Vector3f& x_axis, const Eigen::Vector3f& y_axis);
   void computePlaneOrientation(DetectedPlane::Ptr plane, const Eigen::Vector3f& vertical);
   void guessPlaneType(DetectedPlane::Ptr plane);
   bool computeStairOrientation(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, Eigen::Vector3f* model);
   bool computeRun(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& stair_orientation, DistanceModel* model, int* start_index);
-  bool computeRiseFromRiser(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_start_index, SlopeModel* model);
+  bool computeRiseFromRisers(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& rise_spacing, int riser_start_index, SlopeModel* model);
 
 
   bool shutdown_;

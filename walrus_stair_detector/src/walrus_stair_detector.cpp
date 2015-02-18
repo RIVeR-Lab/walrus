@@ -102,7 +102,8 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     computePlaneOrientation(plane, vertical);
 
     if(plane->orientation == DetectedPlane::Vertical) {
-      computeVerticalPlaneSize(plane, vertical);
+      Eigen::Vector3f horizontal = vertical.cross(plane->normal);
+      computePlaneSize(plane, horizontal, vertical);
     }
 
     guessPlaneType(plane);
@@ -131,6 +132,13 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   ROS_INFO("Found stair orientation: %f, %f, %f", stair_orientation[0], stair_orientation[1], stair_orientation[2]);
   model.direction = stair_orientation;
 
+  BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
+    if(plane->orientation == DetectedPlane::Horizontal) {
+      Eigen::Vector3f x_axis = vertical.cross(model.direction);
+      computePlaneSize(plane, x_axis, model.direction);
+    }
+  }
+
   DistanceModel riser_spacing;
   int riser_start_index;
   bool riser_spacing_result = computeRun(planes, stair_orientation, &riser_spacing, &riser_start_index);
@@ -143,19 +151,20 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   model.run = riser_spacing.spacing;
 
   SlopeModel stair_rise;
-  bool rise_result = computeRiseFromRiser(planes, vertical, stair_orientation, riser_spacing, riser_start_index, &stair_rise);
-  timer.end("compute stair rise");
+  bool rise_result = computeRiseFromRisers(planes, vertical, stair_orientation, riser_spacing, riser_start_index, &stair_rise);
+  timer.end("compute stair rise from risers");
 
   if(!rise_result) {
-    ROS_WARN("Could not compute stair rise");
+    ROS_WARN("Could not compute stair rise from risers");
     return;
   }
   model.rise = stair_rise.slope * model.run;
 
+
   model.num_stairs = 10;
   model.width = 0.7;
 
-  model.origin = planes[riser_start_index]->vertical_center + model.vertical * (stair_rise.offset - model.rise/2);
+  model.origin = planes[riser_start_index]->center + model.vertical * (stair_rise.offset - model.rise/2);
 
   std::cout << "Origin: " << model.origin[0] << ", " << model.origin[1] << ", " << model.origin[2] << std::endl;
   std::cout << "Direction: " << model.direction[0] << ", " << model.direction[1] << ", " << model.direction[2] << std::endl;
@@ -310,9 +319,7 @@ void WalrusStairDetector::computePlaneOrientation(DetectedPlane::Ptr plane, cons
     plane->orientation = DetectedPlane::Vertical;
   }
 }
-void WalrusStairDetector::computeVerticalPlaneSize(DetectedPlane::Ptr plane, const Eigen::Vector3f& vertical) {
-  Eigen::Vector3f horizontal = vertical.cross(plane->normal);
-
+void WalrusStairDetector::computePlaneSize(DetectedPlane::Ptr plane, const Eigen::Vector3f& x_axis, const Eigen::Vector3f& y_axis) {
   // Pick a random reference point
   Eigen::Vector3f p0 = plane->cluster_hull->at(0).getVector3fMap();
 
@@ -322,8 +329,8 @@ void WalrusStairDetector::computeVerticalPlaneSize(DetectedPlane::Ptr plane, con
   double max_y = -std::numeric_limits<double>::infinity();
   BOOST_FOREACH(const pcl::PointXYZ& abs_point, *plane->cluster_hull) {
     Eigen::Vector3f p = abs_point.getVector3fMap() - p0;
-    double x = p.dot(horizontal);
-    double y = p.dot(vertical);
+    double x = p.dot(x_axis);
+    double y = p.dot(y_axis);
     if(x > max_x)
       max_x = x;
     if(x < min_x)
@@ -333,21 +340,21 @@ void WalrusStairDetector::computeVerticalPlaneSize(DetectedPlane::Ptr plane, con
     if(y < min_y)
       min_y = y;
   }
-  plane->vertical_width = max_x - min_x;
-  plane->vertical_height = max_y - min_y;
+  plane->width = max_x - min_x;
+  plane->height = max_y - min_y;
 
   double center_x = (min_x + max_x) / 2;
   double center_y = (min_y + max_y) / 2;
-  plane->vertical_center = p0 + horizontal * center_x + vertical * center_y;
+  plane->center = p0 + x_axis * center_x + y_axis * center_y;
 }
 
 
 void WalrusStairDetector::guessPlaneType(DetectedPlane::Ptr plane) {
   if(plane->orientation == DetectedPlane::Vertical) {
     plane->is_tread = false;
-    if(plane->vertical_width < plane->vertical_height * 1.25)
+    if(plane->width < plane->height * 1.25)
       plane->is_riser = false;
-    if(plane->vertical_height > max_riser_height_)
+    if(plane->height > max_riser_height_)
       plane->is_riser = false;
    }
   else if(plane->orientation == DetectedPlane::Horizontal) {
@@ -408,7 +415,7 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
   std::vector<double> potential_risers_dist;
   for(size_t i = 0; i < potential_risers.size(); ++i) {
     const DetectedPlane::Ptr& p = potential_risers[i];
-    Eigen::Vector3f vec_to_p =  p->vertical_center - p0->vertical_center;
+    Eigen::Vector3f vec_to_p =  p->center - p0->center;
     double dist = stair_orientation.dot(vec_to_p);
     potential_risers_dist.push_back(dist);
   }
@@ -466,7 +473,8 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
 
 
 
-bool WalrusStairDetector::computeRiseFromRiser(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_start_index, SlopeModel* model) {
+
+bool WalrusStairDetector::computeRiseFromRisers(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_start_index, SlopeModel* model) {
   DetectedPlane::Ptr start_plane = planes[riser_start_index];
 
   std::vector<std::pair<double, double> > points;
@@ -474,7 +482,7 @@ bool WalrusStairDetector::computeRiseFromRiser(std::vector<DetectedPlane::Ptr>& 
   BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
     if(plane->is_riser || indeterminate(plane->is_riser)) {
       potential_risers.push_back(plane);
-      Eigen::Vector3f vect_to_p = plane->vertical_center - start_plane->vertical_center;
+      Eigen::Vector3f vect_to_p = plane->center - start_plane->center;
       points.push_back(std::make_pair(vect_to_p.dot(stair_orientation), vect_to_p.dot(vertical)));
     }
   }
@@ -488,16 +496,16 @@ bool WalrusStairDetector::computeRiseFromRiser(std::vector<DetectedPlane::Ptr>& 
   if(result) {
     for(size_t i = 0; i < potential_risers.size(); ++i) {
       if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
-	potential_risers[i]->is_tread = false;
-	potential_risers[i]->flag = true;
+	potential_risers[i]->is_riser = false;
       }
       else {
-	potential_risers[i]->is_tread = true;
+	potential_risers[i]->is_riser = true;
       }
     }
   }
   return result;
 }
+
 
 
 #if VISUALIZE
