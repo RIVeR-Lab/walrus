@@ -83,7 +83,7 @@ TEST_P(StairDetectorTest, detectStairs) {
     EXPECT_NEAR(stair_config["rise"].as<double>(), stair.rise, 0.1);
     EXPECT_NEAR(stair_config["run"].as<double>(), stair.run, 0.1);
 
-    EXPECT_VECTOR_ANGLE_LE(stair_config["direction"].as<Eigen::Vector3f>(), stair.direction, 0.1);
+    EXPECT_VECTOR_ANGLE_LE(stair_config["direction"].as<Eigen::Vector3f>(), stair.direction, 0.06);
     EXPECT_VECTOR_NEAR(stair_config["origin"].as<Eigen::Vector3f>(), stair.origin, 0.4); // for now keep this large because the origin drifts left and right
 
     //EXPECT_NEAR(stair_config["width"].as<double>(), stair.width, 0.1);

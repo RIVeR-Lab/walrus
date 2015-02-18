@@ -90,7 +90,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   }
 
   Eigen::Vector3f vertical;
-  computeVertical(planes, vertical_estimate, &vertical);
+  computeVertical(planes, vertical_estimate.normalized(), &vertical);
 
   BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
     // Compute the bounding points of the plane
