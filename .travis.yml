@@ -40,5 +40,5 @@ script:
   - catkin lint src/package -W2 --ignore description_meaningless  --ignore description_boilerplate --ignore link_directory --strict
   - catkin config --install
   - catkin clean -b
-  - catkin build --no-status
+  - catkin build -p2 --no-status
   - source install/setup.bash
