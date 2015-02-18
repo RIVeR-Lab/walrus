@@ -37,7 +37,7 @@ script:
   - source /opt/ros/hydro/setup.bash
   - catkin build -p2 --no-status --make-args -j2 -l2
   - source devel/setup.bash
-  - catkin lint src/package -W2 --ignore description_meaningless  --ignore description_boilerplate --ignore link_directory --strict
+  - catkin lint src/package -W2 --ignore description_meaningless  --ignore description_boilerplate --ignore link_directory --ignore critical_var_append --strict
   - catkin config --install
   - catkin clean -b
   - catkin build -p2 --no-status --make-args -j2 -l2
