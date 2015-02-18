@@ -47,6 +47,7 @@ private:
 		  std::vector<pcl::PointIndices>* clusters);
   bool computePlaneModel(const PointCloud::ConstPtr cloud, const pcl::PointIndices& cluster,
 			 pcl::ModelCoefficients::Ptr coefficients, pcl::PointIndices::Ptr inliers);
+  void computeVertical(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical_estimate, Eigen::Vector3f* vertical);
   void projectPoints(const PointCloud::ConstPtr cloud, const pcl::PointIndices::ConstPtr cluster_inliers,
 		     pcl::ModelCoefficients::ConstPtr coefficients, pcl::PointCloud<pcl::PointXYZ>::Ptr projected_cloud);
   void computeVerticalPlaneSize(DetectedPlane::Ptr plane, const Eigen::Vector3f& vertical);

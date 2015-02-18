@@ -46,8 +46,6 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
 
   MultiTimer timer;
 
-  Eigen::Vector3f vertical = vertical_estimate;
-
   // Downsize the pointcloud
   PointCloud::Ptr downsized_cloud (new PointCloud);
   downsizePointCloud(original_cloud, downsized_cloud);
@@ -74,20 +72,27 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   BOOST_FOREACH(const pcl::PointIndices& cluster, clusters) {
     DetectedPlane::Ptr plane(new DetectedPlane(plane_id++));
 
-    bool plane_model_success = computePlaneModel(downsized_cloud, cluster, plane->coefficients, plane->inliers);
-    plane->normal[0] = plane->coefficients->values[0];
-    plane->normal[1] = plane->coefficients->values[1];
-    plane->normal[2] = plane->coefficients->values[2];
-    plane->normal.normalize();
+    bool plane_model_result = computePlaneModel(downsized_cloud, cluster, plane->coefficients, plane->inliers);
+    if(plane_model_result) {
+      plane->normal[0] = plane->coefficients->values[0];
+      plane->normal[1] = plane->coefficients->values[1];
+      plane->normal[2] = plane->coefficients->values[2];
+      plane->normal.normalize();
+      planes.push_back(plane);
+    }
     timer.end("plane_model");
-
-    if(!plane_model_success)
+    if(!plane_model_result)
       continue;
 
     // Project all points into the computed plane
     projectPoints(downsized_cloud, plane->inliers, plane->coefficients, plane->cluster_projected);
     timer.end("project to planes");
+  }
 
+  Eigen::Vector3f vertical;
+  computeVertical(planes, vertical_estimate, &vertical);
+
+  BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
     // Compute the bounding points of the plane
     pcl::ConvexHull<pcl::PointXYZ> chull;
     chull.setInputCloud(plane->cluster_projected);
@@ -105,7 +110,6 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     timer.end("plane properties");
 
 
-    planes.push_back(plane);
     timer.skip();
   }
 #if VISUALIZE
@@ -235,6 +239,58 @@ bool WalrusStairDetector::computePlaneModel(const PointCloud::ConstPtr cloud, co
   else
     return true;
 }
+
+void WalrusStairDetector::computeVertical(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical_estimate, Eigen::Vector3f* vertical) {
+  std::vector<DetectedPlane::Ptr> horizontal_planes;
+  BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
+    if(vertical_estimate.dot(plane->normal) > cos(16 * M_PI / 180)) {
+      horizontal_planes.push_back(plane);
+    }
+  }
+
+  // if no planes detected then just use the original estimate
+  if(horizontal_planes.size() == 0) {
+    std::cout << "Failed to estimate vertical, not horizontal planes found" << std::endl;
+    *vertical = vertical_estimate;
+    return;
+  }
+
+  bool ransac_result = false;
+  if(horizontal_planes.size() >= 2) {
+    ParallelPlaneRansacModel model_description;
+    model_description.setWeighBasedOnPointCount(true);
+    Ransac<DetectedPlane::Ptr, Eigen::Vector3f> ransac(&model_description);
+    ransac.setInput(&horizontal_planes);
+    ransac.setMaxIterations(30);
+    std::vector<int> inliers;
+    ransac_result = ransac.estimate(&inliers, vertical);
+  }
+  if(ransac_result) {
+    std::cout << "Computed vertical: " << (*vertical)[0] << ", " << (*vertical)[1] << ", " << (*vertical)[2] << std::endl;
+  }
+  else {
+    // will have at least one plane because of if statment above
+    int max_points = horizontal_planes[0]->cluster_projected->size();
+    DetectedPlane::Ptr plane = horizontal_planes[0];
+    for(int i = 1; i < horizontal_planes.size(); ++i) {
+      int num_points = horizontal_planes[i]->cluster_projected->size();
+      if(num_points > max_points) {
+	plane = horizontal_planes[0];
+	max_points = num_points;
+      }
+    }
+
+    if(max_points > 3000) {
+      *vertical = plane->normal;
+      std::cout << "Estimated vertical from largest plane [" << max_points << " points]: " << (*vertical)[0] << ", " << (*vertical)[1] << ", " << (*vertical)[2] << std::endl;
+    }
+    else {
+      std::cout << "Failed to estimate vertical from " << horizontal_planes.size() << " planes, largest plane was " << max_points << " points, falling back to initial estimate" << std::endl;
+      *vertical = vertical_estimate;
+    }
+  }
+}
+
 
 void WalrusStairDetector::projectPoints(const PointCloud::ConstPtr cloud, const pcl::PointIndices::ConstPtr cluster_inliers,
 					pcl::ModelCoefficients::ConstPtr coefficients, pcl::PointCloud<pcl::PointXYZ>::Ptr projected_cloud) {

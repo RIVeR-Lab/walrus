@@ -13,7 +13,8 @@ namespace walrus_stair_detector {
 
 class ParallelPlaneRansacModel : public RansacModel<DetectedPlane::Ptr, Eigen::Vector3f> {
 public:
-  ParallelPlaneRansacModel() : RansacModel(2) {}
+  ParallelPlaneRansacModel() : RansacModel(2),
+			       weigh_based_on_point_count_(false) {}
   virtual ~ParallelPlaneRansacModel() {}
 
   virtual bool generateInitialModel(const SequenceView<DetectedPlane::Ptr>& data, Eigen::Vector3f* model_out) const {
@@ -33,14 +34,17 @@ public:
   }
 
   virtual bool enoughInliers(int num_inliers, int data_size) const {
-    return num_inliers > data_size / 2;
+    return num_inliers >= data_size / 2;
   }
 
   virtual bool generateCompleteModel(const SequenceView<DetectedPlane::Ptr>& data, const Eigen::Vector3f& initial_model, Eigen::Vector3f* model_out) const {
     Eigen::Vector3f new_model;
     new_model << 0.0, 0.0, 0.0;
     for(int i = 0; i < data.size(); ++i) {
-      new_model += data[i]->normal;
+      if(weigh_based_on_point_count_)
+	new_model += data[i]->normal * data[i]->cluster_projected->size();
+      else
+	new_model += data[i]->normal;
     }
     new_model /= data.size();
     new_model.normalize();
@@ -56,6 +60,14 @@ public:
     fit /= data.size();
     return fit;
   }
+
+  void setWeighBasedOnPointCount(bool enable) {
+    weigh_based_on_point_count_ = enable;
+  }
+
+private:
+  bool weigh_based_on_point_count_;
+
 
 };
 
