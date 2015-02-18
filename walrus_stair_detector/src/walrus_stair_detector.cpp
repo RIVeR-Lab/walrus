@@ -133,7 +133,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
 
   DistanceModel riser_spacing;
   int riser_start_index;
-  bool riser_spacing_result = computeRiserSpacing(planes, stair_orientation, &riser_spacing, &riser_start_index);
+  bool riser_spacing_result = computeRun(planes, stair_orientation, &riser_spacing, &riser_start_index);
   timer.end("compute riser spacing");
 
   if(!riser_spacing_result) {
@@ -143,7 +143,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   model.run = riser_spacing.spacing;
 
   SlopeModel stair_rise;
-  bool rise_result = computeRise(planes, vertical, stair_orientation, riser_spacing, riser_start_index, &stair_rise);
+  bool rise_result = computeRiseFromRiser(planes, vertical, stair_orientation, riser_spacing, riser_start_index, &stair_rise);
   timer.end("compute stair rise");
 
   if(!rise_result) {
@@ -388,7 +388,7 @@ bool WalrusStairDetector::computeStairOrientation(std::vector<DetectedPlane::Ptr
   return result;
 }
 
-bool WalrusStairDetector::computeRiserSpacing(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& stair_orientation, DistanceModel* model, int* start_index) {
+bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& stair_orientation, DistanceModel* model, int* start_index) {
   std::vector<DetectedPlane::Ptr> potential_risers;
   BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
     if(plane->is_riser || indeterminate(plane->is_riser)) {
@@ -466,7 +466,7 @@ bool WalrusStairDetector::computeRiserSpacing(std::vector<DetectedPlane::Ptr>& p
 
 
 
-bool WalrusStairDetector::computeRise(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_start_index, SlopeModel* model) {
+bool WalrusStairDetector::computeRiseFromRiser(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_start_index, SlopeModel* model) {
   DetectedPlane::Ptr start_plane = planes[riser_start_index];
 
   std::vector<std::pair<double, double> > points;
@@ -497,8 +497,6 @@ bool WalrusStairDetector::computeRise(std::vector<DetectedPlane::Ptr>& planes, c
     }
   }
   return result;
-
-
 }
 
 

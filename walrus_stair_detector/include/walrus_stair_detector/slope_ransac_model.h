@@ -65,7 +65,7 @@ public:
   virtual double getModelError(const SequenceView<DataT>& data, int num_outliers, const SlopeModel& model) const {
     double fit = 0;
     for(int i = 0; i < data.size(); ++i) {
-      fit += data[i].second - (data[i].first * model.slope + model.offset);
+      fit += fabs(data[i].second - (data[i].first * model.slope + model.offset));
     }
     fit /= data.size();
     fit *= pow(1.05, num_outliers);
