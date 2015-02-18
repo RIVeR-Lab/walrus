@@ -40,7 +40,7 @@ public:
   virtual bool generateCompleteModel(const SequenceView<DetectedPlane::Ptr>& data, const Eigen::Vector3f& initial_model, Eigen::Vector3f* model_out) const {
     Eigen::Vector3f new_model;
     new_model << 0.0, 0.0, 0.0;
-    for(int i = 0; i < data.size(); ++i) {
+    for(size_t i = 0; i < data.size(); ++i) {
       if(weigh_based_on_point_count_)
 	new_model += data[i]->normal * data[i]->cluster_projected->size();
       else
@@ -54,7 +54,7 @@ public:
 
   virtual double getModelError(const SequenceView<DetectedPlane::Ptr>& data, int num_outliers, const Eigen::Vector3f& model) const {
     double fit = 0;
-    for(int i = 0; i < data.size(); ++i) {
+    for(size_t i = 0; i < data.size(); ++i) {
       fit += M_PI/2 - model.dot(data[i]->normal);
     }
     fit /= data.size();

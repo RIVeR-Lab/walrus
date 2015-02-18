@@ -44,12 +44,12 @@ public:
   // TODO use least squares to compute model?
   virtual bool generateCompleteModel(const SequenceView<double>& data, const DistanceModel& initial_model, DistanceModel* model_out) const {
     double min = std::numeric_limits<double>::infinity();
-    for(int i = 0; i < data.size(); ++i) {
+    for(size_t i = 0; i < data.size(); ++i) {
       if(data[i] < min)
 	min = data[i];
     }
     double offset_error = 0;
-    for(int i = 0; i < data.size(); ++i) {
+    for(size_t i = 0; i < data.size(); ++i) {
       int group = (int)round((data[i] - min) / initial_model.spacing);
       double estimated = min + group * initial_model.spacing;
       offset_error += data[i] - estimated;
@@ -78,7 +78,7 @@ public:
 
   virtual double getModelError(const SequenceView<double>& data, int num_outliers, const DistanceModel& model) const {
     double fit = 0;
-    for(int i = 0; i < data.size(); ++i) {
+    for(size_t i = 0; i < data.size(); ++i) {
       double offset = std::fmod(std::fabs(data[i] - model.offset), model.spacing);
       if(offset > model.spacing / 2)
 	fit += model.spacing - offset;

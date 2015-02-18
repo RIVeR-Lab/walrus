@@ -28,7 +28,7 @@ struct StairModel {
   double rise;
   double run;
   double width;
-  int num_stairs; // number of stairs (defined as number of risers)
+  unsigned int num_stairs; // number of stairs (defined as number of risers)
 };
 
 class WalrusStairDetector {
@@ -58,15 +58,15 @@ private:
   bool computeRiseFromRiser(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_start_index, SlopeModel* model);
 
 
+  bool shutdown_;
+
   double min_riser_height_;
   double max_riser_height_;
 
   double min_riser_spacing_;
   double max_riser_spacing_;
 
-  int max_skipped_risers_;
-
-  bool shutdown_;
+  size_t max_skipped_risers_;
 #if VISUALIZE
   boost::scoped_ptr<pcl::visualization::PCLVisualizer> visualizer_;
   boost::scoped_ptr<boost::thread> visualizer_thread_;
@@ -76,8 +76,8 @@ private:
 
   pcl::PointCloud <pcl::PointXYZRGB>::Ptr region_growing_cloud_visual_;
   std::vector<DetectedPlane::Ptr> plane_visual_;
-  int previous_plane_visual_count_;
-  int previous_stair_count_;
+  size_t previous_plane_visual_count_;
+  size_t previous_stair_count_;
 
   StairModel model_;
 #endif

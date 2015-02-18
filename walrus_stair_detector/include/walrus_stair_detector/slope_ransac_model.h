@@ -41,7 +41,7 @@ public:
     // Least squares linear regression
     double mean_x = 0;
     double mean_y = 0;
-    for(int i = 0; i < data.size(); ++i) {
+    for(size_t i = 0; i < data.size(); ++i) {
       const DataT& value = data[i];
       mean_x += value.first;
       mean_y += value.second;
@@ -51,7 +51,7 @@ public:
 
     double Sx = 0;
     double Sxy = 0;
-    for(int i = 0; i < data.size(); ++i) {
+    for(size_t i = 0; i < data.size(); ++i) {
       const DataT& value = data[i];
       Sx += (value.first - mean_x) * (value.first - mean_x);
       Sxy += (value.first - mean_x) * (value.second - mean_y);
@@ -64,7 +64,7 @@ public:
 
   virtual double getModelError(const SequenceView<DataT>& data, int num_outliers, const SlopeModel& model) const {
     double fit = 0;
-    for(int i = 0; i < data.size(); ++i) {
+    for(size_t i = 0; i < data.size(); ++i) {
       fit += fabs(data[i].second - (data[i].first * model.slope + model.offset));
     }
     fit /= data.size();

@@ -272,7 +272,7 @@ void WalrusStairDetector::computeVertical(std::vector<DetectedPlane::Ptr>& plane
     // will have at least one plane because of if statment above
     int max_points = horizontal_planes[0]->cluster_projected->size();
     DetectedPlane::Ptr plane = horizontal_planes[0];
-    for(int i = 1; i < horizontal_planes.size(); ++i) {
+    for(size_t i = 1; i < horizontal_planes.size(); ++i) {
       int num_points = horizontal_planes[i]->cluster_projected->size();
       if(num_points > max_points) {
 	plane = horizontal_planes[0];
@@ -377,7 +377,7 @@ bool WalrusStairDetector::computeStairOrientation(std::vector<DetectedPlane::Ptr
   std::vector<int> inliers;
   bool result = ransac.estimate(&inliers, &riser_orientation);
   if(result) {
-    for(int i = 0; i < potential_risers.size(); ++i) {
+    for(size_t i = 0; i < potential_risers.size(); ++i) {
       if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
 	potential_risers[i]->is_tread = false;
       }
@@ -406,7 +406,7 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
 
   // compute distance between planes along stair direction
   std::vector<double> potential_risers_dist;
-  for(int i = 0; i < potential_risers.size(); ++i) {
+  for(size_t i = 0; i < potential_risers.size(); ++i) {
     const DetectedPlane::Ptr& p = potential_risers[i];
     Eigen::Vector3f vec_to_p =  p->vertical_center - p0->vertical_center;
     double dist = stair_orientation.dot(vec_to_p);
@@ -432,7 +432,7 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
   BOOST_FOREACH(double dist, dists) {
     if(dist < max_riser_spacing_)
       hist.add(dist);
-    for(int i = 2; i <= max_skipped_risers_; ++i) {
+    for(size_t i = 2; i <= max_skipped_risers_; ++i) {
       double new_dist = dist / i;
       if(new_dist > min_riser_spacing_ && new_dist < max_riser_spacing_)
 	hist.add(dist, 1.0 / i / i / i);
@@ -448,7 +448,7 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
   std::vector<int> inliers;
   bool result = ransac.estimate(&inliers, model);
   if(result) {
-    for(int i = 0; i < potential_risers.size(); ++i) {
+    for(size_t i = 0; i < potential_risers.size(); ++i) {
       if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
 	potential_risers[i]->is_tread = false;
       }
@@ -486,7 +486,7 @@ bool WalrusStairDetector::computeRiseFromRiser(std::vector<DetectedPlane::Ptr>& 
   std::vector<int> inliers;
   bool result = ransac.estimate(&inliers, model);
   if(result) {
-    for(int i = 0; i < potential_risers.size(); ++i) {
+    for(size_t i = 0; i < potential_risers.size(); ++i) {
       if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
 	potential_risers[i]->is_tread = false;
 	potential_risers[i]->flag = true;
@@ -535,10 +535,10 @@ void WalrusStairDetector::visualize() {
 
 #if VISUALIZE_DETECTED_PLANES
 	// Remove old shapes
-	for(int i = 0; i < previous_plane_visual_count_; ++i)
+	for(size_t i = 0; i < previous_plane_visual_count_; ++i)
 	  visualizer_->removeShape(visName("plane", i));
 	// Add/update shapes
-	for(int i = 0; i < plane_visual_.size(); ++i) {
+	for(size_t i = 0; i < plane_visual_.size(); ++i) {
 	  DetectedPlane::Ptr plane = plane_visual_[i];
 	  Eigen::Vector3f color;
 	  if(plane->flag)
@@ -569,13 +569,13 @@ void WalrusStairDetector::visualize() {
 	}
 
 	// Remove old shapes
-	for(int i = 0; i < previous_stair_count_; ++i) {
+	for(size_t i = 0; i < previous_stair_count_; ++i) {
 	  visualizer_->removeShape(visName("riser", i));
 	  visualizer_->removeShape(visName("tread", i));
 	}
 
 	Eigen::Vector3f horizontal = model_.vertical.cross(model_.direction);
-	for(int i = 0; i < model_.num_stairs; ++i) {
+	for(size_t i = 0; i < model_.num_stairs; ++i) {
 	  Eigen::Vector3f base = model_.origin + model_.vertical * model_.rise * i + model_.direction * model_.run * i;
 
 	  pcl::PointCloud<pcl::PointXYZ>::Ptr riser_points(new pcl::PointCloud<pcl::PointXYZ>());

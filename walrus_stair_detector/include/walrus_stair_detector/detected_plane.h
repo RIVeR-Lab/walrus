@@ -12,15 +12,15 @@ using namespace ::boost;
 
 struct DetectedPlane {
   DetectedPlane(int id)
-    : id(id),
-      orientation(OtherOrientation),
-      coefficients(new pcl::ModelCoefficients),
-      inliers(new pcl::PointIndices()),
-      cluster_projected(new pcl::PointCloud<pcl::PointXYZ>),
-      cluster_hull(new pcl::PointCloud<pcl::PointXYZ>),
-      flag(false),
-      is_riser(indeterminate), is_tread(indeterminate), is_wall(indeterminate),
-      stair_group(-1) {}
+  : id(id),
+    orientation(OtherOrientation),
+    is_riser(indeterminate), is_tread(indeterminate), is_wall(indeterminate),
+    stair_group(-1),
+    flag(false),
+    coefficients(new pcl::ModelCoefficients),
+    inliers(new pcl::PointIndices()),
+    cluster_projected(new pcl::PointCloud<pcl::PointXYZ>),
+    cluster_hull(new pcl::PointCloud<pcl::PointXYZ>) {}
   typedef shared_ptr<DetectedPlane> Ptr;
 
   enum Orientation {
