@@ -106,13 +106,20 @@ target_link_libraries(walrus_stair_detector_node
   walrus_stair_detector_ros
 )
 
+add_executable(walrus_stair_detector_model_builder src/walrus_stair_detector_model_builder.cpp)
+target_link_libraries(walrus_stair_detector_model_builder
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+  walrus_stair_detector
+)
+
 
 #############
 ## Install ##
 #############
 
 ## Mark executables and/or libraries for installation
-install(TARGETS walrus_stair_detector walrus_stair_detector_ros walrus_stair_detector_node
+install(TARGETS walrus_stair_detector walrus_stair_detector_ros walrus_stair_detector_node walrus_stair_detector_model_builder
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
