@@ -102,8 +102,8 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     computePlaneOrientation(plane, vertical);
 
     if(plane->orientation == DetectedPlane::Vertical) {
-      Eigen::Vector3f horizontal = vertical.cross(plane->normal);
-      computePlaneSize(plane, horizontal, vertical);
+      Eigen::Vector3f plane_horizontal = vertical.cross(plane->normal);
+      computePlaneSize(plane, plane_horizontal, vertical);
     }
 
     guessPlaneType(plane);
@@ -120,8 +120,8 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   StairModel model;
   model.vertical = vertical;
 
-  Eigen::Vector3f stair_orientation;
-  bool stair_orientation_result = computeStairOrientation(planes, vertical, &stair_orientation);
+  Eigen::Vector3f riser_direction;
+  bool stair_orientation_result = computeStairOrientation(planes, vertical, &riser_direction);
   timer.end("compute stair direction");
 
   if(!stair_orientation_result) {
@@ -129,24 +129,29 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     return;
   }
 
-  ROS_INFO("Found stair orientation: %f, %f, %f", stair_orientation[0], stair_orientation[1], stair_orientation[2]);
-  model.direction = stair_orientation;
+  ROS_INFO("Found stair orientation: %f, %f, %f", model.direction[0], model.direction[1], model.direction[2]);
+
+  // need to normalize because vertical and direction may not be orthagonal
+  model.horizontal = vertical.cross(riser_direction).normalized();
+  model.direction = model.horizontal.cross(vertical).normalized();
 
   BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
     if(plane->orientation == DetectedPlane::Horizontal) {
-      Eigen::Vector3f x_axis = vertical.cross(model.direction);
-      computePlaneSize(plane, x_axis, model.direction);
+      computePlaneSize(plane, model.horizontal, model.direction);
     }
   }
 
   std::vector<StairRiserModel::Ptr> risers;
-  bool riser_spacing_result = computeRun(planes, model.vertical, model.direction, &model.run, &risers);
+  double base_offset_z;
+  bool riser_spacing_result = computeRun(planes, model, &model.run, &base_offset_z, &risers);
   timer.end("compute riser spacing");
 
   if(!riser_spacing_result) {
     ROS_WARN("Could not compute riser spacing");
     return;
   }
+
+  computeNumStairs(&risers, &model.num_stairs);
 
   double base_y;
   bool rise_result = computeRiseFromRisers(risers, &base_y, &model.rise);
@@ -157,14 +162,12 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     return;
   }
 
-
-  model.num_stairs = 10;
-  model.width = 0.7;
+  double center_x;
+  computeWidth(risers, &model.width, &center_x);
 
   StairRiserModel::Ptr base_riser = risers[0];
-  Eigen::Vector3f horizontal = vertical.cross(model.direction);
-  double center_x = (base_riser->min_x + base_riser->max_x) / 2;
-  model.origin = model.vertical * base_y + model.direction * (base_riser->center_z - base_riser->index*model.run) + horizontal * center_x;
+
+  model.origin = model.horizontal * center_x + model.vertical * base_y + model.direction * base_offset_z;
 
   std::cout << "Origin: " << model.origin[0] << ", " << model.origin[1] << ", " << model.origin[2] << std::endl;
   std::cout << "Direction: " << model.direction[0] << ", " << model.direction[1] << ", " << model.direction[2] << std::endl;
@@ -395,7 +398,7 @@ bool WalrusStairDetector::computeStairOrientation(std::vector<DetectedPlane::Ptr
   return result;
 }
 
-bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, double* run, std::vector<StairRiserModel::Ptr>* risers) {
+bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, const StairModel& stair_model, double* run, double* base_offset_z, std::vector<StairRiserModel::Ptr>* risers) {
   std::vector<DetectedPlane::Ptr> potential_risers;
   BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
     if(plane->is_riser || indeterminate(plane->is_riser)) {
@@ -408,15 +411,11 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
     return false;
   }
 
-  // pick an arbitrary plane to compute relative distances off of
-  DetectedPlane::Ptr& p0 = potential_risers[0];
-
   // compute distance between planes along stair direction
   std::vector<double> potential_risers_dist;
   for(size_t i = 0; i < potential_risers.size(); ++i) {
     const DetectedPlane::Ptr& p = potential_risers[i];
-    Eigen::Vector3f vec_to_p =  p->center - p0->center;
-    double dist = stair_orientation.dot(vec_to_p);
+    double dist = stair_model.direction.dot(p->center);
     potential_risers_dist.push_back(dist);
   }
 
@@ -461,21 +460,23 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
       if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
 	potential_risers[i]->is_tread = false;
       }
+      else
+	potential_risers[i]->flag = true;
     }
+    std::cout << "Got num inliers: " << inliers.size() << std::endl;
     std::map<int, std::vector<DetectedPlane::Ptr> > riser_groups;
     for(std::multimap<int, int>::iterator itr = model.groups.begin(); itr != model.groups.end(); ++itr) {
       DetectedPlane::Ptr& plane = potential_risers[inliers[itr->second]];
       riser_groups[itr->first].push_back(plane);
     }
-    Eigen::Vector3f horizontal = vertical.cross(stair_orientation);
     for(std::multimap<int, std::vector<DetectedPlane::Ptr> >::iterator itr = riser_groups.begin(); itr != riser_groups.end(); ++itr) {
       StairRiserModel::Ptr riser(new StairRiserModel(itr->first));
       riser->planes = itr->second;
       double average_z = 0;
       BOOST_FOREACH(const DetectedPlane::Ptr& plane, riser->planes) {
-	double center_x = plane->center.dot(horizontal);
-	double center_y = plane->center.dot(vertical);
-	double center_z = plane->center.dot(stair_orientation);
+	double center_x = plane->center.dot(stair_model.horizontal);
+	double center_y = plane->center.dot(stair_model.vertical);
+	double center_z = plane->center.dot(stair_model.direction);
 	average_z += center_z;
 	double min_x = center_x - plane->width / 2;
 	double max_x = center_x + plane->width / 2;
@@ -494,17 +495,29 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
       riser->center_z = average_z;
       risers->push_back(riser);
     }
+    *base_offset_z = model.offset;
   }
   return result;
 }
 
 
+void WalrusStairDetector::computeNumStairs(std::vector<StairRiserModel::Ptr>* risers, unsigned int* num_stairs) {
+  std::vector<StairRiserModel::Ptr>::iterator itr = risers->begin();
+  int last_index = 0;
+  while(itr != risers->end()) {
+    if((*itr)->index - last_index > max_skipped_risers_) {
+      break;
+    }
+    *num_stairs = (*itr)->index + 1; // plus 1 for first stair
+    last_index = (*itr)->index;
+    ++itr;
+  }
+  risers->erase(itr, risers->end()); // remove remaining stairs
+}
 
-
-bool WalrusStairDetector::computeRiseFromRisers(std::vector<StairRiserModel::Ptr>& risers, double* base_y, double* rise) {
+bool WalrusStairDetector::computeRiseFromRisers(const std::vector<StairRiserModel::Ptr>& risers, double* base_y, double* rise) {
   std::vector<std::pair<double, double> > points;
-  BOOST_FOREACH(StairRiserModel::Ptr& riser, risers) {
-    std::cout << "Stair: " << riser->index << std::endl;
+  BOOST_FOREACH(const StairRiserModel::Ptr& riser, risers) {
     double center_y = (riser->min_y + riser->max_y)/2;
     points.push_back(std::make_pair(riser->index, center_y));
   }
@@ -521,6 +534,53 @@ bool WalrusStairDetector::computeRiseFromRisers(std::vector<StairRiserModel::Ptr
     *base_y = slope_model.offset - *rise/2;
   }
   return result;
+}
+
+void WalrusStairDetector::computeWidth(const std::vector<StairRiserModel::Ptr>& risers, double* width, double* center_x) {
+  std::vector<std::pair<double, double> > min_points;
+  std::vector<std::pair<double, double> > max_points;
+  BOOST_FOREACH(const StairRiserModel::Ptr& riser, risers) {
+    min_points.push_back(std::make_pair(riser->index, riser->min_x));
+    max_points.push_back(std::make_pair(riser->index, riser->max_x));
+  }
+
+  LineRansacModel model_description;
+
+  LineModel min_model;
+  Ransac<std::pair<double, double>, LineModel> min_ransac(&model_description);
+  min_ransac.setInput(&min_points);
+  min_ransac.setMaxIterations(30);
+  std::vector<int> min_inliers;
+  bool min_result = min_ransac.estimate(&min_inliers, &min_model);
+
+  LineModel max_model;
+  Ransac<std::pair<double, double>, LineModel> max_ransac(&model_description);
+  max_ransac.setInput(&max_points);
+  max_ransac.setMaxIterations(30);
+  std::vector<int> max_inliers;
+  bool max_result = max_ransac.estimate(&max_inliers, &max_model);
+
+  double min, max;
+  if(min_result) {
+    min = min_model.offset;
+    std::cout << "Used RANSAC to compute stair left" << std::endl;
+  }
+  else {
+    std::cout << "RANSAC failed for stair left" << std::endl;
+    min = risers[0]->min_x;
+  }
+
+  if(max_result) {
+    std::cout << "Used RANSAC to compute stair right" << std::endl;
+    max = max_model.offset;
+  }
+  else {
+    std::cout << "RANSAC failed for stair right" << std::endl;
+    max = risers[0]->max_x;
+  }
+
+  *width = max - min;
+  *center_x = (max + min) / 2;
 }
 
 
@@ -593,32 +653,49 @@ void WalrusStairDetector::visualize() {
 	  visualizer_->addText(rise_text.str(), 30, 50, 16, 1, 1, 1, "rise");
 	}
 
+	std::stringstream width_text;
+	width_text << "Width: " << model_.width << "m";
+	if(!visualizer_->updateText(width_text.str(), 30, 70, "width")) {
+	  visualizer_->addText(width_text.str(), 30, 70, 16, 1, 1, 1, "width");
+	}
+
+	std::stringstream num_text;
+	num_text << "Number of stairs: " << model_.num_stairs;
+	if(!visualizer_->updateText(num_text.str(), 30, 90, "num")) {
+	  visualizer_->addText(num_text.str(), 30, 90, 16, 1, 1, 1, "num");
+	}
+
+	std::stringstream origin_text;
+	origin_text << "Origin (stair relative): " << model_.origin.dot(model_.horizontal) << ", " << model_.origin.dot(model_.vertical) << ", " << model_.origin.dot(model_.direction);
+	if(!visualizer_->updateText(origin_text.str(), 30, 110, "origin")) {
+	  visualizer_->addText(origin_text.str(), 30, 110, 16, 1, 1, 1, "origin");
+	}
+
 	// Remove old shapes
 	for(size_t i = 0; i < previous_stair_count_; ++i) {
 	  visualizer_->removeShape(visName("riser", i));
 	  visualizer_->removeShape(visName("tread", i));
 	}
 
-	Eigen::Vector3f horizontal = model_.vertical.cross(model_.direction);
 	for(size_t i = 0; i < model_.num_stairs; ++i) {
 	  Eigen::Vector3f base = model_.origin + model_.vertical * model_.rise * i + model_.direction * model_.run * i;
 
 	  pcl::PointCloud<pcl::PointXYZ>::Ptr riser_points(new pcl::PointCloud<pcl::PointXYZ>());
 	  riser_points->resize(4);
-	  riser_points->at(0).getVector3fMap() = base + horizontal * model_.width/2 + model_.vertical*model_.rise;
-	  riser_points->at(1).getVector3fMap() = base - horizontal * model_.width/2 + model_.vertical*model_.rise;
-	  riser_points->at(2).getVector3fMap() = base - horizontal * model_.width/2;
-	  riser_points->at(3).getVector3fMap() = base + horizontal * model_.width/2;
+	  riser_points->at(0).getVector3fMap() = base + model_.horizontal * model_.width/2 + model_.vertical*model_.rise;
+	  riser_points->at(1).getVector3fMap() = base - model_.horizontal * model_.width/2 + model_.vertical*model_.rise;
+	  riser_points->at(2).getVector3fMap() = base - model_.horizontal * model_.width/2;
+	  riser_points->at(3).getVector3fMap() = base + model_.horizontal * model_.width/2;
 	  visualizer_->addPolygon<pcl::PointXYZ>(riser_points, CYAN[0], CYAN[1], CYAN[2], visName("riser", i));
 	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("riser", i));
 
 
 	  pcl::PointCloud<pcl::PointXYZ>::Ptr tread_points(new pcl::PointCloud<pcl::PointXYZ>());
 	  tread_points->resize(4);
-	  tread_points->at(0).getVector3fMap() = base + model_.vertical*model_.rise + horizontal * model_.width/2 + model_.direction*model_.run;
-	  tread_points->at(1).getVector3fMap() = base + model_.vertical*model_.rise - horizontal * model_.width/2 + model_.direction*model_.run;
-	  tread_points->at(2).getVector3fMap() = base + model_.vertical*model_.rise - horizontal * model_.width/2;
-	  tread_points->at(3).getVector3fMap() = base + model_.vertical*model_.rise + horizontal * model_.width/2;
+	  tread_points->at(0).getVector3fMap() = base + model_.vertical*model_.rise + model_.horizontal * model_.width/2 + model_.direction*model_.run;
+	  tread_points->at(1).getVector3fMap() = base + model_.vertical*model_.rise - model_.horizontal * model_.width/2 + model_.direction*model_.run;
+	  tread_points->at(2).getVector3fMap() = base + model_.vertical*model_.rise - model_.horizontal * model_.width/2;
+	  tread_points->at(3).getVector3fMap() = base + model_.vertical*model_.rise + model_.horizontal * model_.width/2;
 	  visualizer_->addPolygon<pcl::PointXYZ>(tread_points, PINK[0], PINK[1], PINK[2], visName("tread", i));
 	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("tread", i));
 	}

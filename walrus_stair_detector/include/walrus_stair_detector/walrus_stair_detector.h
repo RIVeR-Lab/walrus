@@ -25,6 +25,7 @@ struct StairModel {
   Eigen::Vector3f origin; // center bottom of the base riser
   Eigen::Vector3f vertical; // normal of a stair tread
   Eigen::Vector3f direction; // vector in tread plane in the direction of the stair case
+  Eigen::Vector3f horizontal;
   double rise;
   double run;
   double width;
@@ -66,8 +67,10 @@ private:
   void computePlaneOrientation(DetectedPlane::Ptr plane, const Eigen::Vector3f& vertical);
   void guessPlaneType(DetectedPlane::Ptr plane);
   bool computeStairOrientation(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, Eigen::Vector3f* model);
-  bool computeRun(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, double* run, std::vector<StairRiserModel::Ptr>* risers);
-  bool computeRiseFromRisers(std::vector<StairRiserModel::Ptr>& risers, double* base_y, double* rise);
+  bool computeRun(std::vector<DetectedPlane::Ptr>& planes, const StairModel& stair_model, double* run, double* base_offset_z, std::vector<StairRiserModel::Ptr>* risers);
+  void computeNumStairs(std::vector<StairRiserModel::Ptr>* risers, unsigned int* num_stairs);
+  bool computeRiseFromRisers(const std::vector<StairRiserModel::Ptr>& risers, double* base_y, double* rise);
+  void computeWidth(const std::vector<StairRiserModel::Ptr>& risers, double* width, double* center_x);
 
 
   bool shutdown_;

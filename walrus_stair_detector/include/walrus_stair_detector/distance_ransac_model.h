@@ -41,38 +41,39 @@ public:
     return num_inliers > data_size / 2;
   }
 
-  // TODO use least squares to compute model?
   virtual bool generateCompleteModel(const SequenceView<double>& data, const DistanceModel& initial_model, DistanceModel* model_out) const {
     double min = std::numeric_limits<double>::infinity();
     for(size_t i = 0; i < data.size(); ++i) {
       if(data[i] < min)
 	min = data[i];
     }
-    double offset_error = 0;
+    std::vector<std::pair<double, double> > ls_data;
     for(size_t i = 0; i < data.size(); ++i) {
       int group = (int)round((data[i] - min) / initial_model.spacing);
-      double estimated = min + group * initial_model.spacing;
-      offset_error += data[i] - estimated;
+      ls_data.push_back(std::make_pair(group, data[i]));
       model_out->groups.insert(std::make_pair(group, i));
     }
-    offset_error /= data.size();
-    if(std::fabs(offset_error) > max_error_)
-      return false;
 
-    model_out->offset = min + offset_error;
-
-    double spacing_error = 0;
-    int count = 0;
-    for(std::multimap<int, int>::const_iterator itr = model_out->groups.begin(); itr != model_out->groups.end(); ++itr) {
-      int group = itr->first;
-      double estimated = model_out->offset + group * initial_model.spacing;
-      spacing_error += (data[itr->second] - estimated) * group;
-      count += group;
+    double mean_x = 0;
+    double mean_y = 0;
+    for(size_t i = 0; i < ls_data.size(); ++i) {
+      const std::pair<double, double>& value = ls_data[i];
+      mean_x += value.first;
+      mean_y += value.second;
     }
-    spacing_error /= count;
-    if(std::fabs(spacing_error) > max_error_)
-      return false;
-    model_out->spacing = initial_model.spacing + spacing_error;
+    mean_x /= ls_data.size();
+    mean_y /= ls_data.size();
+
+    double Sx = 0;
+    double Sxy = 0;
+    for(size_t i = 0; i < ls_data.size(); ++i) {
+      const std::pair<double, double>& value = ls_data[i];
+      Sx += (value.first - mean_x) * (value.first - mean_x);
+      Sxy += (value.first - mean_x) * (value.second - mean_y);
+    }
+
+    model_out->spacing = Sxy / Sx;
+    model_out->offset = mean_y - model_out->spacing * mean_x;
     return true;
   }
 

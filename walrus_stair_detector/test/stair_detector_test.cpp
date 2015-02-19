@@ -84,10 +84,44 @@ TEST_P(StairDetectorTest, detectStairs) {
     EXPECT_NEAR(stair_config["run"].as<double>(), stair.run, 0.1);
 
     EXPECT_VECTOR_ANGLE_LE(stair_config["direction"].as<Eigen::Vector3f>(), stair.direction, 0.06);
-    EXPECT_VECTOR_NEAR(stair_config["origin"].as<Eigen::Vector3f>(), stair.origin, 0.4); // for now keep this large because the origin drifts left and right
 
-    //EXPECT_NEAR(stair_config["width"].as<double>(), stair.width, 0.1);
-    //EXPECT_EQ(stair_config["num_stairs"].as<int>(), stair.num_stairs);
+    Eigen::Vector3f expected_origin = stair_config["origin"].as<Eigen::Vector3f>();
+
+    double expected_x = expected_origin.dot(stair.horizontal);
+    double expected_y = expected_origin.dot(stair.vertical);
+    double expected_z = expected_origin.dot(stair.direction);
+
+    double actual_x = stair.origin.dot(stair.horizontal);
+    double actual_y = stair.origin.dot(stair.vertical);
+    double actual_z = stair.origin.dot(stair.direction);
+
+    // Expect the horizontal component to be less accurate
+    EXPECT_NEAR(expected_x, actual_x, 0.14);
+
+    double max_origin_center_error = 0.05;
+    Eigen::Vector3f expected_origin_center(0, expected_y, expected_z);
+    Eigen::Vector3f origin_center(0, actual_y, actual_z);
+    if(stair_config["can_miss_first_stair"].IsDefined() && stair_config["can_miss_first_stair"].as<bool>()){
+      Eigen::Vector3f upper_origin_center(0, actual_y - stair.rise, actual_z - stair.run);
+      if((expected_origin_center - upper_origin_center).norm() < max_origin_center_error)
+	EXPECT_VECTOR_NEAR(expected_origin_center, upper_origin_center, max_origin_center_error);
+      else
+	EXPECT_VECTOR_NEAR(expected_origin_center, origin_center, max_origin_center_error);
+    }
+    else {
+      EXPECT_VECTOR_NEAR(expected_origin_center, origin_center, max_origin_center_error);
+    }
+
+    EXPECT_GE(stair_config["width"].as<double>(), stair.width);
+    EXPECT_LE(stair_config["width"].as<double>()-0.18, stair.width);
+
+    if(stair_config["num_stairs"].IsScalar()) {
+      EXPECT_EQ(stair_config["num_stairs"].as<int>(), stair.num_stairs);
+    }
+    else {
+      EXPECT_LE(stair_config["num_stairs"][0].as<int>(), stair.num_stairs);
+      EXPECT_GE(stair_config["num_stairs"][1].as<int>(), stair.num_stairs);
+    }
   }
 }
 
