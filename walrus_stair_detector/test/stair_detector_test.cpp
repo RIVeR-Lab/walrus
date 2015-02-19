@@ -1,4 +1,3 @@
-#include <ros/ros.h>
 #include <walrus_stair_detector/walrus_stair_detector.h>
 #include <pcl/io/io.h>
 #include <pcl/io/pcd_io.h>
@@ -190,7 +189,6 @@ INSTANTIATE_TEST_CASE_P(
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "stair_detector_test");
 
   return RUN_ALL_TESTS();
 }
