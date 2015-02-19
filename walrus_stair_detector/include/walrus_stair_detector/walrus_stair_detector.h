@@ -8,7 +8,7 @@
 #include <boost/thread.hpp>
 #include <walrus_stair_detector/detected_plane.h>
 #include <walrus_stair_detector/distance_ransac_model.h>
-#include <walrus_stair_detector/slope_ransac_model.h>
+#include <walrus_stair_detector/line_ransac_model.h>
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -29,6 +29,18 @@ struct StairModel {
   double run;
   double width;
   unsigned int num_stairs; // number of stairs (defined as number of risers)
+};
+
+struct StairRiserModel {
+  StairRiserModel(int index) : index(index),
+			       min_x(std::numeric_limits<double>::infinity()), min_y(std::numeric_limits<double>::infinity()),
+			       max_x(-std::numeric_limits<double>::infinity()), max_y(-std::numeric_limits<double>::infinity()) {}
+  typedef shared_ptr<StairRiserModel> Ptr;
+  const int index;
+
+  double min_x, min_y, max_x, max_y;
+  std::vector<DetectedPlane::Ptr> planes;
+  double center_z;
 };
 
 class WalrusStairDetector {
@@ -54,8 +66,8 @@ private:
   void computePlaneOrientation(DetectedPlane::Ptr plane, const Eigen::Vector3f& vertical);
   void guessPlaneType(DetectedPlane::Ptr plane);
   bool computeStairOrientation(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, Eigen::Vector3f* model);
-  bool computeRun(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& stair_orientation, DistanceModel* model, int* start_index);
-  bool computeRiseFromRisers(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& rise_spacing, int riser_start_index, SlopeModel* model);
+  bool computeRun(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, double* run, std::vector<StairRiserModel::Ptr>* risers);
+  bool computeRiseFromRisers(std::vector<StairRiserModel::Ptr>& risers, double* base_y, double* rise);
 
 
   bool shutdown_;

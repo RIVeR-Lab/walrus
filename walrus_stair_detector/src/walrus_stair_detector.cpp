@@ -139,32 +139,32 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     }
   }
 
-  DistanceModel riser_spacing;
-  int riser_start_index;
-  bool riser_spacing_result = computeRun(planes, stair_orientation, &riser_spacing, &riser_start_index);
+  std::vector<StairRiserModel::Ptr> risers;
+  bool riser_spacing_result = computeRun(planes, model.vertical, model.direction, &model.run, &risers);
   timer.end("compute riser spacing");
 
   if(!riser_spacing_result) {
     ROS_WARN("Could not compute riser spacing");
     return;
   }
-  model.run = riser_spacing.spacing;
 
-  SlopeModel stair_rise;
-  bool rise_result = computeRiseFromRisers(planes, vertical, stair_orientation, riser_spacing, riser_start_index, &stair_rise);
+  double base_y;
+  bool rise_result = computeRiseFromRisers(risers, &base_y, &model.rise);
   timer.end("compute stair rise from risers");
 
   if(!rise_result) {
     ROS_WARN("Could not compute stair rise from risers");
     return;
   }
-  model.rise = stair_rise.slope * model.run;
 
 
   model.num_stairs = 10;
   model.width = 0.7;
 
-  model.origin = planes[riser_start_index]->center + model.vertical * (stair_rise.offset - model.rise/2);
+  StairRiserModel::Ptr base_riser = risers[0];
+  Eigen::Vector3f horizontal = vertical.cross(model.direction);
+  double center_x = (base_riser->min_x + base_riser->max_x) / 2;
+  model.origin = model.vertical * base_y + model.direction * (base_riser->center_z - base_riser->index*model.run) + horizontal * center_x;
 
   std::cout << "Origin: " << model.origin[0] << ", " << model.origin[1] << ", " << model.origin[2] << std::endl;
   std::cout << "Direction: " << model.direction[0] << ", " << model.direction[1] << ", " << model.direction[2] << std::endl;
@@ -395,7 +395,7 @@ bool WalrusStairDetector::computeStairOrientation(std::vector<DetectedPlane::Ptr
   return result;
 }
 
-bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& stair_orientation, DistanceModel* model, int* start_index) {
+bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, double* run, std::vector<StairRiserModel::Ptr>* risers) {
   std::vector<DetectedPlane::Ptr> potential_risers;
   BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
     if(plane->is_riser || indeterminate(plane->is_riser)) {
@@ -447,25 +447,52 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
   }
   //hist.print();
 
-
+  DistanceModel model;
   DistanceRansacModel model_description(hist.largestBucket(), 0.05);
   Ransac<double, DistanceModel> ransac(&model_description);
   ransac.setInput(&potential_risers_dist);
   ransac.setMaxIterations(30);
   std::vector<int> inliers;
-  bool result = ransac.estimate(&inliers, model);
+  bool result = ransac.estimate(&inliers, &model);
+
   if(result) {
+    *run = model.spacing;
     for(size_t i = 0; i < potential_risers.size(); ++i) {
       if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
 	potential_risers[i]->is_tread = false;
       }
     }
-    for(std::multimap<int, int>::iterator itr = model->groups.begin(); itr != model->groups.end(); ++itr) {
+    std::map<int, std::vector<DetectedPlane::Ptr> > riser_groups;
+    for(std::multimap<int, int>::iterator itr = model.groups.begin(); itr != model.groups.end(); ++itr) {
       DetectedPlane::Ptr& plane = potential_risers[inliers[itr->second]];
-      plane->stair_group = itr->first;
-      if(itr->first == 0)
-	*start_index = plane->id;
-      itr->second = plane->id;
+      riser_groups[itr->first].push_back(plane);
+    }
+    Eigen::Vector3f horizontal = vertical.cross(stair_orientation);
+    for(std::multimap<int, std::vector<DetectedPlane::Ptr> >::iterator itr = riser_groups.begin(); itr != riser_groups.end(); ++itr) {
+      StairRiserModel::Ptr riser(new StairRiserModel(itr->first));
+      riser->planes = itr->second;
+      double average_z = 0;
+      BOOST_FOREACH(const DetectedPlane::Ptr& plane, riser->planes) {
+	double center_x = plane->center.dot(horizontal);
+	double center_y = plane->center.dot(vertical);
+	double center_z = plane->center.dot(stair_orientation);
+	average_z += center_z;
+	double min_x = center_x - plane->width / 2;
+	double max_x = center_x + plane->width / 2;
+	double min_y = center_y - plane->height / 2;
+	double max_y = center_y + plane->height / 2;
+	if(min_x < riser->min_x)
+	  riser->min_x = min_x;
+	if(max_x > riser->max_x)
+	  riser->max_x = max_x;
+	if(min_y < riser->min_y)
+	  riser->min_y = min_y;
+	if(max_y > riser->max_y)
+	  riser->max_y = max_y;
+      }
+      average_z /= riser->planes.size();
+      riser->center_z = average_z;
+      risers->push_back(riser);
     }
   }
   return result;
@@ -474,34 +501,24 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
 
 
 
-bool WalrusStairDetector::computeRiseFromRisers(std::vector<DetectedPlane::Ptr>& planes, const Eigen::Vector3f& vertical, const Eigen::Vector3f& stair_orientation, const DistanceModel& riser_spacing, int riser_start_index, SlopeModel* model) {
-  DetectedPlane::Ptr start_plane = planes[riser_start_index];
-
+bool WalrusStairDetector::computeRiseFromRisers(std::vector<StairRiserModel::Ptr>& risers, double* base_y, double* rise) {
   std::vector<std::pair<double, double> > points;
-  std::vector<DetectedPlane::Ptr> potential_risers;
-  BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
-    if(plane->is_riser || indeterminate(plane->is_riser)) {
-      potential_risers.push_back(plane);
-      Eigen::Vector3f vect_to_p = plane->center - start_plane->center;
-      points.push_back(std::make_pair(vect_to_p.dot(stair_orientation), vect_to_p.dot(vertical)));
-    }
+  BOOST_FOREACH(StairRiserModel::Ptr& riser, risers) {
+    std::cout << "Stair: " << riser->index << std::endl;
+    double center_y = (riser->min_y + riser->max_y)/2;
+    points.push_back(std::make_pair(riser->index, center_y));
   }
 
-  SlopeRansacModel model_description;
-  Ransac<std::pair<double, double>, SlopeModel> ransac(&model_description);
+  LineModel slope_model;
+  LineRansacModel model_description;
+  Ransac<std::pair<double, double>, LineModel> ransac(&model_description);
   ransac.setInput(&points);
   ransac.setMaxIterations(30);
   std::vector<int> inliers;
-  bool result = ransac.estimate(&inliers, model);
+  bool result = ransac.estimate(&inliers, &slope_model);
   if(result) {
-    for(size_t i = 0; i < potential_risers.size(); ++i) {
-      if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
-	potential_risers[i]->is_riser = false;
-      }
-      else {
-	potential_risers[i]->is_riser = true;
-      }
-    }
+    *rise = slope_model.slope;
+    *base_y = slope_model.offset - *rise/2;
   }
   return result;
 }

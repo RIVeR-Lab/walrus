@@ -1,5 +1,5 @@
-#ifndef WALRUS_STAIR_DETECTOR_SLOPE_RANSAC_MODEL_H_
-#define WALRUS_STAIR_DETECTOR_SLOPE_RANSAC_MODEL_H_
+#ifndef WALRUS_STAIR_DETECTOR_LINE_RANSAC_MODEL_H_
+#define WALRUS_STAIR_DETECTOR_LINE_RANSAC_MODEL_H_
 
 #include <cstddef>
 #include <vector>
@@ -11,33 +11,33 @@
 
 namespace walrus_stair_detector {
 
-struct SlopeModel {
+struct LineModel {
   double slope;
   double offset;
 };
 
-class SlopeRansacModel : public RansacModel<std::pair<double, double>, SlopeModel> {
+class LineRansacModel : public RansacModel<std::pair<double, double>, LineModel> {
 public:
   typedef std::pair<double, double> DataT;
-  SlopeRansacModel()
+  LineRansacModel()
     : RansacModel(2) {}
-  virtual ~SlopeRansacModel() {}
+  virtual ~LineRansacModel() {}
 
-  virtual bool generateInitialModel(const SequenceView<DataT>& data, SlopeModel* model_out) const {
+  virtual bool generateInitialModel(const SequenceView<DataT>& data, LineModel* model_out) const {
     model_out->slope = (data[1].second - data[0].second) / (data[1].first - data[0].first);
     model_out->offset = data[0].second - data[0].first * model_out->slope;
     return true;
   }
 
-  virtual bool fitsModel(const SlopeModel& model, const DataT& value) const {
+  virtual bool fitsModel(const LineModel& model, const DataT& value) const {
     return std::fabs(value.second - (value.first * model.slope + model.offset)) < 0.2;
   }
 
   virtual bool enoughInliers(int num_inliers, int data_size) const {
-    return num_inliers > data_size / 2;
+    return num_inliers >= data_size / 2;
   }
 
-  virtual bool generateCompleteModel(const SequenceView<DataT>& data, const SlopeModel& initial_model, SlopeModel* model_out) const {
+  virtual bool generateCompleteModel(const SequenceView<DataT>& data, const LineModel& initial_model, LineModel* model_out) const {
     // Least squares linear regression
     double mean_x = 0;
     double mean_y = 0;
@@ -62,7 +62,7 @@ public:
     return true;
   }
 
-  virtual double getModelError(const SequenceView<DataT>& data, int num_outliers, const SlopeModel& model) const {
+  virtual double getModelError(const SequenceView<DataT>& data, int num_outliers, const LineModel& model) const {
     double fit = 0;
     for(size_t i = 0; i < data.size(); ++i) {
       fit += fabs(data[i].second - (data[i].first * model.slope + model.offset));

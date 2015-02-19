@@ -15,7 +15,6 @@ struct DetectedPlane {
   : id(id),
     orientation(OtherOrientation),
     is_riser(indeterminate), is_tread(indeterminate), is_wall(indeterminate),
-    stair_group(-1),
     flag(false),
     coefficients(new pcl::ModelCoefficients),
     inliers(new pcl::PointIndices()),
@@ -35,8 +34,6 @@ struct DetectedPlane {
   tribool is_riser;
   tribool is_tread;
   tribool is_wall;
-
-  int stair_group;
 
   bool flag;
 
