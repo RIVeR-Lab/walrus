@@ -136,7 +136,7 @@ private:
     if(sample_size < number_to_select)
       return false;
 
-    initial_indices->resize(number_to_select);
+    initial_indices->resize(number_to_select, -1);
     for(int i = 0; i < number_to_select; ++i) {
       int index;
       do {
