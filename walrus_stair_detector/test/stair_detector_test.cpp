@@ -80,7 +80,7 @@ TEST_P(StairDetectorTest, detectStairs) {
     YAML::Node stair_config = stairs_config[i];
     walrus_stair_detector::StairModel& stair = stairs[i];
     EXPECT_NEAR(stair_config["rise"].as<double>(), stair.rise, 0.012);
-    EXPECT_NEAR(stair_config["run"].as<double>(), stair.run, 0.01);
+    EXPECT_NEAR(stair_config["run"].as<double>(), stair.run, 0.008);
 
     EXPECT_VECTOR_ANGLE_LE(stair_config["direction"].as<Eigen::Vector3f>(), stair.direction, 0.05);
 
