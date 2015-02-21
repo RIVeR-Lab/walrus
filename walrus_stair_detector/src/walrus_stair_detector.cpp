@@ -19,7 +19,7 @@ namespace walrus_stair_detector {
 WalrusStairDetector::WalrusStairDetector() : shutdown_(false),
 					     min_riser_height_(0.1), max_riser_height_(0.35),
 					     min_riser_spacing_(0.2), max_riser_spacing_(0.4),
-					     max_skipped_risers_(3) {
+					     max_skipped_risers_(3), min_stair_width_(0.5) {
 #if VISUALIZE
   visualizer_update_ = false;
   visualizer_thread_.reset(new boost::thread(boost::bind(&WalrusStairDetector::visualize, this)));
@@ -540,11 +540,15 @@ void WalrusStairDetector::computeWidth(const std::vector<StairRiserModel::Ptr>& 
   std::vector<std::pair<double, double> > min_points;
   std::vector<std::pair<double, double> > max_points;
   BOOST_FOREACH(const StairRiserModel::Ptr& riser, risers) {
+    if(riser->max_x - riser->min_x < min_stair_width_)
+      continue;
     min_points.push_back(std::make_pair(riser->index, riser->min_x));
     max_points.push_back(std::make_pair(riser->index, riser->max_x));
   }
 
   LineRansacModel model_description;
+  model_description.setInlierThreshold(0.3);
+  model_description.setMinInliers(0.75);
 
   LineModel min_model;
   Ransac<std::pair<double, double>, LineModel> min_ransac(&model_description);

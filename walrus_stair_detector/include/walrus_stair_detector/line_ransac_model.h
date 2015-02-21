@@ -20,8 +20,15 @@ class LineRansacModel : public RansacModel<std::pair<double, double>, LineModel>
 public:
   typedef std::pair<double, double> DataT;
   LineRansacModel()
-    : RansacModel(2) {}
+    : RansacModel(2), inlier_threshold_(0.2), min_inliers_(0.5) {}
   virtual ~LineRansacModel() {}
+
+  void setInlierThreshold(const double threshold) {
+    inlier_threshold_ = threshold;
+  }
+  void setMinInliers(const double percent) {
+    min_inliers_ = percent;
+  }
 
   virtual bool generateInitialModel(const SequenceView<DataT>& data, LineModel* model_out) const {
     model_out->slope = (data[1].second - data[0].second) / (data[1].first - data[0].first);
@@ -30,11 +37,11 @@ public:
   }
 
   virtual bool fitsModel(const LineModel& model, const DataT& value) const {
-    return std::fabs(value.second - (value.first * model.slope + model.offset)) < 0.2;
+    return std::fabs(value.second - (value.first * model.slope + model.offset)) < inlier_threshold_;
   }
 
   virtual bool enoughInliers(int num_inliers, int data_size) const {
-    return num_inliers >= data_size / 2;
+    return num_inliers >= data_size * min_inliers_;
   }
 
   virtual bool generateCompleteModel(const SequenceView<DataT>& data, const LineModel& initial_model, LineModel* model_out) const {
@@ -72,6 +79,9 @@ public:
     return fit;
   }
 
+private:
+  double inlier_threshold_;
+  double min_inliers_;
 };
 
 }

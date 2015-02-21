@@ -82,6 +82,8 @@ private:
   double max_riser_spacing_;
 
   size_t max_skipped_risers_;
+
+  double min_stair_width_;
 #if VISUALIZE
   boost::scoped_ptr<pcl::visualization::PCLVisualizer> visualizer_;
   boost::scoped_ptr<boost::thread> visualizer_thread_;

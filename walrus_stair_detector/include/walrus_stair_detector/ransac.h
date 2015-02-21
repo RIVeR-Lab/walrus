@@ -80,7 +80,7 @@ public:
 	  estimate_inlier_indices.push_back(i);
       }
 
-      if(model_->enoughInliers(estimate_inlier_indices.size(), data_->size())) {
+      if(model_->enoughInliers(estimate_inlier_indices.size() + initial_indices.size(), data_->size())) {
 	std::vector<int> all_inlier_indices;
 	all_inlier_indices.insert(all_inlier_indices.end(), initial_indices.begin(), initial_indices.end());
 	all_inlier_indices.insert(all_inlier_indices.end(), estimate_inlier_indices.begin(), estimate_inlier_indices.end());
