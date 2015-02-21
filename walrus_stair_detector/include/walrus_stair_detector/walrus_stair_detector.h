@@ -92,6 +92,7 @@ private:
   void visualize();
 
   pcl::PointCloud <pcl::PointXYZRGB>::Ptr region_growing_cloud_visual_;
+  pcl::PointCloud<pcl::Normal>::Ptr normals_visual_;
   std::vector<DetectedPlane::Ptr> plane_visual_;
   size_t previous_plane_visual_count_;
   size_t previous_stair_count_;

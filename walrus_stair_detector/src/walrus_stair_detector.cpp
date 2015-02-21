@@ -59,6 +59,9 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   // Compute the normal of all points
   pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud <pcl::Normal>);
   computeNormals(downsized_cloud, filter_indices, normals);
+#if VISUALIZE
+  normals_visual_ = normals;
+#endif
   timer.end("normals");
 
   // Grow points to form planes
@@ -642,6 +645,10 @@ void WalrusStairDetector::visualize() {
 	  visualizer_->addPolygon<pcl::PointXYZ>(plane->cluster_hull, color[0], color[1], color[2], visName("plane", i));
 	}
 	previous_plane_visual_count_ = plane_visual_.size();
+	if(region_growing_cloud_visual_ && normals_visual_) {
+	  visualizer_->removePointCloud("normals");
+	  visualizer_->addPointCloudNormals<pcl::PointXYZRGB, pcl::Normal> (region_growing_cloud_visual_, normals_visual_, 2, 0.05, "normals");
+	}
 #endif
 
 	std::stringstream run_text;
