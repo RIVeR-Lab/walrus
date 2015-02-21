@@ -19,7 +19,7 @@ namespace walrus_stair_detector {
 WalrusStairDetector::WalrusStairDetector() : shutdown_(false),
 					     min_riser_height_(0.1), max_riser_height_(0.35),
 					     min_riser_spacing_(0.2), max_riser_spacing_(0.4),
-					     max_skipped_risers_(3), min_stair_width_(0.5) {
+					     max_skipped_risers_(2), min_stair_width_(0.5) {
 #if VISUALIZE
   visualizer_update_ = false;
   visualizer_thread_.reset(new boost::thread(boost::bind(&WalrusStairDetector::visualize, this)));
@@ -428,7 +428,7 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
     ++itr2;
     for(; itr2 != potential_risers_dist_sorted.end(); ++itr2) {
       double dist = *itr2 - *itr;
-      if(dist > max_riser_spacing_ * max_skipped_risers_)
+      if(dist > max_riser_spacing_ * (max_skipped_risers_ + 1))
 	break;
       dists.push_back(dist);
     }
@@ -505,7 +505,7 @@ void WalrusStairDetector::computeNumStairs(std::vector<StairRiserModel::Ptr>* ri
   std::vector<StairRiserModel::Ptr>::iterator itr = risers->begin();
   int last_index = 0;
   while(itr != risers->end()) {
-    if((*itr)->index - last_index > max_skipped_risers_) {
+    if((*itr)->index - last_index > max_skipped_risers_ + 1) {
       break;
     }
     *num_stairs = (*itr)->index + 1; // plus 1 for first stair
