@@ -269,7 +269,7 @@ void WalrusStairDetector::computeVertical(std::vector<DetectedPlane::Ptr>& plane
 
   bool ransac_result = false;
   if(horizontal_planes.size() >= 2) {
-    ParallelPlaneRansacModel model_description;
+    ParallelPlaneRansacModel<&DetectedPlane::normal> model_description;
     model_description.setWeighBasedOnPointCount(true);
     Ransac<DetectedPlane::Ptr, Eigen::Vector3f> ransac(&model_description);
     ransac.setInput(&horizontal_planes);
@@ -376,11 +376,12 @@ bool WalrusStairDetector::computeStairOrientation(std::vector<DetectedPlane::Ptr
   std::vector<DetectedPlane::Ptr> potential_risers;
   BOOST_FOREACH(DetectedPlane::Ptr& plane, planes) {
     if(plane->is_riser || indeterminate(plane->is_riser)) {
+      plane->horizontal_normal = (plane->normal - vertical * plane->normal.dot(vertical)).normalized();
       potential_risers.push_back(plane);
     }
   }
   Eigen::Vector3f riser_orientation;
-  ParallelPlaneRansacModel model_description;
+  ParallelPlaneRansacModel<&DetectedPlane::horizontal_normal> model_description;
   Ransac<DetectedPlane::Ptr, Eigen::Vector3f> ransac(&model_description);
   ransac.setInput(&potential_risers);
   ransac.setMaxIterations(30);

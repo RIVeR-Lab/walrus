@@ -11,6 +11,7 @@
 
 namespace walrus_stair_detector {
 
+template <Eigen::Vector3f DetectedPlane::*Field>
 class ParallelPlaneRansacModel : public RansacModel<DetectedPlane::Ptr, Eigen::Vector3f> {
 public:
   ParallelPlaneRansacModel() : RansacModel(2),
@@ -18,8 +19,8 @@ public:
   virtual ~ParallelPlaneRansacModel() {}
 
   virtual bool generateInitialModel(const SequenceView<DetectedPlane::Ptr>& data, Eigen::Vector3f* model_out) const {
-    Eigen::Vector3f qa = data[0]->normal;
-    const Eigen::Vector3f& qb =data[1]->normal;
+    Eigen::Vector3f qa = data[0].get()->*Field;
+    const Eigen::Vector3f& qb =data[1].get()->*Field;
 
     // TODO is the needed?
     if((-qa).dot(qb) > qa.dot(qb)) {
@@ -30,7 +31,7 @@ public:
   }
 
   virtual bool fitsModel(const Eigen::Vector3f& model, const DetectedPlane::Ptr& value) const {
-    return value->normal.dot(model) > 0.92;
+    return (value.get()->*Field).dot(model) > 0.92;
   }
 
   virtual bool enoughInliers(int num_inliers, int data_size) const {
@@ -42,9 +43,9 @@ public:
     new_model << 0.0, 0.0, 0.0;
     for(size_t i = 0; i < data.size(); ++i) {
       if(weigh_based_on_point_count_)
-	new_model += data[i]->normal * data[i]->cluster_projected->size();
+	new_model += data[i].get()->*Field * data[i]->cluster_projected->size();
       else
-	new_model += data[i]->normal;
+	new_model += data[i].get()->*Field;
     }
     new_model /= data.size();
     new_model.normalize();
@@ -55,7 +56,7 @@ public:
   virtual double getModelError(const SequenceView<DetectedPlane::Ptr>& data, int num_outliers, const Eigen::Vector3f& model) const {
     double fit = 0;
     for(size_t i = 0; i < data.size(); ++i) {
-      fit += M_PI/2 - model.dot(data[i]->normal);
+      fit += M_PI/2 - model.dot(data[i].get()->*Field);
     }
     fit /= data.size();
     return fit;

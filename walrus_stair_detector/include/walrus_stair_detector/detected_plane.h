@@ -43,6 +43,7 @@ struct DetectedPlane {
   pcl::PointCloud<pcl::PointXYZ>::Ptr cluster_hull;
 
   Eigen::Vector3f normal;
+  Eigen::Vector3f horizontal_normal; // normal projected into horizontal plane
 
   Eigen::Vector3f center;
   double width;
