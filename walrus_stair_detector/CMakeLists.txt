@@ -65,7 +65,7 @@ catkin_package(
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wno-sign-compare")
 
 if(walrus_stair_detector_ENABLE_VISUALIZATION)
-  add_definitions(-DVISUALIZE=1 -DVISUALIZE_POINT_CLOUD=1 -DVISUALIZE_DETECTED_PLANES=1)
+  add_definitions(-DVISUALIZE=1 -DVISUALIZE_POINT_CLOUD=1 -DVISUALIZE_DETECTED_PLANES=1 -DVISUALIZE_DETECTED_PLANE_NORMALS=0)
 endif()
 
 if(walrus_stair_detector_ENABLE_RANSAC_DEBUG)

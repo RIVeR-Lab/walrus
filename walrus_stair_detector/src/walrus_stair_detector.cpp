@@ -645,6 +645,8 @@ void WalrusStairDetector::visualize() {
 	  visualizer_->addPolygon<pcl::PointXYZ>(plane->cluster_hull, color[0], color[1], color[2], visName("plane", i));
 	}
 	previous_plane_visual_count_ = plane_visual_.size();
+#endif
+#if VISUALIZE_DETECTED_PLANE_NORMALS
 	if(region_growing_cloud_visual_ && normals_visual_) {
 	  visualizer_->removePointCloud("normals");
 	  visualizer_->addPointCloudNormals<pcl::PointXYZRGB, pcl::Normal> (region_growing_cloud_visual_, normals_visual_, 2, 0.05, "normals");
