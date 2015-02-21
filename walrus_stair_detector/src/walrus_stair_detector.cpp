@@ -129,8 +129,6 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     return;
   }
 
-  ROS_INFO("Found stair orientation: %f, %f, %f", model.direction[0], model.direction[1], model.direction[2]);
-
   // need to normalize because vertical and direction may not be orthagonal
   model.horizontal = vertical.cross(riser_direction).normalized();
   model.direction = model.horizontal.cross(vertical).normalized();
@@ -140,6 +138,8 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
       computePlaneSize(plane, model.horizontal, model.direction);
     }
   }
+
+  ROS_INFO("Found stair orientation: %f, %f, %f", model.direction[0], model.direction[1], model.direction[2]);
 
   std::vector<StairRiserModel::Ptr> risers;
   double base_offset_z;
