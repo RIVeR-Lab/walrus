@@ -87,7 +87,7 @@ public:
 	fit += offset;
     }
     fit /= data.size();
-    fit *= pow(1.02, num_outliers);
+    fit *= pow(1.05, num_outliers);
     return fit;
   }
 private:

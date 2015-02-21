@@ -318,7 +318,7 @@ void WalrusStairDetector::computePlaneOrientation(DetectedPlane::Ptr plane, cons
   if(vertical.dot(plane->normal) > cos(16 * M_PI / 180)) {
     plane->orientation = DetectedPlane::Horizontal;
   }
-  else if(vertical.dot(plane->normal) < cos((90 - 16) * M_PI / 180)) {
+  else if(vertical.dot(plane->normal) < cos((90 - 30) * M_PI / 180)) {
     plane->orientation = DetectedPlane::Vertical;
   }
 }
@@ -448,7 +448,7 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
   //hist.print();
 
   DistanceModel model;
-  DistanceRansacModel model_description(hist.largestBucket(), 0.05);
+  DistanceRansacModel model_description(hist.largestBucket(), 0.06);
   Ransac<double, DistanceModel> ransac(&model_description);
   ransac.setInput(&potential_risers_dist);
   ransac.setMaxIterations(30);
@@ -461,8 +461,6 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
       if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
 	potential_risers[i]->is_tread = false;
       }
-      else
-	potential_risers[i]->flag = true;
     }
     std::cout << "Got num inliers: " << inliers.size() << std::endl;
     std::map<int, std::vector<DetectedPlane::Ptr> > riser_groups;
