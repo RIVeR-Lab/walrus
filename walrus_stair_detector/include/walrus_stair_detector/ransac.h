@@ -80,11 +80,10 @@ public:
 	  estimate_inlier_indices.push_back(i);
       }
 
-      if(model_->enoughInliers(estimate_inlier_indices.size() + initial_indices.size(), data_->size())) {
-	std::vector<int> all_inlier_indices;
-	all_inlier_indices.insert(all_inlier_indices.end(), initial_indices.begin(), initial_indices.end());
-	all_inlier_indices.insert(all_inlier_indices.end(), estimate_inlier_indices.begin(), estimate_inlier_indices.end());
-
+      std::vector<int> all_inlier_indices;
+      all_inlier_indices.insert(all_inlier_indices.end(), initial_indices.begin(), initial_indices.end());
+      all_inlier_indices.insert(all_inlier_indices.end(), estimate_inlier_indices.begin(), estimate_inlier_indices.end());
+      if(model_->enoughInliers(all_inlier_indices.size(), data_->size())) {
 	IndexSequenceView<SequenceView<DataT> > all_inlier_data(data_, &all_inlier_indices);
 	ModelT final_model;
 	if(!model_->generateCompleteModel(all_inlier_data, initial_model, &final_model)) {
@@ -111,7 +110,7 @@ public:
       }
       else {
 #if DEBUG_RANSAC
-	std::cerr << "not enough ransac inliers " << estimate_inlier_indices.size() << " / " << data_->size() << std::endl;
+	std::cerr << "not enough ransac inliers " << all_inlier_indices.size() << " / " << data_->size() << std::endl;
 #endif
       }
     }

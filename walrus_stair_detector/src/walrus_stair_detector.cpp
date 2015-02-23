@@ -24,6 +24,7 @@ WalrusStairDetector::WalrusStairDetector() : shutdown_(false),
   visualizer_update_ = false;
   visualizer_thread_.reset(new boost::thread(boost::bind(&WalrusStairDetector::visualize, this)));
   previous_plane_visual_count_ = 0;
+  previous_risers_count_ = 0;
   previous_stair_count_ = 0;
 #endif
 }
@@ -40,6 +41,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   visualizer_update_ = true;
   plane_visual_ = std::vector<DetectedPlane::Ptr>();
   model_ = StairModel();
+  risers_visual_.clear();
 #endif
 
   ROS_INFO("Cloud: width = %d, height = %d, size = %ld\n", original_cloud->width, original_cloud->height, original_cloud->points.size());
@@ -173,6 +175,10 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
 
   double center_x;
   computeWidth(risers, &model.width, &center_x);
+
+#if VISUALIZE
+  risers_visual_ = risers;
+#endif
 
   StairRiserModel::Ptr base_riser = risers[0];
 
@@ -448,13 +454,13 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
   BOOST_FOREACH(double dist, dists) {
     if(dist < max_run_)
       hist.add(dist);
-    for(size_t i = 2; i <= max_skipped_risers_; ++i) {
+    for(size_t i = 2; i <= max_skipped_risers_ + 1; ++i) {
       double new_dist = dist / i;
       if(new_dist > min_run_ && new_dist < max_run_)
 	hist.add(dist, 1.0 / i / i / i);
     }
   }
-  //hist.print();
+  hist.print();
 
   DistanceModel model;
   DistanceRansacModel model_description(hist.largestBucket(), 0.1);
@@ -469,10 +475,8 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
     for(size_t i = 0; i < potential_risers.size(); ++i) {
       if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
 	potential_risers[i]->is_tread = false;
-	potential_risers[i]->flag = true;
       }
     }
-    std::cout << "Got num inliers: " << inliers.size() << std::endl;
     std::map<int, std::vector<DetectedPlane::Ptr> > riser_groups;
     for(std::multimap<int, int>::iterator itr = model.groups.begin(); itr != model.groups.end(); ++itr) {
       DetectedPlane::Ptr& plane = potential_risers[inliers[itr->second]];
@@ -503,7 +507,6 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
       average_z /= riser->planes.size();
       riser->center_z = average_z;
       risers->push_back(riser);
-      std::cout << riser->index << ": " << riser->planes.size() << std::endl;
     }
     *base_offset_z = model.offset;
   }
@@ -691,6 +694,25 @@ void WalrusStairDetector::visualize() {
 	if(!visualizer_->updateText(origin_text.str(), 30, 110, "origin")) {
 	  visualizer_->addText(origin_text.str(), 30, 110, 16, 1, 1, 1, "origin");
 	}
+
+	// Remove old shapes
+	for(size_t i = 0; i < previous_risers_count_; ++i) {
+	  visualizer_->removeShape(visName("initial_riser", i));
+	}
+	for(size_t i = 0; i < risers_visual_.size(); ++i) {
+	  Eigen::Vector3f z = model_.direction * risers_visual_[i]->center_z;
+
+	  pcl::PointCloud<pcl::PointXYZ>::Ptr riser_points(new pcl::PointCloud<pcl::PointXYZ>());
+	  riser_points->resize(4);
+	  riser_points->at(0).getVector3fMap() = z + model_.horizontal * risers_visual_[i]->min_x + model_.vertical * risers_visual_[i]->min_y;
+	  riser_points->at(1).getVector3fMap() = z + model_.horizontal * risers_visual_[i]->max_x + model_.vertical * risers_visual_[i]->min_y;
+	  riser_points->at(2).getVector3fMap() = z + model_.horizontal * risers_visual_[i]->max_x + model_.vertical * risers_visual_[i]->max_y;
+	  riser_points->at(3).getVector3fMap() = z + model_.horizontal * risers_visual_[i]->min_x + model_.vertical * risers_visual_[i]->max_y;
+	  visualizer_->addPolygon<pcl::PointXYZ>(riser_points, RED[0], RED[1], RED[2], visName("initial_riser", i));
+	  //visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("initial_riser", i));
+	}
+	previous_risers_count_ = risers_visual_.size();
+
 
 	// Remove old shapes
 	for(size_t i = 0; i < previous_stair_count_; ++i) {

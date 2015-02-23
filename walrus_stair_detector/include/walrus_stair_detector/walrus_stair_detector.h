@@ -94,7 +94,9 @@ private:
   pcl::PointCloud <pcl::PointXYZRGB>::Ptr region_growing_cloud_visual_;
   pcl::PointCloud<pcl::Normal>::Ptr normals_visual_;
   std::vector<DetectedPlane::Ptr> plane_visual_;
+  std::vector<StairRiserModel::Ptr> risers_visual_;
   size_t previous_plane_visual_count_;
+  size_t previous_risers_count_;
   size_t previous_stair_count_;
 
   StairModel model_;

@@ -21,12 +21,16 @@ class Histogram {
 public:
   Histogram(double min, double max, double sigma, int num_buckets) : min_(min), max_(max), sigma_(sigma), num_buckets_(num_buckets) {
     buckets.resize(num_buckets);
+    items_in_bucket.resize(num_buckets);
     bucket_size_ = (max_ - min_) / num_buckets;
   }
   void add(double value, double weight = 1.0) {
     for(int i = 0; i < num_buckets_; ++i) {
       buckets[i] += normal_pdf(valueAtIndex(i), value, sigma_) * weight;
     }
+    int index = (value - min_) / bucket_size_;
+    if(index >= 0 && index < num_buckets_)
+      ++items_in_bucket[index];
   }
   double largestBucket() {
     double max = -1;
@@ -51,7 +55,10 @@ public:
       std::cerr << valueAtIndex(i) << ": ";
       for(int j = 0; j < 40 * buckets[i] / max; ++j)
 	std::cerr << "*";
-      std::cerr << "        " << buckets[i] << std::endl;
+      std::cerr << "        " << buckets[i] << "    ";
+      for(int j = 0; j < items_in_bucket[i]; ++j)
+	std::cerr << "#";
+      std::cerr << std::endl;
     }
     std::cerr.unsetf ( std::ios::floatfield );
   }
@@ -66,6 +73,7 @@ private:
   double bucket_size_;
   int num_buckets_;
   std::vector<double> buckets;
+  std::vector<double> items_in_bucket;
 };
 
 }
