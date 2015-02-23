@@ -17,8 +17,8 @@
 namespace walrus_stair_detector {
 
 WalrusStairDetector::WalrusStairDetector() : shutdown_(false),
-					     min_riser_height_(0.1), max_riser_height_(0.35),
-					     min_riser_spacing_(0.2), max_riser_spacing_(0.4),
+					     min_rise_(0.1), max_rise_(0.35),
+					     min_run_(0.2), max_run_(0.4),
 					     max_skipped_risers_(2), min_stair_width_(0.5) {
 #if VISUALIZE
   visualizer_update_ = false;
@@ -154,7 +154,11 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     return;
   }
 
+  ROS_INFO("Found stair run: %f", model.run);
+
   computeNumStairs(&risers, &model.num_stairs);
+
+  ROS_INFO("Found number of stairs: %d", model.num_stairs);
 
   double base_y;
   bool rise_result = computeRiseFromRisers(risers, &base_y, &model.rise);
@@ -164,6 +168,8 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     ROS_WARN("Could not compute stair rise from risers");
     return;
   }
+
+  ROS_INFO("Found stair rise: %f", model.rise);
 
   double center_x;
   computeWidth(risers, &model.width, &center_x);
@@ -358,9 +364,9 @@ void WalrusStairDetector::computePlaneSize(DetectedPlane::Ptr plane, const Eigen
 void WalrusStairDetector::guessPlaneType(DetectedPlane::Ptr plane) {
   if(plane->orientation == DetectedPlane::Vertical) {
     plane->is_tread = false;
-    if(plane->width < plane->height * 1.25)
+    if(plane->width < plane->height * 1.5)
       plane->is_riser = false;
-    if(plane->height > max_riser_height_)
+    if(plane->height > max_rise_)
       plane->is_riser = false;
    }
   else if(plane->orientation == DetectedPlane::Horizontal) {
@@ -432,26 +438,26 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
     ++itr2;
     for(; itr2 != potential_risers_dist_sorted.end(); ++itr2) {
       double dist = *itr2 - *itr;
-      if(dist > max_riser_spacing_ * (max_skipped_risers_ + 1))
+      if(dist > max_run_ * (max_skipped_risers_ + 1))
 	break;
       dists.push_back(dist);
     }
   }
 
-  Histogram hist(min_riser_spacing_, max_riser_spacing_, 0.02, 100);
+  Histogram hist(min_run_, max_run_, 0.02, 100);
   BOOST_FOREACH(double dist, dists) {
-    if(dist < max_riser_spacing_)
+    if(dist < max_run_)
       hist.add(dist);
     for(size_t i = 2; i <= max_skipped_risers_; ++i) {
       double new_dist = dist / i;
-      if(new_dist > min_riser_spacing_ && new_dist < max_riser_spacing_)
+      if(new_dist > min_run_ && new_dist < max_run_)
 	hist.add(dist, 1.0 / i / i / i);
     }
   }
   //hist.print();
 
   DistanceModel model;
-  DistanceRansacModel model_description(hist.largestBucket(), 0.06);
+  DistanceRansacModel model_description(hist.largestBucket(), 0.1);
   Ransac<double, DistanceModel> ransac(&model_description);
   ransac.setInput(&potential_risers_dist);
   ransac.setMaxIterations(30);
@@ -463,6 +469,7 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
     for(size_t i = 0; i < potential_risers.size(); ++i) {
       if(std::find(inliers.begin(), inliers.end(), i) == inliers.end()) {
 	potential_risers[i]->is_tread = false;
+	potential_risers[i]->flag = true;
       }
     }
     std::cout << "Got num inliers: " << inliers.size() << std::endl;
@@ -496,6 +503,7 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
       average_z /= riser->planes.size();
       riser->center_z = average_z;
       risers->push_back(riser);
+      std::cout << riser->index << ": " << riser->planes.size() << std::endl;
     }
     *base_offset_z = model.offset;
   }
@@ -526,6 +534,7 @@ bool WalrusStairDetector::computeRiseFromRisers(const std::vector<StairRiserMode
 
   LineModel slope_model;
   LineRansacModel model_description;
+  model_description.setSlopeBounds(min_rise_, max_rise_);
   Ransac<std::pair<double, double>, LineModel> ransac(&model_description);
   ransac.setInput(&points);
   ransac.setMaxIterations(30);

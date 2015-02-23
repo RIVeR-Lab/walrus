@@ -75,11 +75,11 @@ private:
 
   bool shutdown_;
 
-  double min_riser_height_;
-  double max_riser_height_;
+  double min_rise_;
+  double max_rise_;
 
-  double min_riser_spacing_;
-  double max_riser_spacing_;
+  double min_run_;
+  double max_run_;
 
   size_t max_skipped_risers_;
 

@@ -20,7 +20,9 @@ class LineRansacModel : public RansacModel<std::pair<double, double>, LineModel>
 public:
   typedef std::pair<double, double> DataT;
   LineRansacModel()
-    : RansacModel(2), inlier_threshold_(0.2), min_inliers_(0.5) {}
+    : RansacModel(2), inlier_threshold_(0.2), min_inliers_(0.5),
+      min_slope_(-std::numeric_limits<double>::infinity()),
+      max_slope_(std::numeric_limits<double>::infinity()) {}
   virtual ~LineRansacModel() {}
 
   void setInlierThreshold(const double threshold) {
@@ -29,11 +31,17 @@ public:
   void setMinInliers(const double percent) {
     min_inliers_ = percent;
   }
+  void setSlopeBounds(const double min_slope, const double max_slope) {
+    min_slope_ = min_slope;
+    max_slope_ = max_slope;
+  }
 
   virtual bool generateInitialModel(const SequenceView<DataT>& data, LineModel* model_out) const {
     model_out->slope = (data[1].second - data[0].second) / (data[1].first - data[0].first);
     model_out->offset = data[0].second - data[0].first * model_out->slope;
-    return true;
+    if(model_out->slope > min_slope_ && model_out->slope < max_slope_)
+      return true;
+    return false;
   }
 
   virtual bool fitsModel(const LineModel& model, const DataT& value) const {
@@ -66,7 +74,9 @@ public:
 
     model_out->slope = Sxy / Sx;
     model_out->offset = mean_y - model_out->slope * mean_x;
-    return true;
+    if(model_out->slope > min_slope_ && model_out->slope < max_slope_)
+      return true;
+    return false;
   }
 
   virtual double getModelError(const SequenceView<DataT>& data, int num_outliers, const LineModel& model) const {
@@ -82,6 +92,7 @@ public:
 private:
   double inlier_threshold_;
   double min_inliers_;
+  double min_slope_, max_slope_;
 };
 
 }

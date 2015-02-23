@@ -31,8 +31,9 @@ public:
   }
 
   virtual bool fitsModel(const DistanceModel& model, const double& value) const {
-    double offset = fmod(std::fabs(value - model.offset), model.spacing);
-    if(offset < max_error_ || model.spacing - offset < max_error_)
+    int group = (int)round((value - model.offset) / model.spacing);
+    double expected = model.offset + group * model.spacing;
+    if(std::fabs(expected - value) < max_error_)
       return true;
     return false;
   }
@@ -80,14 +81,12 @@ public:
   virtual double getModelError(const SequenceView<double>& data, int num_outliers, const DistanceModel& model) const {
     double fit = 0;
     for(size_t i = 0; i < data.size(); ++i) {
-      double offset = std::fmod(std::fabs(data[i] - model.offset), model.spacing);
-      if(offset > model.spacing / 2)
-	fit += model.spacing - offset;
-      else
-	fit += offset;
+      int group = (int)round((data[i] - model.offset) / model.spacing);
+      double expected = model.offset + group * model.spacing;
+      fit += std::fabs(expected - data[i]);
     }
     fit /= data.size();
-    fit *= pow(1.05, num_outliers);
+    fit *= pow(1.4, num_outliers);
     return fit;
   }
 private:
