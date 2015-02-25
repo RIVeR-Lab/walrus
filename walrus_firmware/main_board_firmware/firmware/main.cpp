@@ -82,29 +82,29 @@ void doHighSpeedOperations()
     //Write motor power data if enabled
     if (output_disable)
     {
-        motor1.writeMicroseconds(0);
-        motor2.writeMicroseconds(0);
+        //motor1.writeMicroseconds(0);
+        //motor2.writeMicroseconds(0);
         motor3.writeMicroseconds(0);
         motor4.writeMicroseconds(0);
     }
     else
     {
-        motor1.writeMicroseconds(hs_control_msg.motor1_effort);
-        motor2.writeMicroseconds(hs_control_msg.motor2_effort);
-        motor3.writeMicroseconds(hs_control_msg.motor3_effort);
-        motor4.writeMicroseconds(hs_control_msg.motor4_effort);
+        motor1.writeMicroseconds(hs_control_msg.motor_power[0]);
+        motor2.writeMicroseconds(hs_control_msg.motor_power[1]);
+        motor3.writeMicroseconds(hs_control_msg.motor_power[2]);
+        motor4.writeMicroseconds(hs_control_msg.motor_power[3]);
     }
     if (nh.connected())
     {
         //Read feedback values
-        hs_feedback_msg.motor1_current = analogRead(P_CURRENT_1);
-        hs_feedback_msg.motor2_current = analogRead(P_CURRENT_2);
-        hs_feedback_msg.motor3_current = analogRead(P_CURRENT_3);
-        hs_feedback_msg.motor4_current = analogRead(P_CURRENT_4);
-        hs_feedback_msg.motor1_position = analogRead(P_ENCODER_1);
-        hs_feedback_msg.motor2_position = analogRead(P_ENCODER_2);
-        hs_feedback_msg.motor3_position = analogRead(P_ENCODER_3);
-        hs_feedback_msg.motor4_position = analogRead(P_ENCODER_4);
+        hs_feedback_msg.motor_current[0] = analogRead(P_CURRENT_1);
+        hs_feedback_msg.motor_current[1] = analogRead(P_CURRENT_2);
+        hs_feedback_msg.motor_current[2] = analogRead(P_CURRENT_3);
+        hs_feedback_msg.motor_current[3] = analogRead(P_CURRENT_4);
+        hs_feedback_msg.pod_position[0] = analogRead(P_ENCODER_1);
+        hs_feedback_msg.pod_position[1] = analogRead(P_ENCODER_2);
+        hs_feedback_msg.pod_position[2] = analogRead(P_ENCODER_3);
+        hs_feedback_msg.pod_position[3] = analogRead(P_ENCODER_4);
         
         //Publish feedback message
         hs_feedback.publish(&hs_feedback_msg);
@@ -177,40 +177,40 @@ void doLowSpeedOperations()
             case READ_BATT3_VOLTAGE: 
             case READ_BATT4_VOLTAGE:
                 index = report_state - READ_BATT1_VOLTAGE;
-                //ls_data_msg.ucell_voltage[index] = upper[index].getVoltage();
-                //ls_data_msg.lcell_voltage[index] = lower[index].getVoltage();
+                ls_data_msg.ucell_voltage[index] = upper[index].getVoltage();
+                ls_data_msg.lcell_voltage[index] = lower[index].getVoltage();
             break;
             case READ_BATT1_CURRENT:
             case READ_BATT2_CURRENT:
             case READ_BATT3_CURRENT: 
             case READ_BATT4_CURRENT:
                 index = report_state - READ_BATT1_CURRENT;
-                //ls_data_msg.ucell_current[index] = upper[index].getCurrent();
-                //ls_data_msg.lcell_current[index] = lower[index].getCurrent();
+                ls_data_msg.ucell_current[index] = upper[index].getCurrent();
+                ls_data_msg.lcell_current[index] = lower[index].getCurrent();
             break;
             case READ_BATT1_AVGCURRENT:
             case READ_BATT2_AVGCURRENT:
             case READ_BATT3_AVGCURRENT:
             case READ_BATT4_AVGCURRENT:
                 index = report_state - READ_BATT1_AVGCURRENT;
-                //ls_data_msg.ucell_avgcurr[index] = upper[index].getAvgCurrent();
-                //ls_data_msg.lcell_avgcurr[index] = lower[index].getAvgCurrent();
+                ls_data_msg.ucell_avgcurr[index] = upper[index].getAvgCurrent();
+                ls_data_msg.lcell_avgcurr[index] = lower[index].getAvgCurrent();
             break;    
             case READ_BATT1_TEMP:
             case READ_BATT2_TEMP:
             case READ_BATT3_TEMP:
             case READ_BATT4_TEMP:
-                index = report_state - READ_BATT1_VOLTAGE;
-                //ls_data_msg.ucell_temp[index] = upper[index].getTemp();
-                //ls_data_msg.lcell_temp[index] = lower[index].getTemp();
+                index = report_state - READ_BATT1_TEMP;
+                ls_data_msg.ucell_temp[index] = upper[index].getTemp();
+                ls_data_msg.lcell_temp[index] = lower[index].getTemp();
             break;
             case READ_BATT1_CHARGE:
             case READ_BATT2_CHARGE:
             case READ_BATT3_CHARGE:
             case READ_BATT4_CHARGE:
                 index = report_state - READ_BATT1_CHARGE;
-                //ls_data_msg.ucell_charge[index] = upper[index].getCharge();
-                //ls_data_msg.lcell_charge[index] = lower[index].getCharge();
+                ls_data_msg.ucell_charge[index] = upper[index].getCharge();
+                ls_data_msg.lcell_charge[index] = lower[index].getCharge();
             break;
             case SEND_DATA:
                 ls_data.publish(&ls_data_msg);
@@ -238,6 +238,8 @@ void recv_control(const walrus_firmware_msgs::MainBoardControl& msg)
             //Don't need to do anything, other logic will take care of timeouts
         break;
         case MainBoardControl::SET_LED:
+            motor1.writeMicroseconds(msg.value);
+            motor2.writeMicroseconds(msg.value);
             analogWrite(led_pins[msg.index], msg.value & 0xFF);
         break;
         case MainBoardControl::POWER_OFF:
@@ -308,15 +310,17 @@ void setup()
 	motor2.attach(P_MOTOR_2);
 	motor3.attach(P_MOTOR_3);
 	motor4.attach(P_MOTOR_4);
+	motor1.writeMicroseconds(0);
+    motor2.writeMicroseconds(0);
 	
 	//Setup digital IO
 	pinMode(P_LED_STATUS, OUTPUT);
-	pinMode(P_WATER_1, INPUT);
-	pinMode(P_WATER_2, INPUT);
-	pinMode(P_WATER_3, INPUT);
-	pinMode(P_WATER_4, INPUT);
-	pinMode(P_WATER_5, INPUT);
-	pinMode(P_WATER_6, INPUT);
+	pinMode(P_WATER_1, INPUT_PULLUP);
+	pinMode(P_WATER_2, INPUT_PULLUP);
+	pinMode(P_WATER_3, INPUT_PULLUP);
+	pinMode(P_WATER_4, INPUT_PULLUP);
+	pinMode(P_WATER_5, INPUT_PULLUP);
+	pinMode(P_WATER_6, INPUT_PULLUP);
 	pinMode(P_EXT_LED_1, OUTPUT);
 	pinMode(P_EXT_LED_2, OUTPUT);
 	pinMode(P_EXT_LED_3, OUTPUT);

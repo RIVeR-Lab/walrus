@@ -1,4 +1,4 @@
-pub_rate: 1.0
+ pub_rate: 1.0
 analyzers:
   computers:
     type: diagnostic_aggregator/AnalyzerGroup

@@ -8,9 +8,9 @@ int16[4] ucell_current
 int16[4] ucell_voltage
 int16[4] ucell_charge
 int16[4] ucell_temp
-int8[4] ucell_avgcurr
+int16[4] ucell_avgcurr
 int16[4] lcell_current
 int16[4] lcell_voltage
 int16[4] lcell_charge
 int16[4] lcell_temp
-int8[4] lcell_avgcurr
+int16[4] lcell_avgcurr
