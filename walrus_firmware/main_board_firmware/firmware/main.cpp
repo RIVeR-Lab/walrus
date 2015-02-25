@@ -82,8 +82,8 @@ void doHighSpeedOperations()
     //Write motor power data if enabled
     if (output_disable)
     {
-        //motor1.writeMicroseconds(0);
-        //motor2.writeMicroseconds(0);
+        motor1.writeMicroseconds(0);
+        motor2.writeMicroseconds(0);
         motor3.writeMicroseconds(0);
         motor4.writeMicroseconds(0);
     }
@@ -238,8 +238,6 @@ void recv_control(const walrus_firmware_msgs::MainBoardControl& msg)
             //Don't need to do anything, other logic will take care of timeouts
         break;
         case MainBoardControl::SET_LED:
-            motor1.writeMicroseconds(msg.value);
-            motor2.writeMicroseconds(msg.value);
             analogWrite(led_pins[msg.index], msg.value & 0xFF);
         break;
         case MainBoardControl::POWER_OFF:
@@ -312,6 +310,8 @@ void setup()
 	motor4.attach(P_MOTOR_4);
 	motor1.writeMicroseconds(0);
     motor2.writeMicroseconds(0);
+    motor3.writeMicroseconds(0);
+    motor4.writeMicroseconds(0);
 	
 	//Setup digital IO
 	pinMode(P_LED_STATUS, OUTPUT);
