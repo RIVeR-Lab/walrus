@@ -107,7 +107,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     computePlaneOrientation(plane, vertical);
 
     if(plane->orientation == DetectedPlane::Vertical) {
-      Eigen::Vector3f plane_horizontal = vertical.cross(plane->normal);
+      Eigen::Vector3f plane_horizontal = vertical.cross(plane->normal).normalized();
       computePlaneSize(plane, plane_horizontal, vertical);
     }
 
