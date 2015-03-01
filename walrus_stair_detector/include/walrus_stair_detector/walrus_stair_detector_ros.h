@@ -24,6 +24,7 @@ private:
   WalrusStairDetector detector;
 
   ros::Subscriber points_sub_;
+  ros::Publisher stair_pub_;
 };
 
 }
