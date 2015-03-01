@@ -2,7 +2,11 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/crop_box.h>
 #include <pcl/common/common.h>
+#if PCL_OMP
+#include <pcl/features/normal_3d_omp.h>
+#else
 #include <pcl/features/normal_3d.h>
+#endif
 #include <pcl/filters/filter.h>
 #include <pcl/filters/passthrough.h>
 #include <pcl/segmentation/region_growing.h>
@@ -230,7 +234,11 @@ void WalrusStairDetector::downsizePointCloud(const PointCloud::ConstPtr& cloud, 
 void WalrusStairDetector::computeNormals(const PointCloud::ConstPtr cloud, const pcl::IndicesPtr indices,
 					 pcl::PointCloud <pcl::Normal>::Ptr out) {
   pcl::search::Search<PointCloud::PointType>::Ptr tree = boost::shared_ptr<pcl::search::Search<PointCloud::PointType> > (new pcl::search::KdTree<PointCloud::PointType>);
+#if PCL_OMP
+  pcl::NormalEstimationOMP<PointCloud::PointType, pcl::Normal> normal_estimator;
+#else
   pcl::NormalEstimation<PointCloud::PointType, pcl::Normal> normal_estimator;
+#endif
   normal_estimator.setSearchMethod(tree);
   normal_estimator.setInputCloud(cloud);
   normal_estimator.setIndices(indices);

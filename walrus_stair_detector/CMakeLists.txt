@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(walrus_stair_detector)
 
 option(walrus_stair_detector_ENABLE_TIMING "Enable timing" ON)
+option(walrus_stair_detector_ENABLE_OMP "Enable OpenMP" ON)
 option(walrus_stair_detector_ENABLE_VISUALIZATION "Enable visualization" OFF)
 option(walrus_stair_detector_ENABLE_RANSAC_DEBUG "Enable RANSAC debug output" OFF)
 option(walrus_stair_detector_ENABLE_DEBUG "Enable general debug output" OFF)
@@ -52,6 +53,10 @@ catkin_package(
 ###########
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wno-sign-compare")
+
+if(walrus_stair_detector_ENABLE_OMP)
+  add_definitions(-DPCL_OMP=1)
+endif()
 
 if(walrus_stair_detector_ENABLE_VISUALIZATION)
   add_definitions(-DVISUALIZE=1 -DVISUALIZE_POINT_CLOUD=1 -DVISUALIZE_DETECTED_PLANES=0 -DVISUALIZE_DETECTED_PLANE_NORMALS=0 -DVISUALIZE_STAIR_AXES=0 -DVISUALIZE_STAIR_MEASUREMENTS=0 -DVISUALIZE_RISERS=0 -DVISUALIZE_STAIRS=1)
