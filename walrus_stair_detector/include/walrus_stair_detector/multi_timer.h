@@ -29,6 +29,16 @@ public:
   void skip() {
     timer.start();
   }
+  boost::timer::cpu_times getSegmentTotal(const std::string& segment_name) {
+    const std::vector<boost::timer::cpu_times>& segment_times = times[segment_name];
+    boost::timer::cpu_times total = {0, 0, 0};
+    BOOST_FOREACH(boost::timer::cpu_times time, segment_times) {
+      total.wall += time.wall;
+      total.user += time.user;
+      total.system += time.system;
+    }
+    return total;
+  }
   void print() {
     BOOST_FOREACH(const std::string& segment_name, segment_order) {
       const std::vector<boost::timer::cpu_times>& segment_times = times[segment_name];
@@ -66,6 +76,9 @@ class MultiTimer {
 public:
   void end(const std::string& segment_name) {}
   void skip() {}
+  boost::timer::cpu_times getSegmentTotal(const std::string& segment_name) {
+    return {0, 0, 0};
+  }
 };
 #endif
 

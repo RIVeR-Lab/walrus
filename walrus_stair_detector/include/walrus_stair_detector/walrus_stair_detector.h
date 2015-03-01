@@ -9,6 +9,7 @@
 #include <walrus_stair_detector/detected_plane.h>
 #include <walrus_stair_detector/distance_ransac_model.h>
 #include <walrus_stair_detector/line_ransac_model.h>
+#include <walrus_stair_detector/multi_timer.h>
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -50,7 +51,7 @@ public:
 
   WalrusStairDetector();
   ~WalrusStairDetector();
-  void detect(const PointCloud::ConstPtr& cloud, const Eigen::Vector3f& vertical_estimate, std::vector<StairModel>* stairs);
+  void detect(const PointCloud::ConstPtr& cloud, const Eigen::Vector3f& vertical_estimate, std::vector<StairModel>* stairs, MultiTimer* timer);
 private:
   void downsizePointCloud(const PointCloud::ConstPtr& cloud, PointCloud::Ptr out);
   void computeNormals(const PointCloud::ConstPtr cloud, const pcl::IndicesPtr indices,
@@ -91,7 +92,7 @@ private:
   bool visualizer_update_;
   void visualize();
 
-  pcl::PointCloud <pcl::PointXYZRGB>::Ptr region_growing_cloud_visual_;
+  pcl::PointCloud <pcl::PointXYZ>::ConstPtr region_growing_cloud_visual_;
   pcl::PointCloud<pcl::Normal>::Ptr normals_visual_;
   std::vector<DetectedPlane::Ptr> plane_visual_;
   std::vector<StairRiserModel::Ptr> risers_visual_;

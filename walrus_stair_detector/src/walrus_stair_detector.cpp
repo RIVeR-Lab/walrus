@@ -1,7 +1,6 @@
 #include <walrus_stair_detector/walrus_stair_detector.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/crop_box.h>
-#include <walrus_stair_detector/multi_timer.h>
 #include <pcl/common/common.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/filters/filter.h>
@@ -34,7 +33,7 @@ WalrusStairDetector::~WalrusStairDetector() {
   visualizer_thread_->join();
 #endif
 }
-void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, const Eigen::Vector3f& vertical_estimate, std::vector<StairModel>* stairs) {
+void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, const Eigen::Vector3f& vertical_estimate, std::vector<StairModel>* stairs, MultiTimer* timer) {
   stairs->clear();
 #if VISUALIZE
   boost::mutex::scoped_lock lock(visualizer_mutex_);
@@ -46,17 +45,15 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
 
   ROS_INFO("Cloud: width = %d, height = %d, size = %ld\n", original_cloud->width, original_cloud->height, original_cloud->points.size());
 
-  MultiTimer timer;
-
   // Downsize the pointcloud
   PointCloud::Ptr downsized_cloud (new PointCloud);
   downsizePointCloud(original_cloud, downsized_cloud);
-  timer.end("downsize");
+  timer->end("downsize");
 
   // Remove invalid points
   pcl::IndicesPtr filter_indices(new std::vector <int>);
   pcl::removeNaNFromPointCloud<PointCloud::PointType>(*downsized_cloud, *filter_indices);
-  timer.end("filter");
+  timer->end("filter");
 
   // Compute the normal of all points
   pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud <pcl::Normal>);
@@ -64,12 +61,12 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
 #if VISUALIZE
   normals_visual_ = normals;
 #endif
-  timer.end("normals");
+  timer->end("normals");
 
   // Grow points to form planes
   std::vector<pcl::PointIndices> clusters;
   regionGrow(downsized_cloud, filter_indices, normals, &clusters);
-  timer.end("region grow");
+  timer->end("region grow");
 
 
   std::vector<DetectedPlane::Ptr> planes;
@@ -85,13 +82,13 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
       plane->normal.normalize();
       planes.push_back(plane);
     }
-    timer.end("plane_model");
+    timer->end("plane_model");
     if(!plane_model_result)
       continue;
 
     // Project all points into the computed plane
     projectPoints(downsized_cloud, plane->inliers, plane->coefficients, plane->cluster_projected);
-    timer.end("project to planes");
+    timer->end("project to planes");
   }
 
   Eigen::Vector3f vertical;
@@ -102,7 +99,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     pcl::ConvexHull<pcl::PointXYZ> chull;
     chull.setInputCloud(plane->cluster_projected);
     chull.reconstruct(*plane->cluster_hull);
-    timer.end("convex hull");
+    timer->end("convex hull");
 
     computePlaneOrientation(plane, vertical);
 
@@ -113,10 +110,10 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
 
     guessPlaneType(plane);
 
-    timer.end("plane properties");
+    timer->end("plane properties");
 
 
-    timer.skip();
+    timer->skip();
   }
 #if VISUALIZE
   plane_visual_ = planes;
@@ -127,7 +124,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
 
   Eigen::Vector3f riser_direction;
   bool stair_orientation_result = computeStairOrientation(planes, vertical, &riser_direction);
-  timer.end("compute stair direction");
+  timer->end("compute stair direction");
 
   if(!stair_orientation_result) {
     ROS_WARN("Could not compute riser orientation");
@@ -149,7 +146,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   std::vector<StairRiserModel::Ptr> risers;
   double base_offset_z;
   bool riser_spacing_result = computeRun(planes, model, &model.run, &base_offset_z, &risers);
-  timer.end("compute riser spacing");
+  timer->end("compute riser spacing");
 
   if(!riser_spacing_result) {
     ROS_WARN("Could not compute riser spacing");
@@ -164,7 +161,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
 
   double base_y;
   bool rise_result = computeRiseFromRisers(risers, &base_y, &model.rise);
-  timer.end("compute stair rise from risers");
+  timer->end("compute stair rise from risers");
 
   if(!rise_result) {
     ROS_WARN("Could not compute stair rise from risers");
@@ -188,6 +185,7 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   std::cout << "Direction: " << model.direction[0] << ", " << model.direction[1] << ", " << model.direction[2] << std::endl;
 
   stairs->push_back(model);
+  timer->end("finalize model");
 #if VISUALIZE
   model_ = model;
 #endif
@@ -241,7 +239,7 @@ void WalrusStairDetector::regionGrow(const PointCloud::ConstPtr cloud, const pcl
   reg.extract(*clusters);
 
 #if VISUALIZE
-  region_growing_cloud_visual_ = reg.getColoredCloud();
+  region_growing_cloud_visual_ = cloud;
 #endif
 }
 
@@ -655,6 +653,7 @@ void WalrusStairDetector::visualize() {
 	  else
 	    color = GREEN;
 	  visualizer_->addPolygon<pcl::PointXYZ>(plane->cluster_hull, color[0], color[1], color[2], visName("plane", i));
+	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("plane", i));
 	}
 	previous_plane_visual_count_ = plane_visual_.size();
 #endif
@@ -695,6 +694,7 @@ void WalrusStairDetector::visualize() {
 	  visualizer_->addText(origin_text.str(), 30, 110, 16, 1, 1, 1, "origin");
 	}
 
+#if VISUALIZE_RISERS
 	// Remove old shapes
 	for(size_t i = 0; i < previous_risers_count_; ++i) {
 	  visualizer_->removeShape(visName("initial_riser", i));
@@ -709,11 +709,12 @@ void WalrusStairDetector::visualize() {
 	  riser_points->at(2).getVector3fMap() = z + model_.horizontal * risers_visual_[i]->max_x + model_.vertical * risers_visual_[i]->max_y;
 	  riser_points->at(3).getVector3fMap() = z + model_.horizontal * risers_visual_[i]->min_x + model_.vertical * risers_visual_[i]->max_y;
 	  visualizer_->addPolygon<pcl::PointXYZ>(riser_points, RED[0], RED[1], RED[2], visName("initial_riser", i));
-	  //visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("initial_riser", i));
+	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("initial_riser", i));
 	}
 	previous_risers_count_ = risers_visual_.size();
+#endif
 
-
+#if VISUALIZE_STAIRS
 	// Remove old shapes
 	for(size_t i = 0; i < previous_stair_count_; ++i) {
 	  visualizer_->removeShape(visName("riser", i));
@@ -731,6 +732,7 @@ void WalrusStairDetector::visualize() {
 	  riser_points->at(3).getVector3fMap() = base + model_.horizontal * model_.width/2;
 	  visualizer_->addPolygon<pcl::PointXYZ>(riser_points, CYAN[0], CYAN[1], CYAN[2], visName("riser", i));
 	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("riser", i));
+	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 0.4, visName("riser", i));
 
 
 	  pcl::PointCloud<pcl::PointXYZ>::Ptr tread_points(new pcl::PointCloud<pcl::PointXYZ>());
@@ -741,8 +743,98 @@ void WalrusStairDetector::visualize() {
 	  tread_points->at(3).getVector3fMap() = base + model_.vertical*model_.rise + model_.horizontal * model_.width/2;
 	  visualizer_->addPolygon<pcl::PointXYZ>(tread_points, PINK[0], PINK[1], PINK[2], visName("tread", i));
 	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, visName("tread", i));
+	  visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_OPACITY, 0.4, visName("tread", i));
 	}
 	previous_stair_count_ = model_.num_stairs;
+#endif
+
+#if VISUALIZE_STAIR_MEASUREMENTS
+	pcl::PointXYZ p1, p2;
+	p1.getVector3fMap() = model_.origin + model_.vertical * model_.rise * 1 + model_.direction * model_.run * 0 - model_.horizontal * (model_.width/2 +0.05);
+	p2.getVector3fMap() = p1.getVector3fMap() + model_.direction * model_.run;
+
+	visualizer_->removeShape("run_measure");
+	visualizer_->addLine(p1, p2, "run_measure");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 5, "run_measure");
+
+	p1.getVector3fMap() = model_.origin + model_.vertical * model_.rise * 1 + model_.direction * model_.run * 1 - model_.horizontal * (model_.width/2 +0.05);
+	p2.getVector3fMap() = p1.getVector3fMap() + model_.vertical * model_.rise;
+	visualizer_->removeShape("rise_measure");
+	visualizer_->addLine(p1, p2, "rise_measure");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 5, "rise_measure");
+
+	p1.getVector3fMap() = model_.origin + model_.vertical * model_.rise * 1 + model_.direction * model_.run * 1 - model_.horizontal * (model_.width/2 +0.02);
+	p2.getVector3fMap() = p1.getVector3fMap() - model_.horizontal * 0.06;
+	visualizer_->removeShape("middle_cross");
+	visualizer_->addLine(p1, p2, "middle_cross");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 5, "middle_cross");
+
+	p1.getVector3fMap() = model_.origin + model_.vertical * model_.rise * 2 + model_.direction * model_.run * 1 - model_.horizontal * (model_.width/2 +0.02);
+	p2.getVector3fMap() = p1.getVector3fMap() - model_.horizontal * 0.06;
+	visualizer_->removeShape("first_cross");
+	visualizer_->addLine(p1, p2, "first_cross");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 5, "first_cross");
+
+	p1.getVector3fMap() = model_.origin + model_.vertical * model_.rise * 1 + model_.direction * model_.run * 0 - model_.horizontal * (model_.width/2 +0.02);
+	p2.getVector3fMap() = p1.getVector3fMap() - model_.horizontal * 0.06;
+	visualizer_->removeShape("last_cross");
+	visualizer_->addLine(p1, p2, "last_cross");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 5, "last_cross");
+
+	p1.getVector3fMap() = model_.origin - model_.horizontal * model_.width/2 - model_.direction * 0.05;
+	p2.getVector3fMap() = p1.getVector3fMap() + model_.horizontal * model_.width;
+	visualizer_->removeShape("width_measure");
+	visualizer_->addLine(p1, p2, "width_measure");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 5, "width_measure");
+
+	p1.getVector3fMap() = model_.origin - model_.horizontal * model_.width/2 - model_.direction * 0.02;
+	p2.getVector3fMap() = p1.getVector3fMap() - model_.direction * 0.06;
+	visualizer_->removeShape("width_right");
+	visualizer_->addLine(p1, p2, "width_right");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 5, "width_right");
+
+	p1.getVector3fMap() = model_.origin + model_.horizontal * model_.width/2 - model_.direction * 0.02;
+	p2.getVector3fMap() = p1.getVector3fMap() - model_.direction * 0.06;
+	visualizer_->removeShape("width_left");
+	visualizer_->addLine(p1, p2, "width_left");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, 5, "width_left");
+#endif
+
+#if VISUALIZE_STAIR_AXES
+	visualizer_->removeShape("vertical_axis");
+	visualizer_->removeShape("direction_axis");
+	visualizer_->removeShape("horizontal_axis");
+	Eigen::Vector3f axis_origin = model_.origin + model_.vertical * model_.rise * 0 + model_.direction * model_.run * 0;
+	double axis_len = 0.5;
+	double axis_radius = 0.007;
+	pcl::ModelCoefficients cylinder_coeff;
+	cylinder_coeff.values.resize (7);
+	cylinder_coeff.values[0] = axis_origin[0];
+	cylinder_coeff.values[1] = axis_origin[1];
+	cylinder_coeff.values[2] = axis_origin[2];
+	cylinder_coeff.values[6] = axis_radius;
+
+	cylinder_coeff.values[3] = model_.vertical[0]*axis_len;
+	cylinder_coeff.values[4] = model_.vertical[1]*axis_len;
+	cylinder_coeff.values[5] = model_.vertical[2]*axis_len;
+	visualizer_->addCylinder(cylinder_coeff, "vertical_axis");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, "vertical_axis");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, GREEN[0], GREEN[1], GREEN[2], "vertical_axis");
+
+	cylinder_coeff.values[3] = model_.direction[0]*axis_len;
+	cylinder_coeff.values[4] = model_.direction[1]*axis_len;
+	cylinder_coeff.values[5] = model_.direction[2]*axis_len;
+	visualizer_->addCylinder(cylinder_coeff, "direction_axis");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, "direction_axis");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, BLUE[0], BLUE[1], BLUE[2], "direction_axis");
+
+	cylinder_coeff.values[3] = model_.horizontal[0]*axis_len;
+	cylinder_coeff.values[4] = model_.horizontal[1]*axis_len;
+	cylinder_coeff.values[5] = model_.horizontal[2]*axis_len;
+	visualizer_->addCylinder(cylinder_coeff, "horizontal_axis");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_SURFACE, "horizontal_axis");
+	visualizer_->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, RED[0], RED[1], RED[2], "horizontal_axis");
+#endif
 
 
 	visualizer_update_ = false;
