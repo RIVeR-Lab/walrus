@@ -18,7 +18,7 @@ namespace walrus_stair_detector {
 struct TimerPeriod {
 #if DEBUG_TIMING
   TimerPeriod(const boost::timer::cpu_times& t)
-    : user(t.user), system(t.system), wall(t.wall) {}
+    : user(t.user/1e9), system(t.system/1e9), wall(t.wall/1e9) {}
 #endif
   TimerPeriod()
     : user(std::numeric_limits<double>::quiet_NaN()),
