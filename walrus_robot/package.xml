@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>walrus</name>
+  <name>walrus_robot</name>
   <version>0.0.0</version>
   <description>A metapackage for all WALRUS Rover packages</description>
 
