@@ -38,8 +38,7 @@ void WalrusStairDetectorRos::pointsCallback(const PointCloud::ConstPtr& msg) {
 
     const StairModel& stair_model = stairs[0];
     Stair stair_msg;
-    stair_msg.header.frame_id = msg->header.frame_id;
-    stair_msg.header.stamp = pcl_conversions::fromPCL(msg->header.stamp);
+    pcl_conversions::fromPCL(msg->header, stair_msg.header);
     stair_msg.origin = toPointMsg(stair_model.origin);
     stair_msg.vertical = toVector3Msg(stair_model.vertical);
     stair_msg.direction = toVector3Msg(stair_model.direction);
