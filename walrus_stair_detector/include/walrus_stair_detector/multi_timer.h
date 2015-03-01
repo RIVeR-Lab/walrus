@@ -17,9 +17,6 @@ namespace walrus_stair_detector {
 #if DEBUG_TIMING
 class MultiTimer {
 public:
-  ~MultiTimer () {
-    print();
-  }
   void end(const std::string& segment_name) {
     if(std::find(segment_order.begin(), segment_order.end(), segment_name) == segment_order.end())
       segment_order.push_back(segment_name);
@@ -28,6 +25,9 @@ public:
   }
   void skip() {
     timer.start();
+  }
+  boost::timer::cpu_times getTotal() {
+    return total_timer.elapsed();
   }
   boost::timer::cpu_times getSegmentTotal(const std::string& segment_name) {
     const std::vector<boost::timer::cpu_times>& segment_times = times[segment_name];
@@ -77,6 +77,9 @@ public:
   void end(const std::string& segment_name) {}
   void skip() {}
   boost::timer::cpu_times getSegmentTotal(const std::string& segment_name) {
+    return {0, 0, 0};
+  }
+  boost::timer::cpu_times getTotal() {
     return {0, 0, 0};
   }
 };

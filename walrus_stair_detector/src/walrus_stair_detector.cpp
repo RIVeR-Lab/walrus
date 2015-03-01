@@ -43,7 +43,9 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   risers_visual_.clear();
 #endif
 
-  ROS_INFO("Cloud: width = %d, height = %d, size = %ld\n", original_cloud->width, original_cloud->height, original_cloud->points.size());
+#if DEBUG
+  std::cout << "Cloud: width = " << original_cloud->width << ", height = " << original_cloud->height << ", size = " << original_cloud->points.size() << std::endl;
+#endif
 
   // Downsize the pointcloud
   PointCloud::Ptr downsized_cloud (new PointCloud);
@@ -127,7 +129,9 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   timer->end("compute stair direction");
 
   if(!stair_orientation_result) {
-    ROS_WARN("Could not compute riser orientation");
+#if DEBUG
+    std::cout << "Could not compute riser orientation" << std::endl;
+#endif
     return;
   }
 
@@ -141,7 +145,9 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
     }
   }
 
-  ROS_INFO("Found stair orientation: %f, %f, %f", model.direction[0], model.direction[1], model.direction[2]);
+#if DEBUG
+  std::cout << "Found stair orientation: " << model.direction[0] << ", " << model.direction[1] << ", " << model.direction[2] << std::endl;
+#endif
 
   std::vector<StairRiserModel::Ptr> risers;
   double base_offset_z;
@@ -149,26 +155,36 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
   timer->end("compute riser spacing");
 
   if(!riser_spacing_result) {
-    ROS_WARN("Could not compute riser spacing");
+#if DEBUG
+    std::cout << "Could not compute riser spacing" << std::endl;
+#endif
     return;
   }
 
-  ROS_INFO("Found stair run: %f", model.run);
+#if DEBUG
+  std::cout << "Found stair run: " << model.run << std::endl;
+#endif
 
   computeNumStairs(&risers, &model.num_stairs);
 
-  ROS_INFO("Found number of stairs: %d", model.num_stairs);
+#if DEBUG
+  std::cout << "Found number of stairs: " << model.num_stairs << std::endl;
+#endif
 
   double base_y;
   bool rise_result = computeRiseFromRisers(risers, &base_y, &model.rise);
   timer->end("compute stair rise from risers");
 
   if(!rise_result) {
-    ROS_WARN("Could not compute stair rise from risers");
+#if DEBUG
+    std::cout << "Could not compute stair rise from risers" << std::endl;
+#endif
     return;
   }
 
-  ROS_INFO("Found stair rise: %f", model.rise);
+#if DEBUG
+  std::cout << "Found stair rise: " << model.rise << std::endl;
+#endif
 
   double center_x;
   computeWidth(risers, &model.width, &center_x);
@@ -181,8 +197,10 @@ void WalrusStairDetector::detect(const PointCloud::ConstPtr& original_cloud, con
 
   model.origin = model.horizontal * center_x + model.vertical * base_y + model.direction * base_offset_z;
 
+#if DEBUG
   std::cout << "Origin: " << model.origin[0] << ", " << model.origin[1] << ", " << model.origin[2] << std::endl;
   std::cout << "Direction: " << model.direction[0] << ", " << model.direction[1] << ", " << model.direction[2] << std::endl;
+#endif
 
   stairs->push_back(model);
   timer->end("finalize model");
@@ -275,7 +293,9 @@ void WalrusStairDetector::computeVertical(std::vector<DetectedPlane::Ptr>& plane
 
   // if no planes detected then just use the original estimate
   if(horizontal_planes.size() == 0) {
+#if DEBUG
     std::cout << "Failed to estimate vertical, not horizontal planes found" << std::endl;
+#endif
     *vertical = vertical_estimate;
     return;
   }
@@ -291,7 +311,9 @@ void WalrusStairDetector::computeVertical(std::vector<DetectedPlane::Ptr>& plane
     ransac_result = ransac.estimate(&inliers, vertical);
   }
   if(ransac_result) {
-    std::cout << "Computed vertical: " << (*vertical)[0] << ", " << (*vertical)[1] << ", " << (*vertical)[2] << std::endl;
+#if DEBUG
+    std::cout << "Computed vertical: " << (*vertical)[0] << ", " << (*vertical)[1] << ", " << (*vertical)[2] << std::endl;;
+#endif
   }
   else {
     // will have at least one plane because of if statment above
@@ -307,11 +329,15 @@ void WalrusStairDetector::computeVertical(std::vector<DetectedPlane::Ptr>& plane
 
     if(max_points > 3000) {
       *vertical = plane->normal;
+#if DEBUG
       std::cout << "Estimated vertical from largest plane [" << max_points << " points]: " << (*vertical)[0] << ", " << (*vertical)[1] << ", " << (*vertical)[2] << std::endl;
+#endif
     }
     else {
-      std::cout << "Failed to estimate vertical from " << horizontal_planes.size() << " planes, largest plane was " << max_points << " points, falling back to initial estimate" << std::endl;
       *vertical = vertical_estimate;
+#if DEBUG
+      std::cout << "Failed to estimate vertical from " << horizontal_planes.size() << " planes, largest plane was " << max_points << " points, falling back to initial estimate" << std::endl;
+#endif
     }
   }
 }
@@ -421,7 +447,9 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
   }
 
   if(potential_risers.size() < 2) {
-    ROS_WARN("Not enough planes to compute riser spacing from");
+#if DEBUG
+    std::cout << "Not enough planes to compute riser spacing from" << std::endl;
+#endif
     return false;
   }
 
@@ -458,7 +486,9 @@ bool WalrusStairDetector::computeRun(std::vector<DetectedPlane::Ptr>& planes, co
 	hist.add(dist, 1.0 / i / i / i);
     }
   }
+#if DEBUG
   hist.print();
+#endif
 
   DistanceModel model;
   DistanceRansacModel model_description(hist.largestBucket(), 0.1);
@@ -579,19 +609,27 @@ void WalrusStairDetector::computeWidth(const std::vector<StairRiserModel::Ptr>& 
   double min, max;
   if(min_result) {
     min = min_model.offset;
+#if DEBUG
     std::cout << "Used RANSAC to compute stair left" << std::endl;
+#endif
   }
   else {
+#if DEBUG
     std::cout << "RANSAC failed for stair left" << std::endl;
+#endif
     min = risers[0]->min_x;
   }
 
   if(max_result) {
+#if DEBUG
     std::cout << "Used RANSAC to compute stair right" << std::endl;
+#endif
     max = max_model.offset;
   }
   else {
+#if DEBUG
     std::cout << "RANSAC failed for stair right" << std::endl;
+#endif
     max = risers[0]->max_x;
   }
 

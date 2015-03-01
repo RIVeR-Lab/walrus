@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 2.8.3)
 project(walrus_stair_detector)
 
 option(walrus_stair_detector_ENABLE_TIMING "Enable timing" ON)
-option(walrus_stair_detector_ENABLE_VISUALIZATION "Enable visualization" ON)
+option(walrus_stair_detector_ENABLE_VISUALIZATION "Enable visualization" OFF)
 option(walrus_stair_detector_ENABLE_RANSAC_DEBUG "Enable RANSAC debug output" OFF)
+option(walrus_stair_detector_ENABLE_DEBUG "Enable general debug output" OFF)
 
 
 find_package(catkin REQUIRED COMPONENTS
@@ -70,6 +71,10 @@ endif()
 
 if(walrus_stair_detector_ENABLE_RANSAC_DEBUG)
   add_definitions(-DDEBUG_RANSAC=1)
+endif()
+
+if(walrus_stair_detector_ENABLE_DEBUG)
+  add_definitions(-DDEBUG=1)
 endif()
 
 if(walrus_stair_detector_ENABLE_TIMING AND Boost_TIMER_FOUND)
