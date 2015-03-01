@@ -97,10 +97,10 @@ void doHighSpeedOperations()
     if (nh.connected())
     {
         //Read feedback values
-        hs_feedback_msg.motor_current[0] = analogRead(P_CURRENT_1);
-        hs_feedback_msg.motor_current[1] = analogRead(P_CURRENT_2);
-        hs_feedback_msg.motor_current[2] = analogRead(P_CURRENT_3);
-        hs_feedback_msg.motor_current[3] = analogRead(P_CURRENT_4);
+        hs_feedback_msg.motor_current[0] = (73300*analogRead(P_CURRENT_1)/1024) - 36700;
+        hs_feedback_msg.motor_current[1] = (73300*analogRead(P_CURRENT_2)/1024) - 36700;
+        hs_feedback_msg.motor_current[2] = (73300*analogRead(P_CURRENT_3)/1024) - 36700;
+        hs_feedback_msg.motor_current[3] = (73300*analogRead(P_CURRENT_4)/1024) - 36700;
         hs_feedback_msg.pod_position[0] = analogRead(P_ENCODER_1);
         hs_feedback_msg.pod_position[1] = analogRead(P_ENCODER_2);
         hs_feedback_msg.pod_position[2] = analogRead(P_ENCODER_3);
@@ -313,8 +313,7 @@ void setup()
     motor3.writeMicroseconds(0);
     motor4.writeMicroseconds(0);
 	
-	//Setup digital IO
-	pinMode(P_LED_STATUS, OUTPUT);
+	//Setup digital IO  
 	pinMode(P_WATER_1, INPUT_PULLUP);
 	pinMode(P_WATER_2, INPUT_PULLUP);
 	pinMode(P_WATER_3, INPUT_PULLUP);
