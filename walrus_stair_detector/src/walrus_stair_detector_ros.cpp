@@ -14,11 +14,12 @@ void WalrusStairDetectorRos::pointsCallback(const PointCloud::ConstPtr& msg) {
   std::vector<StairModel> stairs;
   walrus_stair_detector::MultiTimer timer;
   detector.detect(msg, vertical, &stairs, &timer);
+  TimerPeriod time = timer.getTotal();
   if(stairs.size() > 0) {
-    ROS_INFO_STREAM("Found " << stairs.size() << " stairs in " << boost::timer::format(timer.getTotal(), 3, "%ws (User: %us, System: %ss)"));
+    ROS_INFO_STREAM("Found " << stairs.size() << " stairs in " << time.wall << "s (User: " << time.user << "s, System: " << time.system << "s)");
   }
   else {
-    ROS_INFO_STREAM("Found no stairs in " << boost::timer::format(timer.getTotal(), 3, "%ws (User: %us, System: %ss)"));
+    ROS_INFO_STREAM("Found no stairs in " << time.wall << "s (User: " << time.user << "s, System: " << time.system << "s)");
   }
 }
 

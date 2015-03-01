@@ -1,6 +1,7 @@
 #ifndef WALRUS_STAIR_DETECTOR_MULTI_TIMER_H_
 #define WALRUS_STAIR_DETECTOR_MULTI_TIMER_H_
 
+#include <limits>
 #if DEBUG_TIMING
 
 #include <map>
@@ -14,6 +15,21 @@
 namespace walrus_stair_detector {
 
 
+struct TimerPeriod {
+#if DEBUG_TIMING
+  TimerPeriod(const boost::timer::cpu_times& t)
+    : user(t.user), system(t.system), wall(t.wall) {}
+#endif
+  TimerPeriod()
+    : user(std::numeric_limits<double>::quiet_NaN()),
+      system(std::numeric_limits<double>::quiet_NaN()),
+      wall(std::numeric_limits<double>::quiet_NaN()) {}
+
+  double user;
+  double system;
+  double wall;
+};
+
 #if DEBUG_TIMING
 class MultiTimer {
 public:
@@ -26,10 +42,10 @@ public:
   void skip() {
     timer.start();
   }
-  boost::timer::cpu_times getTotal() {
+  TimerPeriod getTotal() {
     return total_timer.elapsed();
   }
-  boost::timer::cpu_times getSegmentTotal(const std::string& segment_name) {
+  TimerPeriod getSegmentTotal(const std::string& segment_name) {
     const std::vector<boost::timer::cpu_times>& segment_times = times[segment_name];
     boost::timer::cpu_times total = {0, 0, 0};
     BOOST_FOREACH(boost::timer::cpu_times time, segment_times) {
@@ -76,11 +92,11 @@ class MultiTimer {
 public:
   void end(const std::string& segment_name) {}
   void skip() {}
-  boost::timer::cpu_times getSegmentTotal(const std::string& segment_name) {
-    return {0, 0, 0};
+  TimerPeriod getSegmentTotal(const std::string& segment_name) {
+    return TimerPeriod();
   }
-  boost::timer::cpu_times getTotal() {
-    return {0, 0, 0};
+  TimerPeriod getTotal() {
+    return TimerPeriod();
   }
 };
 #endif
