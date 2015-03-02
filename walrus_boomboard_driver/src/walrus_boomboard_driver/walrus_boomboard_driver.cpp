@@ -8,14 +8,14 @@ namespace walrus_boomboard_driver
 				  ros::NodeHandle& nh, ros::NodeHandle& pnh)
 	: asi_(asi), aei_(aei), diagnostic_updater(nh, pnh)
 	{
-		tx = nh.advertise<walrus_firmware_msgs::BoomBoardTXMsg>("/walrus/_board/tx", 1000);
-		rx = nh.subscribe("/walrus/_board/rx", 1000, &BoomBoardDriver::rx_callback, this);
+		tx = nh.advertise<walrus_firmware_msgs::BoomBoardTXMsg>("/walrus/boom_board/tx", 1000);
+		rx = nh.subscribe("/walrus/boom_board/rx", 1000, &BoomBoardDriver::rx_callback, this);
 		
-		hardware_interface::ActuatorStateHandle state_handle0("walrus/boom_deploy_joint_actuator", &deploy_position, &deploy_velocity, &deploy_effort);
+		hardware_interface::ActuatorStateHandle state_handle0("walrus/boom/deploy_joint_actuator", &deploy_position, &deploy_velocity, &deploy_effort);
 		asi.registerHandle(state_handle0);
-		hardware_interface::ActuatorStateHandle state_handle1("walrus/boom_pan_joint_actuator", &pan_position, &pan_velocity, &pan_effort);
+		hardware_interface::ActuatorStateHandle state_handle1("walrus/boom/pan_joint_actuator", &pan_position, &pan_velocity, &pan_effort);
 		asi.registerHandle(state_handle1);
-		hardware_interface::ActuatorStateHandle state_handle2("walrus/boom_title_joint_acutator", &tilt_position, &tilt_velocity, &tilt_effort);
+		hardware_interface::ActuatorStateHandle state_handle2("walrus/boom/tilt_joint_actuator", &tilt_position, &tilt_velocity, &tilt_effort);
 		asi.registerHandle(state_handle2);
 		
 		hardware_interface::ActuatorHandle effort_handle0(state_handle0, &deploy_effort_cmd);

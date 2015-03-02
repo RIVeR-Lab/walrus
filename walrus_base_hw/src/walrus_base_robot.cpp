@@ -32,7 +32,7 @@ bool WalrusBaseRobot::init() {
 
   if(!epos_manager_->init()) {
     ROS_ERROR("Failed to initialize EPOS");
-    return false;
+    //return false;
   }
   
   if (!mainboard_.init()) {
@@ -69,11 +69,11 @@ bool WalrusBaseRobot::init() {
 
 // Write controller output to actuators
 void WalrusBaseRobot::write(){
-  robot_transmissions_.get<JointToActuatorPositionInterface>()->propagate();
+  robot_transmissions_.get<JointToActuatorEffortInterface>()->propagate();
   robot_transmissions_.get<JointToActuatorVelocityInterface>()->propagate();
 
   // Write actuator commands
-  epos_manager_->write();
+  //epos_manager_->write();
   mainboard_.write();
   boomboard_.write();
 
@@ -82,7 +82,7 @@ void WalrusBaseRobot::write(){
 // Read robot state
 void WalrusBaseRobot::read(){
   // Read actuator commands
-  epos_manager_->read();
+  //epos_manager_->read();
   mainboard_.read();
   boomboard_.read();
 
@@ -90,7 +90,7 @@ void WalrusBaseRobot::read(){
 }
 
 void WalrusBaseRobot::update_diagnostics(){
-  epos_manager_->update_diagnostics();
+  //epos_manager_->update_diagnostics();
   mainboard_.update_diagnostics();
   boomboard_.update_diagnostics();
 }

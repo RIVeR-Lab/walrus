@@ -5,17 +5,21 @@ joint_state_controller:
 
 # Pod Controller
 front_left_pod_joint_controller:
-  type: position_controllers/JointPositionController
+  type: effort_controllers/JointPositionController
   joint: walrus/front_left_pod_joint
+  pid: {p : 0.0, i : 0.0, d : 0.0}
 back_left_pod_joint_controller:
-  type: position_controllers/JointPositionController
+  type: effort_controllers/JointPositionController
   joint: walrus/back_left_pod_joint
+  pid: {p : 0.0, i : 0.0, d : 0.0}
 front_right_pod_joint_controller:
-  type: position_controllers/JointPositionController
+  type: effort_controllers/JointPositionController
   joint: walrus/front_right_pod_joint
+  pid: {p : 0.0, i : 0.0, d : 0.0}
 back_right_pod_joint_controller:
-  type: position_controllers/JointPositionController
+  type: effort_controllers/JointPositionController
   joint: walrus/back_right_pod_joint
+  pid: {p : 0.0, i : 0.0, d : 0.0}
 
 # Drive Controllers
 drive_controller:
@@ -34,11 +38,15 @@ drive_controller:
 
 #Boom
 boom_deploy_controller:
-  type: position_controllers/JointPositionController
+  type: effort_controllers/JointPositionController
   joint: walrus/boom/deploy_joint
+  pid: {p : 0.0, i : 0.0, d : 0.0}
 boom_pan_controller:
-  type: position_controllers/JointPositionController
+  type: effort_controllers/JointPositionController
   joint: walrus/boom/pan_joint
+  pid: {p : 0.0, i : 0.0, d : 0.0}
 boom_tilt_controller:
-  type: position_controllers/JointPositionController
+  type: effort_controllers/JointPositionController
   joint: walrus/boom/tilt_joint
+  pid: {p : 0.0, i : 0.0, d : 0.0}
+  

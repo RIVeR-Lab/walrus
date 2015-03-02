@@ -2,5 +2,6 @@
 <launch>
   <node name="walrus_base_hw" pkg="walrus_base_hw" type="walrus_base_hw_node" respawn="true">
     <rosparam command="load" file="$(find walrus_base_hw)/config/epos_motors.yaml" />
+    <rosparam command="load" file="$(find walrus_mainboard_driver)/config/mainboard_param.yaml" />
   </node>
 </launch>
