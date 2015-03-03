@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>walrus_stair_detector</name>
+  <version>0.0.0</version>
+  <description>A package containing utilities for detecting stair on the WALRUS Robot</description>
+
+  <maintainer email="mwills@wpi.edu">Mitchell Wills</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://robot.wpi.edu/walrus</url>
+  <url type="repository">https://github.com/RIVeR-Lab/walrus</url>
+
+  <author email="mwills@wpi.edu">Mitchell Wills</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>pcl_ros</depend>
+  <depend>roscpp</depend>
+  <depend>boost</depend>
+  <depend>pcl_conversions</depend>
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+
+  <test_depend>rosunit</test_depend>
+  <test_depend>walrus_testdata</test_depend>
+  <test_depend>yaml-cpp</test_depend>
+
+  <export>
+  </export>
+</package>
