@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>walrus_tools</name>
+  <name>walrus_system_configuration</name>
   <version>0.0.0</version>
-  <description>Shell tools for the WALRUS Robot</description>
+  <description>Configuration files and scripts for the WALRUS Robot</description>
 
   <maintainer email="mwills@wpi.edu">Mitchell Wills</maintainer>
 
@@ -15,10 +15,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>catkin</run_depend>
-  <run_depend>python</run_depend>
-  <run_depend>python-argparse</run_depend>
-  <run_depend>python-serial</run_depend>
-  <run_depend>walrus_system_configuration</run_depend>
+  <run_depend>python-termcolor</run_depend>
+  <run_depend>epos_hardware</run_depend>
 
   <export>
   </export>

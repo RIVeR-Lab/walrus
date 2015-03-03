@@ -8,6 +8,7 @@ import os.path
 from os import listdir
 import time
 import serial
+import walrus_system_configuration
 
 rospack = rospkg.RosPack()
 
@@ -34,6 +35,16 @@ def main():
 
         embedded_project_upload_parser = embedded_project_subparsers.add_parser('upload', help='Upload the project')
         embedded_project_upload_parser.set_defaults(func=embedded_project_upload, project=project)
+
+
+    system_parser = subparsers.add_parser('system', help='Display the system configuration')
+    system_subparsers = system_parser.add_subparsers()
+
+    system_status_parser = system_subparsers.add_parser('status', help='See the system configuration status')
+    system_status_parser.set_defaults(func=system_status)
+
+    system_install_parser = system_subparsers.add_parser('install', help='Install the system configuratoin')
+    system_install_parser.set_defaults(func=system_install)
 
     args = parser.parse_args()
     args.func(args)
@@ -113,6 +124,13 @@ def embedded_project_upload(args):
         print "Done."    
     else:
         print "ERROR: Upload failed"
+
+def system_status(args):
+    walrus_system_configuration.status()
+
+def system_install(args):
+    walrus_system_configuration.install()
+
 
 if __name__ == "__main__":
     main()
