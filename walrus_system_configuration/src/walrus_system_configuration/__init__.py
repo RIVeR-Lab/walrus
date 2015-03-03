@@ -85,6 +85,8 @@ def udev_status():
 
 def install():
     install_udev()
+    return 0
 
 def status():
     udev_status()
+    return 0

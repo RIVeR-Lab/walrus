@@ -9,6 +9,7 @@ from os import listdir
 import time
 import serial
 import walrus_system_configuration
+import sys
 
 rospack = rospkg.RosPack()
 
@@ -47,22 +48,22 @@ def main():
     system_install_parser.set_defaults(func=system_install)
 
     args = parser.parse_args()
-    args.func(args)
+    return args.func(args)
 
 
 def embedded_bootloader_upload(args):
     device = args.device
     print 'Uploading bootloader to: ' + device
-    subprocess.call(['rosrun', 'walrus_bootloader', 'upload.sh', device])
+    return subprocess.call(['rosrun', 'walrus_bootloader', 'upload.sh', device])
 
 def embedded_project_upload(args):
     project = args.project
     device = '/dev/avr_bootloader'
     hex_filename = project+'_firmware.hex'
     board = '/dev/walrus_'+project
-    
+
     #Check if the bootloader is already running
-    if not 'avr_bootloader' in listdir('/dev'):  
+    if not 'avr_bootloader' in listdir('/dev'):
         #Issue a reset to the board
         print "Issuing reset to board..."
         try:
@@ -70,9 +71,9 @@ def embedded_project_upload(args):
             ser.close()
         except serial.SerialException as exp:
             print 'ERROR: ' + str(exp)
-            return
+            return 1
         print "Done."
-    
+
         #Wait up to 10 seconds for the bootloader to appear in the device tree
         print "Waiting for bootloader device..."
         count = 0
@@ -84,10 +85,10 @@ def embedded_project_upload(args):
             time.sleep(1)
             count += 1
         if not found:
-            print 'ERROR: Bootloader device not found' 
-            return
+            print 'ERROR: Bootloader device not found'
+            return 1
         print "Done."
-    
+
     #Wait for access to bootloader device
     print "Waiting for access to bootloader device..."
     count = 0
@@ -103,17 +104,17 @@ def embedded_project_upload(args):
             time.sleep(1)
     if not found:
         print 'ERROR: Could not access bootloader device..'
-        return
+        return 1
     print "Done."
-        
+
     #Find hex file in the workspace's devel directory
     print "Searching for project's hex file..."
     hex_file_path_list = find_in_workspaces(project=project+'_firmware', path=hex_filename, first_matching_workspace_only=True)
     if len(hex_file_path_list) == 0:
         print 'ERROR: No hexfile found'
-        return
+        return 1
     print "Done."
-    
+
     #Upload the hex
     print "Uploading hex..."
     hex_file_path = hex_file_path_list[0]
@@ -121,16 +122,18 @@ def embedded_project_upload(args):
     print 'Uploading ' + project + ' to device: ' + device
     ret = subprocess.call(['avrdude', '-p', 'AT90USB1286', '-c', 'avr109', '-P', device, '-U', 'flash:w:'+hex_filename, '-D'], cwd=hex_file_dir)
     if (ret == 0):
-        print "Done."    
+        print "Done."
+        return 0
     else:
         print "ERROR: Upload failed"
+        return 1
 
 def system_status(args):
-    walrus_system_configuration.status()
+    return walrus_system_configuration.status()
 
 def system_install(args):
-    walrus_system_configuration.install()
+    return walrus_system_configuration.install()
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
