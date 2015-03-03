@@ -39,3 +39,17 @@ target_link_libraries(walrus_boomboard_driver
    ${catkin_LIBRARIES}
 )
 
+#############
+## Install ##
+#############
+
+install(TARGETS walrus_boomboard_driver
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+)
