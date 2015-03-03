@@ -30,24 +30,22 @@ void MultiUsbCam::change_state(int new_state) {
   bool should_start =  new_state > STATE_INACTIVE; // if the camera will be active after the change then we will start
 
   if(should_start) {
-    int width;
-    int height;
-    int fps;
+    CameraConfiguration config(320, 240, 10);
 
     if(new_state == 1) {
-      width = 1280;
-      height = 720;
-      fps = 30;
+      config.width = 1280;
+      config.height = 720;
+      config.fps = 30;
     }
     else if(new_state == 2) {
-      width = 320;
-      height = 240;
-      fps = 10;
+      config.width = 640;
+      config.height = 480;
+      config.fps = 15;
     }
     else
       return;
 
-    camera_.start(device_name_, usb_cam::UsbCam::IO_METHOD_MMAP, usb_cam::UsbCam::PIXEL_FORMAT_YUYV, width, height, fps);
+    camera_.start(device_name_, usb_cam::UsbCam::IO_METHOD_MMAP, usb_cam::UsbCam::PIXEL_FORMAT_YUYV, config.width, config.height, config.fps);
   }
 
   state_ = new_state;
@@ -74,8 +72,7 @@ MultiUsbCamNode::MultiUsbCamNode(ros::NodeHandle& nh, ros::NodeHandle& pnh) {
   image_transport::ImageTransport it(nh);
 
   std::vector<std::string> camera_names;
-  camera_names.push_back("/dev/video0");
-  camera_names.push_back("/dev/video1");
+  pnh.getParam("names", camera_names);
 
   BOOST_FOREACH(const std::string& name, camera_names) {
     image_transport::CameraPublisher pub = it.advertiseCamera(name, 1,

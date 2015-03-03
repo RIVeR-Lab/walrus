@@ -11,10 +11,20 @@
 
 namespace multi_usb_cam {
 
+class CameraConfiguration {
+public:
+  CameraConfiguration(int width, int height, int fps)
+    : width(width), height(height), fps(fps) {}
+  int width;
+  int height;
+  int fps;
+};
+
 class MultiUsbCam : private boost::noncopyable {
  public:
-  const static int STATE_INACTIVE = 0;
   const static int STATE_UNINITIALIZED = -1;
+  const static int STATE_INACTIVE = 0;
+  // If a camera's state is greater than zero then it is total number of active cameras
 
   MultiUsbCam(const std::string& device_name, image_transport::CameraPublisher pub);
 
