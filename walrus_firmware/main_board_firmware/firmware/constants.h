@@ -110,6 +110,10 @@ Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x2
 #define T_CONVERT 0x44
 #define READ_SCRATCH 0xBE
 
+//Equations
+#define CURRENT_ADC_MAX 1023 
+#define ADC_TO_mA(adcVal) ((73300*adcVal/CURRENT_ADC_MAX) - 36700) //See Pololu part #2453
+
 //Temperature sensor addresses
 #define TEMP_1_ADDR {0x10, 0x9D, 0x92, 0xE2, 0x02, 0x08, 0x00, 0x43}
 #define TEMP_2_ADDR {0x10, 0x35, 0x3F, 0xE2, 0x02, 0x08, 0x00, 0x61}

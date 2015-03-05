@@ -3,6 +3,7 @@
 #define MAINBOARDDRIVER_H
 
 #include <ros/ros.h>
+#include <math.h>
 #include <hardware_interface/actuator_command_interface.h>
 #include <hardware_interface/actuator_state_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -59,7 +60,11 @@ namespace walrus_mainboard_driver
 			void ls_data_callback(const walrus_firmware_msgs::MainBoardLowSpeedData& msg);
 			void from_board_callback(const walrus_firmware_msgs::MainBoardControl& msg);
 			
-			void chassis_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat);
+			void tp_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat);
+			void int_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat);
+			void humidity_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat);
+			void pressure_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat);
+			void water_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index);
 			void pod_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index);
 			void mainboard_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat);   
 			void batt_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index);
@@ -111,45 +116,48 @@ namespace walrus_mainboard_driver
 			int FRONT_CAM_LED, BOTTOM_CAM_LED, BACK_CAM_LED;
 			int BACKUP_BATT_VOLTAGE;
 			
-			//Pod zero positions and reverse bools
+			//Pod constants
 			double POD_POSITION_NEUTRAL[4];
 			bool POD_REV[4];
+			double OUTPUT_TORQUE_PER_AMP; 
+			int OUTPUT_POWER_NEUTRAL; 
+			int OUTPUT_POWER_LIMIT; 
 			
 			//Water sensor location names
 			std::string WATER_SENSE_POSITION[6];		
 			
 			//Levels to trigger temperature or current warnings
 		    //For chassis
-		    double TOP_PLATE_TEMP_WARN_ABOVE;
-		    double TOP_PLATE_TEMP_ERROR_ABOVE;
-		    double AMBIENT_TEMP_WARN_ABOVE;
-		    double AMBIENT_TEMP_ERROR_ABOVE;
-		    double PRESSURE_WARN_BELOW;
-		    double PRESSURE_ERROR_BELOW;
-		    double HUMIDITY_WARN_ABOVE;
-		    double HUMIDITY_ERROR_ABOVE;
+		    double TOP_PLATE_TEMP_HIGH_ABOVE;
+		    double TOP_PLATE_TEMP_CRITICAL_ABOVE;
+		    double AMBIENT_TEMP_HIGH_ABOVE;
+		    double AMBIENT_TEMP_CRITICAL_ABOVE;
+		    double PRESSURE_LOW_BELOW;
+		    double PRESSURE_CRITICAL_BELOW;
+		    double HUMIDITY_HIGH_ABOVE;
+		    double HUMIDITY_CRITICAL_ABOVE;
 		    //For pods
-		    double POD_MOTOR_TEMP_WARN_ABOVE;
-		    double POD_MOTOR_TEMP_ERROR_ABOVE;
-		    double POD_CONTROLLER_TEMP_WARN_ABOVE;
-		    double POD_CONTROLLER_TEMP_ERROR_ABOVE;
-		    double POD_MOTOR_CURRENT_WARN_ABOVE;
-		    double POD_MOTOR_CURRENT_ERROR_ABOVE;
+		    double POD_MOTOR_TEMP_HIGH_ABOVE;
+		    double POD_MOTOR_TEMP_CRITICAL_ABOVE;
+		    double POD_CONTROLLER_TEMP_HIGH_ABOVE;
+		    double POD_CONTROLLER_TEMP_CRITICAL_ABOVE;
+		    double POD_MOTOR_CURRENT_HIGH_ABOVE;
+		    double POD_MOTOR_CURRENT_CRITICAL_ABOVE;
 		    //For main board
 		    int HS_FEEDBACK_TIMEOUT;
 		    //For batteries
-		    double MAIN_BATT_VOLTAGE_WARN_BELOW;
-		    double MAIN_BATT_CHARGE_WARN_BELOW;
-		    double MAIN_BATT_TEMP_WARN_ABOVE;
+		    double MAIN_BATT_VOLTAGE_LOW_BELOW;
+		    double MAIN_BATT_CHARGE_LOW_BELOW;
+		    double MAIN_BATT_TEMP_HIGH_ABOVE;
 		    //For power systems
-		    double VICOR_TEMP_WARN_ABOVE;
-		    double VICOR_TEMP_ERROR_ABOVE;
-		    double BACKUP_BATT_VOLTAGE_WARN_BELOW;
-		    double MAIN_VOLTAGE_WARN_BELOW;
-		    double MAIN_CHARGE_WARN_BELOW;
+		    double VICOR_TEMP_HIGH_ABOVE;
+		    double VICOR_TEMP_CRITICAL_ABOVE;
+		    double BACKUP_BATT_VOLTAGE_LOW_BELOW;
+		    double MAIN_VOLTAGE_LOW_BELOW;
+		    double MAIN_CHARGE_LOW_BELOW;
 		    //For drive temps
-		    double DRIVE_MOTOR_TEMP_WARN_ABOVE;
-		    double DRIVE_MOTOR_TEMP_ERROR_ABOVE;
+		    double DRIVE_MOTOR_TEMP_HIGH_ABOVE;
+		    double DRIVE_MOTOR_TEMP_CRITICAL_ABOVE;
 		    
 	};
 	

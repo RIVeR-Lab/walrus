@@ -11,19 +11,19 @@ namespace walrus_boomboard_driver
 		tx = nh.advertise<walrus_firmware_msgs::BoomBoardTXMsg>("/walrus/boom_board/tx", 1000);
 		rx = nh.subscribe("/walrus/boom_board/rx", 1000, &BoomBoardDriver::rx_callback, this);
 		
-		hardware_interface::ActuatorStateHandle state_handle0("walrus/boom/deploy_joint_actuator", &deploy_position, &deploy_velocity, &deploy_effort);
-		asi.registerHandle(state_handle0);
-		hardware_interface::ActuatorStateHandle state_handle1("walrus/boom/pan_joint_actuator", &pan_position, &pan_velocity, &pan_effort);
-		asi.registerHandle(state_handle1);
-		hardware_interface::ActuatorStateHandle state_handle2("walrus/boom/tilt_joint_actuator", &tilt_position, &tilt_velocity, &tilt_effort);
-		asi.registerHandle(state_handle2);
+		hardware_interface::ActuatorStateHandle state_handle_deploy("walrus/boom/deploy_joint_actuator", &deploy_position, &deploy_velocity, &deploy_effort);
+		asi.registerHandle(state_handle_deploy);
+		hardware_interface::ActuatorStateHandle state_handle_pan("walrus/boom/pan_joint_actuator", &pan_position, &pan_velocity, &pan_effort);
+		asi.registerHandle(state_handle_pan);
+		hardware_interface::ActuatorStateHandle state_handle_tilt("walrus/boom/tilt_joint_actuator", &tilt_position, &tilt_velocity, &tilt_effort);
+		asi.registerHandle(state_handle_tilt);
 		
-		hardware_interface::ActuatorHandle effort_handle0(state_handle0, &deploy_effort_cmd);
-		aei.registerHandle(effort_handle0);
-		hardware_interface::ActuatorHandle effort_handle1(state_handle1, &pan_effort_cmd);
-		aei.registerHandle(effort_handle1);
-		hardware_interface::ActuatorHandle effort_handle2(state_handle2, &tilt_effort_cmd);
-		aei.registerHandle(effort_handle2);
+		hardware_interface::ActuatorHandle effort_handle_deploy(state_handle_deploy, &deploy_effort_cmd);
+		aei.registerHandle(effort_handle_deploy);
+		hardware_interface::ActuatorHandle effort_handle_pan(state_handle_pan, &pan_effort_cmd);
+		aei.registerHandle(effort_handle_pan);
+		hardware_interface::ActuatorHandle effort_handle_tilt(state_handle_tilt, &tilt_effort_cmd);
+		aei.registerHandle(effort_handle_tilt);
 	}
 	
 	bool BoomBoardDriver::init()

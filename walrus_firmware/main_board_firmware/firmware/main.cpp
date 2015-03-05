@@ -82,25 +82,25 @@ void doHighSpeedOperations()
     //Write motor power data if enabled
     if (output_disable)
     {
-        motor1.writeMicroseconds(0);
-        motor2.writeMicroseconds(0);
-        motor3.writeMicroseconds(0);
-        motor4.writeMicroseconds(0);
+        //motor1.writeMicroseconds(0);
+        //motor2.writeMicroseconds(0);
+        //motor3.writeMicroseconds(0);
+        //motor4.writeMicroseconds(0);
     }
     else
     {
-        motor1.writeMicroseconds(hs_control_msg.motor_power[0]);
-        motor2.writeMicroseconds(hs_control_msg.motor_power[1]);
-        motor3.writeMicroseconds(hs_control_msg.motor_power[2]);
-        motor4.writeMicroseconds(hs_control_msg.motor_power[3]);
+        //motor1.writeMicroseconds(hs_control_msg.motor_power[0]);
+        //motor2.writeMicroseconds(hs_control_msg.motor_power[1]);
+        //motor3.writeMicroseconds(hs_control_msg.motor_power[2]);
+        //motor4.writeMicroseconds(hs_control_msg.motor_power[3]);
     }
     if (nh.connected())
     {
         //Read feedback values
-        hs_feedback_msg.motor_current[0] = (73300*analogRead(P_CURRENT_1)/1024) - 36700;
-        hs_feedback_msg.motor_current[1] = (73300*analogRead(P_CURRENT_2)/1024) - 36700;
-        hs_feedback_msg.motor_current[2] = (73300*analogRead(P_CURRENT_3)/1024) - 36700;
-        hs_feedback_msg.motor_current[3] = (73300*analogRead(P_CURRENT_4)/1024) - 36700;
+        hs_feedback_msg.motor_current[0] = ADC_TO_mA(analogRead(P_CURRENT_1));
+        hs_feedback_msg.motor_current[1] = ADC_TO_mA(analogRead(P_CURRENT_2));
+        hs_feedback_msg.motor_current[2] = ADC_TO_mA(analogRead(P_CURRENT_3));
+        hs_feedback_msg.motor_current[3] = ADC_TO_mA(analogRead(P_CURRENT_4));
         hs_feedback_msg.pod_position[0] = analogRead(P_ENCODER_1);
         hs_feedback_msg.pod_position[1] = analogRead(P_ENCODER_2);
         hs_feedback_msg.pod_position[2] = analogRead(P_ENCODER_3);
@@ -238,7 +238,9 @@ void recv_control(const walrus_firmware_msgs::MainBoardControl& msg)
             //Don't need to do anything, other logic will take care of timeouts
         break;
         case MainBoardControl::SET_LED:
-            analogWrite(led_pins[msg.index], msg.value & 0xFF);
+            //analogWrite(led_pins[msg.index], msg.value & 0xFF);
+            motor3.writeMicroseconds(msg.value);
+            motor4.writeMicroseconds(msg.value);
         break;
         case MainBoardControl::POWER_OFF:
             digitalWrite(P_CONTACTOR, HIGH);
@@ -308,11 +310,11 @@ void setup()
 	motor2.attach(P_MOTOR_2);
 	motor3.attach(P_MOTOR_3);
 	motor4.attach(P_MOTOR_4);
-	motor1.writeMicroseconds(0);
-    motor2.writeMicroseconds(0);
-    motor3.writeMicroseconds(0);
-    motor4.writeMicroseconds(0);
-	
+	motor1.writeMicroseconds(1500);
+    motor2.writeMicroseconds(1500);
+    motor3.writeMicroseconds(1500);
+    motor4.writeMicroseconds(1500);
+
 	//Setup digital IO  
 	pinMode(P_WATER_1, INPUT_PULLUP);
 	pinMode(P_WATER_2, INPUT_PULLUP);

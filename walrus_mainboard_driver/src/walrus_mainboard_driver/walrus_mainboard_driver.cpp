@@ -1,7 +1,5 @@
 #include "walrus_mainboard_driver/walrus_mainboard_driver.h"
 
-#define PI 3.14159265358979323846
-
 using namespace std;
 
 namespace walrus_mainboard_driver
@@ -42,6 +40,9 @@ namespace walrus_mainboard_driver
 	    pnh.param("frontright_pod_reverse", POD_REV[FR-1], false);
 	    pnh.param("backright_pod_reverse", POD_REV[BR-1], false);
 	    pnh.param("backleft_pod_reverse", POD_REV[BL-1], false);
+	    pnh.param("pod_output_torque_per_amp", OUTPUT_TORQUE_PER_AMP, 1.0);
+		pnh.param("pod_output_power_neutral", OUTPUT_POWER_NEUTRAL, 1500);
+		pnh.param("pod_output_power_limit", OUTPUT_POWER_LIMIT, 500);
 	    
 	    pnh.param<string>("water_sense_1_position", WATER_SENSE_POSITION[0], "Position 1");
 		pnh.param<string>("water_sense_2_position", WATER_SENSE_POSITION[1], "Position 2");
@@ -50,36 +51,36 @@ namespace walrus_mainboard_driver
 		pnh.param<string>("water_sense_5_position", WATER_SENSE_POSITION[4], "Position 5");
 		pnh.param<string>("water_sense_6_position", WATER_SENSE_POSITION[5], "Position 6");
 		
-	    pnh.param("top_plate_temp_warn_above", TOP_PLATE_TEMP_WARN_ABOVE, -1.0);
-	    pnh.param("top_plate_temp_error_above", TOP_PLATE_TEMP_ERROR_ABOVE, -1.0);
-	    pnh.param("abmient_temp_warn_above", AMBIENT_TEMP_WARN_ABOVE, -1.0);
-	    pnh.param("ambient_temp_error_above", AMBIENT_TEMP_ERROR_ABOVE, -1.0);
-	    pnh.param("pressure_warn_below", PRESSURE_WARN_BELOW, -1.0);
-	    pnh.param("pressure_error_below", PRESSURE_ERROR_BELOW, -1.0);
-	    pnh.param("humidity_warn_above", HUMIDITY_WARN_ABOVE, -1.0);
-	    pnh.param("humidity_error_above", HUMIDITY_ERROR_ABOVE, -1.0);
+	    pnh.param("top_plate_temp_high_above", TOP_PLATE_TEMP_HIGH_ABOVE, -1.0);
+	    pnh.param("top_plate_temp_critical_above", TOP_PLATE_TEMP_CRITICAL_ABOVE, -1.0);
+	    pnh.param("abmient_temp_high_above", AMBIENT_TEMP_HIGH_ABOVE, -1.0);
+	    pnh.param("ambient_temp_critical_above", AMBIENT_TEMP_CRITICAL_ABOVE, -1.0);
+	    pnh.param("pressure_low_below", PRESSURE_LOW_BELOW, -1.0);
+	    pnh.param("pressure_critical_below", PRESSURE_CRITICAL_BELOW, -1.0);
+	    pnh.param("humidity_high_above", HUMIDITY_HIGH_ABOVE, -1.0);
+	    pnh.param("humidity_critical_above", HUMIDITY_CRITICAL_ABOVE, -1.0);
 	    
-	    pnh.param("pod_motor_temp_warn_above", POD_MOTOR_TEMP_WARN_ABOVE, -1.0);
-	    pnh.param("pod_motor_temp_error_above", POD_MOTOR_TEMP_ERROR_ABOVE, -1.0);
-	    pnh.param("pod_controller_temp_warn_above", POD_CONTROLLER_TEMP_WARN_ABOVE, -1.0);
-	    pnh.param("pod_controller_temp_error_above", POD_CONTROLLER_TEMP_ERROR_ABOVE, -1.0);
-	    pnh.param("pod_motor_current_warn_above", POD_MOTOR_CURRENT_WARN_ABOVE, -1.0);
-	    pnh.param("pod_motor_current_error_above", POD_MOTOR_CURRENT_ERROR_ABOVE, -1.0);
+	    pnh.param("pod_motor_temp_high_above", POD_MOTOR_TEMP_HIGH_ABOVE, -1.0);
+	    pnh.param("pod_motor_temp_critical_above", POD_MOTOR_TEMP_CRITICAL_ABOVE, -1.0);
+	    pnh.param("pod_controller_temp_high_above", POD_CONTROLLER_TEMP_HIGH_ABOVE, -1.0);
+	    pnh.param("pod_controller_temp_critical_above", POD_CONTROLLER_TEMP_CRITICAL_ABOVE, -1.0);
+	    pnh.param("pod_motor_current_high_above", POD_MOTOR_CURRENT_HIGH_ABOVE, -1.0);
+	    pnh.param("pod_motor_current_critical_above", POD_MOTOR_CURRENT_CRITICAL_ABOVE, -1.0);
 	    
 	    pnh.param("feedback_timeout", HS_FEEDBACK_TIMEOUT, 250);
 	    
-	    pnh.param("main_batt_voltage_warn_below", MAIN_BATT_VOLTAGE_WARN_BELOW, -1.0);
-	    pnh.param("main_batt_charge_warn_below", MAIN_BATT_CHARGE_WARN_BELOW, -1.0);
-	    pnh.param("main_batt_temp_warn_above", MAIN_BATT_TEMP_WARN_ABOVE, -1.0);
+	    pnh.param("main_batt_voltage_low_below", MAIN_BATT_VOLTAGE_LOW_BELOW, -1.0);
+	    pnh.param("main_batt_charge_low_below", MAIN_BATT_CHARGE_LOW_BELOW, -1.0);
+	    pnh.param("main_batt_temp_high_above", MAIN_BATT_TEMP_HIGH_ABOVE, -1.0);
 	    
-	    pnh.param("vicor_temp_warn_above", VICOR_TEMP_WARN_ABOVE, -1.0);
-	    pnh.param("vicor_temp_error_above", VICOR_TEMP_ERROR_ABOVE, -1.0);
-	    pnh.param("backup_batt_voltage_warn_below", BACKUP_BATT_VOLTAGE_WARN_BELOW, -1.0);
-	    pnh.param("main_voltage_warn_below", MAIN_VOLTAGE_WARN_BELOW, -1.0);
-	    pnh.param("main_charge_warn_below", MAIN_CHARGE_WARN_BELOW, -1.0);
+	    pnh.param("vicor_temp_high_above", VICOR_TEMP_HIGH_ABOVE, -1.0);
+	    pnh.param("vicor_temp_critical_above", VICOR_TEMP_CRITICAL_ABOVE, -1.0);
+	    pnh.param("backup_batt_voltage_low_below", BACKUP_BATT_VOLTAGE_LOW_BELOW, -1.0);
+	    pnh.param("main_voltage_low_below", MAIN_VOLTAGE_LOW_BELOW, -1.0);
+	    pnh.param("main_charge_low_below", MAIN_CHARGE_LOW_BELOW, -1.0);
 	    
-	    pnh.param("drive_motor_temp_warn_above", DRIVE_MOTOR_TEMP_WARN_ABOVE, -1.0);
-	    pnh.param("drive_motor_temp_error_above", DRIVE_MOTOR_TEMP_ERROR_ABOVE, -1.0);
+	    pnh.param("drive_motor_temp_high_above", DRIVE_MOTOR_TEMP_HIGH_ABOVE, -1.0);
+	    pnh.param("drive_motor_temp_critical_above", DRIVE_MOTOR_TEMP_CRITICAL_ABOVE, -1.0);
 	    
 	  
 	    host_enabled = false;
@@ -93,26 +94,31 @@ namespace walrus_mainboard_driver
 	    nh.createTimer(ros::Duration(1), &MainBoardDriver::heartbeat_callback, this);
 		
 		//Setup pod actuator interfaces
-		hardware_interface::ActuatorStateHandle state_handle0("walrus/front_left_pod_joint_actuator", &pod_position[FL-1], &pod_velocity[FL-1], &pod_effort[FL-1]);
-		asi.registerHandle(state_handle0);
-		hardware_interface::ActuatorStateHandle state_handle1("walrus/front_right_pod_joint_actuator", &pod_position[FR-1], &pod_velocity[FR-1], &pod_effort[FR-1]);
-		asi.registerHandle(state_handle1);
-		hardware_interface::ActuatorStateHandle state_handle2("walrus/back_right_pod_joint_actuator", &pod_position[BR-1], &pod_velocity[BR-1], &pod_effort[BR-1]);
-		asi.registerHandle(state_handle2);
-		hardware_interface::ActuatorStateHandle state_handle3("walrus/back_left_pod_joint_actuator", &pod_position[BL-1], &pod_velocity[BL-1], &pod_effort[BL-1]);
-		asi.registerHandle(state_handle3);		
-		hardware_interface::ActuatorHandle effort_handle0(state_handle0, &pod_effort_cmd[FL-1]);
-		aei.registerHandle(effort_handle0);
-		hardware_interface::ActuatorHandle effort_handle1(state_handle1, &pod_effort_cmd[FR-1]);
-		aei.registerHandle(effort_handle1);
-		hardware_interface::ActuatorHandle effort_handle2(state_handle2, &pod_effort_cmd[BR-1]);
-		aei.registerHandle(effort_handle2);
-		hardware_interface::ActuatorHandle effort_handle3(state_handle3, &pod_effort_cmd[BL-1]);
-		aei.registerHandle(effort_handle3);
+		hardware_interface::ActuatorStateHandle state_handleFL("walrus/front_left_pod_joint_actuator", &pod_position[FL-1], &pod_velocity[FL-1], &pod_effort[FL-1]);
+		asi.registerHandle(state_handleFL);
+		hardware_interface::ActuatorStateHandle state_handleFR("walrus/front_right_pod_joint_actuator", &pod_position[FR-1], &pod_velocity[FR-1], &pod_effort[FR-1]);
+		asi.registerHandle(state_handleFR);
+		hardware_interface::ActuatorStateHandle state_handleBR("walrus/back_right_pod_joint_actuator", &pod_position[BR-1], &pod_velocity[BR-1], &pod_effort[BR-1]);
+		asi.registerHandle(state_handleBR);
+		hardware_interface::ActuatorStateHandle state_handleBL("walrus/back_left_pod_joint_actuator", &pod_position[BL-1], &pod_velocity[BL-1], &pod_effort[BL-1]);
+		asi.registerHandle(state_handleBL);		
+		hardware_interface::ActuatorHandle effort_handleFL(state_handleFL, &pod_effort_cmd[FL-1]);
+		aei.registerHandle(effort_handleFL);
+		hardware_interface::ActuatorHandle effort_handleFR(state_handleFR, &pod_effort_cmd[FR-1]);
+		aei.registerHandle(effort_handleFR);
+		hardware_interface::ActuatorHandle effort_handleBR(state_handleBR, &pod_effort_cmd[BR-1]);
+		aei.registerHandle(effort_handleBR);
+		hardware_interface::ActuatorHandle effort_handleBL(state_handleBL, &pod_effort_cmd[BL-1]);
+		aei.registerHandle(effort_handleBL);
 		
 		//Add diagnostics updaters
 		diagnostic_updater.setHardwareID("Walrus Main Board");
-		diagnostic_updater.add("Chassis", this, &MainBoardDriver::chassis_diagnostic_callback);
+		diagnostic_updater.add("Top Plate Temperature", this, &MainBoardDriver::tp_temp_diagnostic_callback);
+		diagnostic_updater.add("Internal Temperature", this, &MainBoardDriver::int_temp_diagnostic_callback);
+		diagnostic_updater.add("Internal Humidity", this, &MainBoardDriver::humidity_diagnostic_callback);
+		diagnostic_updater.add("Internal Pressure", this, &MainBoardDriver::pressure_diagnostic_callback);
+		for (int l = 0; l < 6; l++)
+		    diagnostic_updater.add(WATER_SENSE_POSITION[l], boost::bind(&MainBoardDriver::water_diagnostic_callback, this, _1, l));
 		diagnostic_updater.add("Front Left Pod", boost::bind(&MainBoardDriver::pod_diagnostic_callback, this, _1, FL-1));
 		diagnostic_updater.add("Front Right Pod", boost::bind(&MainBoardDriver::pod_diagnostic_callback, this, _1, FR-1));
 		diagnostic_updater.add("Back Right Pod", boost::bind(&MainBoardDriver::pod_diagnostic_callback, this, _1, BR-1));
@@ -139,8 +145,7 @@ namespace walrus_mainboard_driver
 	}
 	
 	void MainBoardDriver::read()
-	{
-        double temp, dr;
+	{       
 	    double interval = (ros::Time::now() - last_read).toSec();
 	    last_read = ros::Time::now();
 	    
@@ -149,21 +154,23 @@ namespace walrus_mainboard_driver
 	       
 	        for (int l = 0; l < 4; l++)
 	        {
-		        temp = (hs_feedback_msg.pod_position[l]/1024.0)*2*PI;
+	            double position, delta;
+		        position = (hs_feedback_msg.pod_position[l]/1023.0)*2*M_PI; //Convert raw ADC value (0-1023) to angle (0-2pi)
 		        if (POD_REV[l])
-		            temp = (2*PI) - temp;
-		        temp -= POD_POSITION_NEUTRAL[l];
-		        if (temp < 0)
-		            temp += 2*PI;
-		        dr = temp - pod_position[l];
-		        if (dr > 0 && dr > PI) //Decrease angle across 0
-		            pod_velocity[l] = (dr-2*PI)/interval;
-		        else if (dr < 0 && dr < -PI) //Increase angle across 0
-		            pod_velocity[l] = (dr+2*PI)/interval;
+		            position = (2*M_PI) - position;
+		        position -= POD_POSITION_NEUTRAL[l];
+		        if (position < 0)
+		            position += 2*M_PI;
+		        delta = position - pod_position[l];
+		        if (delta > M_PI) //Decrease angle across 0
+		            pod_velocity[l] = (delta-2*M_PI)/interval;
+		        else if (delta < -M_PI) //Increase angle across 0
+		            pod_velocity[l] = (delta+2*M_PI)/interval;
 		        else  
-		            pod_velocity[l] = dr/interval;
-		        pod_position[l] = temp;		
-		        pod_effort[l] = (hs_feedback_msg.motor_current[l] / 1000.0) * 29.184; //RS550 motors with 5120:1 reduction outputs 29.185 Nm/A
+		            pod_velocity[l] = delta/interval;
+		        pod_position[l] = position;		
+		        pod_current[l] = (hs_feedback_msg.motor_current[l] / 1000.0); //mA -> A
+		        pod_effort[l] = pod_effort[l] * OUTPUT_TORQUE_PER_AMP;
 	        }		
 	    }
 
@@ -177,7 +184,7 @@ namespace walrus_mainboard_driver
 	        //Send motor control message	        
 	        for (int l = 0; l < 4; l++)
 	        {
-	            pod_power[l] = (pod_effort_cmd[l]*250) + 1500;
+	            pod_power[l] = (pod_effort_cmd[l]*OUTPUT_POWER_LIMIT) + OUTPUT_POWER_NEUTRAL;
 		        hs_control_msg.motor_power[l] = pod_power[l];
 		    }
 		}
@@ -203,16 +210,16 @@ namespace walrus_mainboard_driver
         
         //Temp sensors
         for (int l = 0; l < 10; l++)
-            temp_sensors[l] = msg.temp_sense[l] / 10.0;
+            temp_sensors[l] = msg.temp_sense[l] / 10.0; //tenths of a deg C -> deg C
         
         //Ambient temp
-        ambient_temp = msg.board_temp / 100.0;
+        ambient_temp = msg.board_temp / 100.0; //hundredths of a deg C -> deg C
         
         //Humidity
-        humidity = msg.humidity / 100.0;
+        humidity = msg.humidity / 100.0; //hundredths of a % -> %
         
         //Pressure
-        pressure = msg.pressure / 1000.0;
+        pressure = msg.pressure / 1000.0; //Pa -> kPa
         
         //Water sensors
         water[0] = msg.water_sense & 1;
@@ -241,25 +248,25 @@ namespace walrus_mainboard_driver
                     batteries[l].mfr = "Not available";
                     batteries[l].dev_name = "Not available";
                     batteries[l].chemistry = "Not available";
-                    walrus_firmware_msgs::MainBoardControl msg2;
-                    msg2.type = walrus_firmware_msgs::MainBoardControl::REQ_BATT_INFO;
-                    msg2.index = l;
-                    msg2.value = 0; 
-                    msg2.msg = "";
-                    to_board.publish(msg2);
+                    walrus_firmware_msgs::MainBoardControl info_req_msg;
+                    info_req_msg.type = walrus_firmware_msgs::MainBoardControl::REQ_BATT_INFO;
+                    info_req_msg.index = l;
+                    info_req_msg.value = 0; 
+                    info_req_msg.msg = "";
+                    to_board.publish(info_req_msg);
                 }
                 batteries[l].present = true;
-                batteries[l].upper_voltage = msg.lcell_voltage[l] / 1000.0;
-                batteries[l].upper_current = msg.lcell_current[l] / 1000.0;
-                batteries[l].upper_charge = msg.lcell_charge[l] / 100.0;
-                batteries[l].upper_temp = msg.lcell_temp[l] / 100.0;
-                batteries[l].upper_avg_current = msg.lcell_avgcurr[l] / 1000.0;
-                batteries[l].upper_voltage = msg.ucell_voltage[l] / 1000.0;
-                batteries[l].upper_current = msg.ucell_current[l] / 1000.0;
-                batteries[l].upper_charge = msg.ucell_charge[l] / 100.0;
-                batteries[l].upper_temp = msg.ucell_temp[l] / 100.0;
-                batteries[l].upper_avg_current = msg.ucell_avgcurr[l] / 1000.0;
-                batteries[l].shutdown = (batteries[l].lower_voltage < 2 || batteries[l].upper_voltage < 2);
+                batteries[l].upper_voltage = msg.lcell_voltage[l] / 1000.0; //mV -> V
+                batteries[l].upper_current = msg.lcell_current[l] / 1000.0; //mA -> A
+                batteries[l].upper_charge = msg.lcell_charge[l] / 100.0; //hunderedths of a % -> %
+                batteries[l].upper_temp = msg.lcell_temp[l] / 100.0; //hunderedths of a deg C -> deg C
+                batteries[l].upper_avg_current = msg.lcell_avgcurr[l] / 1000.0; //mA -> A
+                batteries[l].upper_voltage = msg.ucell_voltage[l] / 1000.0; //mV -> V
+                batteries[l].upper_current = msg.ucell_current[l] / 1000.0; //mA -> A
+                batteries[l].upper_charge = msg.ucell_charge[l] / 100.0; //hunderedths of a % -> %
+                batteries[l].upper_temp = msg.ucell_temp[l] / 100.0; //hunderedths of a deg C -> deg C
+                batteries[l].upper_avg_current = msg.ucell_avgcurr[l] / 1000.0; //mA -> A
+                batteries[l].shutdown = (batteries[l].lower_voltage < 2 || batteries[l].upper_voltage < 2); 
                 batteries[l].combined_voltage = batteries[l].lower_voltage + batteries[l].upper_voltage;
                 batteries[l].combined_current = (batteries[l].lower_current + batteries[l].upper_current) / 2;
                 batteries[l].combined_avg_current = (batteries[l].lower_avg_current + batteries[l].upper_avg_current) / 2;
@@ -277,6 +284,8 @@ namespace walrus_mainboard_driver
         main_current /= count;
         main_avg_current /= count;
         main_charge /= count;
+        
+        main_board_connected = true;
     }
     
 	void MainBoardDriver::from_board_callback(const walrus_firmware_msgs::MainBoardControl& msg)
@@ -302,102 +311,70 @@ namespace walrus_mainboard_driver
     }
     
     //Diagnostics updaters
-    void MainBoardDriver::chassis_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
-    {
-        boost::lock_guard<boost::mutex> lock(sensor_data_mutex);
     
-        bool warning;
-        bool error;
-        string msg = "";
-        if (main_board_connected)
-        {
-            //Check top plate temperature
-            if (TOP_PLATE_TEMP_ERROR_ABOVE > 0 && temp_sensors[TOP_PLATE_TEMP-1] > TOP_PLATE_TEMP_ERROR_ABOVE)
-            {
-                error = true;
-                msg += "Top plate temperature critical. ";
-            }
-            else if (TOP_PLATE_TEMP_WARN_ABOVE > 0 && temp_sensors[TOP_PLATE_TEMP-1] > TOP_PLATE_TEMP_WARN_ABOVE)
-            {
-                warning = true;
-                msg += "Top plate temperature high. ";
-            }
-            
-            //Check ambient temperature
-            if (AMBIENT_TEMP_ERROR_ABOVE > 0 && ambient_temp > AMBIENT_TEMP_ERROR_ABOVE)
-            {
-                error = true;
-                msg += "Internal temperature critical. ";
-            }
-            else if (AMBIENT_TEMP_WARN_ABOVE > 0 && ambient_temp > AMBIENT_TEMP_WARN_ABOVE)
-            {
-                warning = true;
-                msg += "Internal temperature high. ";
-            }
-            
-            //Check humidity
-            if (HUMIDITY_ERROR_ABOVE > 0 && humidity > HUMIDITY_ERROR_ABOVE)
-            {
-                error = true;
-                msg += "Internal humidity critical. ";
-            }
-            else if (HUMIDITY_WARN_ABOVE > 0 && humidity > HUMIDITY_WARN_ABOVE)
-            {
-                warning = true;
-                msg += "Internal humidity high. ";
-            }
-            
-            //Check pressure
-            if (PRESSURE_ERROR_BELOW> 0 && ambient_temp < PRESSURE_ERROR_BELOW)
-            {
-                error = true;
-                msg += "Internal pressure critical. ";
-            }
-            else if (PRESSURE_WARN_BELOW > 0 && ambient_temp < PRESSURE_WARN_BELOW)
-            {
-                warning = true;
-                msg += "Internal pressure low. ";
-            }
-            
-            //Check water
-            int trip_count = 0;
-            for (int l = 0; l < 6; l++)
-            {
-                if (water[l])
-                    trip_count++;
-            }
-            if (trip_count > 0)
-            {
-                warning = true;
-                msg += "Hull breach. ";
-            }
-            if (trip_count > 3)
-                error = true;
-            for (int l = 0; l < 6; l++)
-            {
-                if (water[l])
-                    msg += "Water leak in " + WATER_SENSE_POSITION[l] + ". ";
-            }
-            
-            uint8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-	        if (error)
-	            level = diagnostic_msgs::DiagnosticStatus::ERROR;
-	        else if (warning)
-	            level = diagnostic_msgs::DiagnosticStatus::WARN;
-	        else
-	            msg = "Everything OK";
-            
-            stat.summary(level, msg);
-        }
+    void MainBoardDriver::tp_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+    {
+         if (!main_board_connected)
+	        stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
+	    else if (TOP_PLATE_TEMP_CRITICAL_ABOVE > 0 && temp_sensors[TOP_PLATE_TEMP-1] > TOP_PLATE_TEMP_CRITICAL_ABOVE)
+            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Top plate temperature critical");
+        else if (TOP_PLATE_TEMP_HIGH_ABOVE > 0 && temp_sensors[TOP_PLATE_TEMP-1] > TOP_PLATE_TEMP_HIGH_ABOVE)
+            stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Top plate temperature high");
         else
-            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
+            stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Top plate temperature OK");
             
         stat.add("Top Plate Temperature", main_board_connected ? boost::lexical_cast<string>(temp_sensors[TOP_PLATE_TEMP-1]) + "\xc2\xb0""C" : "No Data");
-        stat.add("Internal Temperature", main_board_connected ? boost::lexical_cast<string>(ambient_temp) + "\xc2\xb0""C" : "No Data");
-        stat.add("Internal Humidity", main_board_connected ? boost::lexical_cast<string>(humidity) + "%" : "No Data");
-        stat.add("Internal Pressure", main_board_connected ? boost::lexical_cast<string>(pressure) + " kPa" : "No Data");
-        for (int l = 0; l < 6; l++)
-            stat.add("Water in " + WATER_SENSE_POSITION[l], main_board_connected ? (water[l] ? "Yes": "No") : "No Data");
+    }
+    
+	void MainBoardDriver::int_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+	{
+	    if (!main_board_connected)
+	        stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
+	    else if (AMBIENT_TEMP_CRITICAL_ABOVE > 0 && ambient_temp > AMBIENT_TEMP_CRITICAL_ABOVE)
+            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Internal temperature critical");
+        else if (AMBIENT_TEMP_HIGH_ABOVE > 0 && ambient_temp > AMBIENT_TEMP_HIGH_ABOVE)
+            stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Internal temperature high");
+        else
+            stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Internal temperature OK");   
+	        
+	    stat.add("Internal Temperature", main_board_connected ? boost::lexical_cast<string>(ambient_temp) + "\xc2\xb0""C" : "No Data");
+	}
+	
+	void MainBoardDriver::humidity_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+	{
+	    if (!main_board_connected)
+	        stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
+	    else if (HUMIDITY_CRITICAL_ABOVE > 0 && humidity > HUMIDITY_CRITICAL_ABOVE)
+            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Internal humidity critical");
+        else if (HUMIDITY_HIGH_ABOVE > 0 && humidity > HUMIDITY_HIGH_ABOVE)
+            stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Internal humidity high");
+        else
+            stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Internal humidity OK");   
+	
+	    stat.add("Internal Humidity", main_board_connected ? boost::lexical_cast<string>(humidity) + "%" : "No Data");
+	}
+	
+	void MainBoardDriver::pressure_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+	{
+	    if (!main_board_connected)
+	        stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
+	    else if (PRESSURE_CRITICAL_BELOW> 0 && ambient_temp < PRESSURE_CRITICAL_BELOW)
+            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Internal pressure critical");
+        else if (PRESSURE_LOW_BELOW > 0 && ambient_temp < PRESSURE_LOW_BELOW)
+            stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Internal pressure low");
+        else
+            stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Internal pressure OK");   
+	    stat.add("Internal Pressure", main_board_connected ? boost::lexical_cast<string>(pressure) + " kPa" : "No Data");
+	}
+	
+	void MainBoardDriver::water_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
+    {
+        if (!main_board_connected)
+            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
+        else if (water[index])
+            stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "No Water Detected");
+        else
+            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Leak Detected");
     }
     
 	void MainBoardDriver::pod_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
@@ -411,40 +388,40 @@ namespace walrus_mainboard_driver
 	    if (main_board_connected)
         {      
 	        //Check over current
-	        if (POD_MOTOR_CURRENT_ERROR_ABOVE > 0 && pod_current[index] > POD_MOTOR_CURRENT_ERROR_ABOVE)
+	        if (POD_MOTOR_CURRENT_CRITICAL_ABOVE > 0 && pod_current[index] > POD_MOTOR_CURRENT_CRITICAL_ABOVE)
 	        {
 	            error = true;
 	            msg += "Motor current critical. ";
 	            pod_force_disable[index] = true;
 	        }
-	        else if (POD_MOTOR_CURRENT_WARN_ABOVE > 0 && pod_current[index] > POD_MOTOR_CURRENT_WARN_ABOVE)
+	        else if (POD_MOTOR_CURRENT_HIGH_ABOVE > 0 && pod_current[index] > POD_MOTOR_CURRENT_HIGH_ABOVE)
 	        {
 	            warning = true;
 	            msg += "Motor current high. ";	        
 	        }
 	        
 	        //Check motor over temperature
-	        if (POD_MOTOR_TEMP_ERROR_ABOVE > 0 && temp_sensors[MOTOR_TEMP[index]-1] > POD_MOTOR_TEMP_ERROR_ABOVE)
+	        if (POD_MOTOR_TEMP_CRITICAL_ABOVE > 0 && temp_sensors[MOTOR_TEMP[index]-1] > POD_MOTOR_TEMP_CRITICAL_ABOVE)
 	        {
 	            error = true;
 	            msg += "Motor temperature critical. ";
 	            pod_force_disable[index] = true;
 	        }
-	        else if (POD_MOTOR_TEMP_WARN_ABOVE > 0 && temp_sensors[MOTOR_TEMP[index]-1] > POD_MOTOR_TEMP_WARN_ABOVE)
+	        else if (POD_MOTOR_TEMP_HIGH_ABOVE > 0 && temp_sensors[MOTOR_TEMP[index]-1] > POD_MOTOR_TEMP_HIGH_ABOVE)
 	        {
 	            warning = true;
 	            msg += "Motor temperature high. ";
 	        }
 	        
 	        //Check controller over temperature
-	        if (POD_CONTROLLER_TEMP_ERROR_ABOVE > 0 && temp_sensors[CONTROLLER_TEMP[index]-1] > POD_CONTROLLER_TEMP_ERROR_ABOVE)
+	        if (POD_CONTROLLER_TEMP_CRITICAL_ABOVE > 0 && temp_sensors[CONTROLLER_TEMP[index]-1] > POD_CONTROLLER_TEMP_CRITICAL_ABOVE)
 	        {
 	            error = true;
 	            msg += "Motor controller temperature critical. ";
 	            pod_force_disable[index] = true;
 	            pod_force_disable[index] = true;
 	        }
-	        else if (POD_CONTROLLER_TEMP_WARN_ABOVE > 0 && temp_sensors[CONTROLLER_TEMP[index]-1] > POD_CONTROLLER_TEMP_WARN_ABOVE)
+	        else if (POD_CONTROLLER_TEMP_HIGH_ABOVE > 0 && temp_sensors[CONTROLLER_TEMP[index]-1] > POD_CONTROLLER_TEMP_HIGH_ABOVE)
 	        {
 	            warning = true;
 	            msg += "Motor controller temperature high. ";
@@ -464,7 +441,7 @@ namespace walrus_mainboard_driver
 	        stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
 	    
 	    stat.add("Velocity", main_board_connected ? boost::lexical_cast<string>(pod_velocity[index]) + " rpm" : "No Data");
-	    stat.add("Position", main_board_connected ? boost::lexical_cast<string>((pod_position[index]*180/PI)) + "\xc2\xb0" : "No Data");
+	    stat.add("Position", main_board_connected ? boost::lexical_cast<string>((pod_position[index]*180/M_PI)) + "\xc2\xb0" : "No Data");
 	    stat.add("Current", main_board_connected ? boost::lexical_cast<string>(pod_current[index]) + " A" : "No Data");
 	    stat.add("Motor Temperature", main_board_connected ? boost::lexical_cast<string>(temp_sensors[MOTOR_TEMP[index]-1]) + "\xc2\xb0""C" : "No Data");
 	    stat.add("Controller Temperature", main_board_connected ? boost::lexical_cast<string>(temp_sensors[CONTROLLER_TEMP[index]-1]) + "\xc2\xb0""C" : "No Data");
@@ -497,25 +474,25 @@ namespace walrus_mainboard_driver
 	        if (pres)
 	        { 
 	            //check voltage
-	            if (MAIN_BATT_VOLTAGE_WARN_BELOW > 0 && batteries[index].combined_voltage < MAIN_BATT_VOLTAGE_WARN_BELOW)
+	            if (MAIN_BATT_VOLTAGE_LOW_BELOW > 0 && batteries[index].combined_voltage < MAIN_BATT_VOLTAGE_LOW_BELOW)
 	            {
 	                warning = true;
 	                msg += "Voltage low. ";
 	            }
 	            //check charge
-	            if (MAIN_BATT_CHARGE_WARN_BELOW > 0 && batteries[index].combined_charge < MAIN_BATT_CHARGE_WARN_BELOW)
+	            if (MAIN_BATT_CHARGE_LOW_BELOW > 0 && batteries[index].combined_charge < MAIN_BATT_CHARGE_LOW_BELOW)
 	            {
 	                warning = true;
 	                msg += "Charge low. ";
 	            }
 	            //check temp of high cell
-	            if (MAIN_BATT_TEMP_WARN_ABOVE > 0 && batteries[index].upper_temp > MAIN_BATT_TEMP_WARN_ABOVE)
+	            if (MAIN_BATT_TEMP_HIGH_ABOVE > 0 && batteries[index].upper_temp > MAIN_BATT_TEMP_HIGH_ABOVE)
 	            {
 	                warning = true;
 	                msg += "Upper cell temperature high. ";
 	            }
 	            //check temp of low cell
-	            if (MAIN_BATT_TEMP_WARN_ABOVE > 0 && batteries[index].lower_temp > MAIN_BATT_TEMP_WARN_ABOVE)
+	            if (MAIN_BATT_TEMP_HIGH_ABOVE > 0 && batteries[index].lower_temp > MAIN_BATT_TEMP_HIGH_ABOVE)
 	            {
 	                warning = true;
 	                msg += "Lower cell temperature high. ";
@@ -566,21 +543,21 @@ namespace walrus_mainboard_driver
 	    if (main_board_connected)
         {    
 	        //Check charge
-	        if (MAIN_CHARGE_WARN_BELOW > 0 && main_charge < MAIN_CHARGE_WARN_BELOW)
+	        if (MAIN_CHARGE_LOW_BELOW > 0 && main_charge < MAIN_CHARGE_LOW_BELOW)
 	        {
 	            warning = true;
 	            msg += "Main battery low. ";
 	        }
 	        
 	        //Check main voltage
-	        if (MAIN_VOLTAGE_WARN_BELOW > 0 && main_voltage < MAIN_VOLTAGE_WARN_BELOW)
+	        if (MAIN_VOLTAGE_LOW_BELOW > 0 && main_voltage < MAIN_VOLTAGE_LOW_BELOW)
 	        {
 	            warning = true;
 	            msg += "Main battery voltage low. ";
 	        }
 	        
 	        //Check backup voltage
-	        if (BACKUP_BATT_VOLTAGE_WARN_BELOW > 0 && backup_voltage < BACKUP_BATT_VOLTAGE_WARN_BELOW)
+	        if (BACKUP_BATT_VOLTAGE_LOW_BELOW > 0 && backup_voltage < BACKUP_BATT_VOLTAGE_LOW_BELOW)
 	        {
 	            warning = true;
 	            if (backup_voltage < 1)
@@ -590,12 +567,12 @@ namespace walrus_mainboard_driver
 	        }
 	        
 	        //Check vicor temperature
-	         if (VICOR_TEMP_ERROR_ABOVE > 0 && temp_sensors[VICOR_TEMP-1] > VICOR_TEMP_ERROR_ABOVE)
+	         if (VICOR_TEMP_CRITICAL_ABOVE > 0 && temp_sensors[VICOR_TEMP-1] > VICOR_TEMP_CRITICAL_ABOVE)
 	        {
 	            error = true;
 	            msg += "Vicor temperature critical. ";
 	        }
-	        else if (VICOR_TEMP_WARN_ABOVE > 0 && temp_sensors[VICOR_TEMP-1] > VICOR_TEMP_WARN_ABOVE)
+	        else if (VICOR_TEMP_HIGH_ABOVE > 0 && temp_sensors[VICOR_TEMP-1] > VICOR_TEMP_HIGH_ABOVE)
 	        {
 	            warning = true;
 	            msg += "Vicor temperature high. ";
@@ -627,9 +604,9 @@ namespace walrus_mainboard_driver
 	{	    
 	    if (main_board_connected)
         {    
-	        if (DRIVE_MOTOR_TEMP_ERROR_ABOVE > 0 && temp_sensors[LEFT_DRIVE_TEMP-1] > DRIVE_MOTOR_TEMP_ERROR_ABOVE)
+	        if (DRIVE_MOTOR_TEMP_CRITICAL_ABOVE > 0 && temp_sensors[LEFT_DRIVE_TEMP-1] > DRIVE_MOTOR_TEMP_CRITICAL_ABOVE)
 	            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Temperature critical.");
-	        else if (DRIVE_MOTOR_TEMP_WARN_ABOVE > 0 && temp_sensors[LEFT_DRIVE_TEMP-1] > DRIVE_MOTOR_TEMP_WARN_ABOVE)
+	        else if (DRIVE_MOTOR_TEMP_HIGH_ABOVE > 0 && temp_sensors[LEFT_DRIVE_TEMP-1] > DRIVE_MOTOR_TEMP_HIGH_ABOVE)
                 stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Temperature high.");
 	        else
 	            stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Temperature OK.");
@@ -644,9 +621,9 @@ namespace walrus_mainboard_driver
     {
         if (main_board_connected)
         {
-            if (DRIVE_MOTOR_TEMP_ERROR_ABOVE > 0 && temp_sensors[RIGHT_DRIVE_TEMP-1] > DRIVE_MOTOR_TEMP_ERROR_ABOVE)
+            if (DRIVE_MOTOR_TEMP_CRITICAL_ABOVE > 0 && temp_sensors[RIGHT_DRIVE_TEMP-1] > DRIVE_MOTOR_TEMP_CRITICAL_ABOVE)
 	            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Temperature critical.");
-	        else if (DRIVE_MOTOR_TEMP_WARN_ABOVE > 0 && temp_sensors[RIGHT_DRIVE_TEMP-1] > DRIVE_MOTOR_TEMP_WARN_ABOVE)
+	        else if (DRIVE_MOTOR_TEMP_HIGH_ABOVE > 0 && temp_sensors[RIGHT_DRIVE_TEMP-1] > DRIVE_MOTOR_TEMP_HIGH_ABOVE)
                 stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Temperature high.");
 	        else
 	            stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Temperature OK.");

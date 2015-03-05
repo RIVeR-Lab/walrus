@@ -1,16 +1,16 @@
-int16[10] temp_sense
-uint8 water_sense
-uint16[2] tension
-uint32 pressure
-int16 board_temp
-uint16 humidity
-int16[4] ucell_current
-int16[4] ucell_voltage
-int16[4] ucell_charge
-int16[4] ucell_temp
-int16[4] ucell_avgcurr
-int16[4] lcell_current
-int16[4] lcell_voltage
-int16[4] lcell_charge
-int16[4] lcell_temp
-int16[4] lcell_avgcurr
+int16[10] temp_sense        # in tenths of a deg C
+uint8 water_sense           # bit0 = Water Sensor 1, bit1 = Water Sensor 2 .... bit5 = Water Sensor 6
+uint16[2] tension           # raw ADC output (0-4095)
+uint32 pressure             # in Pa
+int16 board_temp            # in hudredths of a deg C
+uint16 humidity             # in hudredths of a %
+int16[4] ucell_current      # in mA   
+int16[4] ucell_voltage      # in mV
+int16[4] ucell_charge       # in hundredths of a %
+int16[4] ucell_temp         # in hundredths of a deg C
+int16[4] ucell_avgcurr      # in mA
+int16[4] lcell_current      # in mA
+int16[4] lcell_voltage      # in mV
+int16[4] lcell_charge       # in hundredths of a %
+int16[4] lcell_temp         # in hundredths of a deg C
+int16[4] lcell_avgcurr      # in mA

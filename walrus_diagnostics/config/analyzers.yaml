@@ -1,10 +1,19 @@
 pub_rate: 1.0
 analyzers:
-  general:
+   chassis:
     type: diagnostic_aggregator/GenericAnalyzer
     path: General
     expected: [
-        'walrus/walrus_base_hw: Chassis' ]
+        'walrus/walrus_base_hw: Top Plate Temperature', 
+        'walrus/walrus_base_hw: Internal Temperature',
+        'walrus/walrus_base_hw: Internal Humidity',
+        'walrus/walrus_base_hw: Internal Pressure',
+        'walrus/walrus_base_hw: Water Sensor 1',
+        'walrus/walrus_base_hw: Water Sensor 2',
+        'walrus/walrus_base_hw: Water Sensor 3',
+        'walrus/walrus_base_hw: Water Sensor 4',
+        'walrus/walrus_base_hw: Water Sensor 5',
+        'walrus/walrus_base_hw: Water Sensor 6']
     remove_prefix: 'walrus/walrus_base_hw: '
   computers:
     type: diagnostic_aggregator/AnalyzerGroup
