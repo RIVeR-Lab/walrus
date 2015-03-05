@@ -36,14 +36,14 @@ bool WalrusBaseRobot::init() {
   }
   
   if (!mainboard_.init()) {
-	  ROS_ERROR("Failed to initialize Main Board");
-	  return false;
+    ROS_ERROR("Failed to initialize Main Board");
+    return false;
   }
   
   if (!boomboard_.init()) {
-	ROS_ERROR("Failed to initialize Boom Board");
-	return false;
-	}
+    ROS_ERROR("Failed to initialize Boom Board");
+    return false;
+  }
 
   // Register ros_control interfaces
   registerInterface(&as_interface_);

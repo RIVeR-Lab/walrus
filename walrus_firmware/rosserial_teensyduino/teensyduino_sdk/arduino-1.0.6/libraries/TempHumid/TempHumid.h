@@ -21,42 +21,42 @@ Author: Brian Eccles
 
 class TempHumid
 {
-	
+    
 private:
-	//I2C Slave Address
-	int address;
-	//True if begin has been called
-	bool started;
-	//Stores values when read is called
-	int humidity;
-	int temp;
-		
+    //I2C Slave Address
+    int address;
+    //True if begin has been called
+    bool started;
+    //Stores values when read is called
+    int humidity;
+    int temp;
+        
 public:
-	TempHumid();
-	
-	//Setup this object, must call before using get functions
-	//address - Slave address of device (check datasheet)
-	void begin(int address);
-	
-	//Issue a command to measure humidity and temperature, follow by a call to readAll at least 20ms later
-	void measure();
-	
-	//Reads humidity and temperature from the device, measure must be called about 20ms prior to calling this
-	//Returns true if reading succeeded
-	bool readAll();
-	
-	//Get the temperature value read by readAll() as a 16 bit integer in hundredths of degrees C
-	int getTemp();
-	
-	//Get the humidity value read by readAll() as a 16 bit integer in hundredths of a percent
-	int getHumidity();
-	
-	//Returns temperature as a 16 bit integer in hundredths of degrees C, blocks during measurment (~3ms)
-	int getTempNow();
-	
-	//Returns relative humidity as a 16 bit integer in hundredths of a percent, blocks during measurement (~20ms)
-	int getHumidityNow();
-	
+    TempHumid();
+    
+    //Setup this object, must call before using get functions
+    //address - Slave address of device (check datasheet)
+    void begin(int address);
+    
+    //Issue a command to measure humidity and temperature, follow by a call to readAll at least 20ms later
+    void measure();
+    
+    //Reads humidity and temperature from the device, measure must be called about 20ms prior to calling this
+    //Returns true if reading succeeded
+    bool readAll();
+    
+    //Get the temperature value read by readAll() as a 16 bit integer in hundredths of degrees C
+    int getTemp();
+    
+    //Get the humidity value read by readAll() as a 16 bit integer in hundredths of a percent
+    int getHumidity();
+    
+    //Returns temperature as a 16 bit integer in hundredths of degrees C, blocks during measurment (~3ms)
+    int getTempNow();
+    
+    //Returns relative humidity as a 16 bit integer in hundredths of a percent, blocks during measurement (~20ms)
+    int getHumidityNow();
+    
 };
 
 #endif

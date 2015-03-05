@@ -156,11 +156,11 @@ void doLowSpeedOperations()
             case READ_EXTTEMP_10:
                 index = report_state - READ_EXTTEMP_1;
                 exttemp_sense.reset();
-			    exttemp_sense.select(temp_addr[index]);
-			    exttemp_sense.write(READ_SCRATCH);
-			    for (int m = 0; m < 9; m++)
-				    temp_buff[m] = exttemp_sense.read();
-			    ls_data_msg.temp_sense[index] = ((temp_buff[1] << 8) | temp_buff[0]) * 5;			
+                exttemp_sense.select(temp_addr[index]);
+                exttemp_sense.write(READ_SCRATCH);
+                for (int m = 0; m < 9; m++)
+                    temp_buff[m] = exttemp_sense.read();
+                ls_data_msg.temp_sense[index] = ((temp_buff[1] << 8) | temp_buff[0]) * 5;            
             break;
             case ISSUE_EXTTEMP_MEASURE:
                 exttemp_sense.reset();
@@ -250,10 +250,10 @@ void recv_control(const walrus_firmware_msgs::MainBoardControl& msg)
         break;
         case MainBoardControl::REQ_STATUS:
             to_pc_data.type = MainBoardControl::STATUS;
-	        to_pc_data.index = 0;
-	        to_pc_data.value = status->code;
-	        to_pc_data.msg = status->str;
-	        to_pc.publish(&to_pc_data);
+            to_pc_data.index = 0;
+            to_pc_data.value = status->code;
+            to_pc_data.msg = status->str;
+            to_pc.publish(&to_pc_data);
         break;
         case MainBoardControl::REQ_BATT_INFO:
             if (output_disable)
@@ -261,17 +261,17 @@ void recv_control(const walrus_firmware_msgs::MainBoardControl& msg)
                 char buff[30];
                 delayed_operation = true;
                 to_pc_data.index = msg.index;
-	            to_pc_data.value = 0;
-	            to_pc_data.msg = buff;
+                to_pc_data.value = 0;
+                to_pc_data.msg = buff;
                 lower[msg.index].getManufacturer(buff, 30);
                 to_pc_data.type = MainBoardControl::BATT_MFR;   
-	            to_pc.publish(&to_pc_data);
-	            lower[msg.index].getDeviceName(buff, 30);
+                to_pc.publish(&to_pc_data);
+                lower[msg.index].getDeviceName(buff, 30);
                 to_pc_data.type = MainBoardControl::BATT_NAME;
-	            to_pc.publish(&to_pc_data);
-	            lower[msg.index].getChemistry(buff, 30);
+                to_pc.publish(&to_pc_data);
+                lower[msg.index].getChemistry(buff, 30);
                 to_pc_data.type = MainBoardControl::BATT_CHEM;
-	            to_pc.publish(&to_pc_data);
+                to_pc.publish(&to_pc_data);
             }
             else
             {
@@ -293,74 +293,74 @@ void setup()
 {
     //Issue a one-wire convert command to being conversion on all temperature sensors
     //Converting takes 750 ms so do this first so the first reading is valid
-	exttemp_sense.reset();
-	exttemp_sense.skip();
-	exttemp_sense.write(T_CONVERT);
-	
-	//Initialize node, publishers and subscribers
-	nh.initNode();
-	nh.advertise(ls_data);
-	nh.advertise(hs_feedback);
-	nh.advertise(to_pc);
-	nh.subscribe(hs_control);
-	nh.subscribe(from_pc);
-	
-	//Setup Motors
-	motor1.attach(P_MOTOR_1);
-	motor2.attach(P_MOTOR_2);
-	motor3.attach(P_MOTOR_3);
-	motor4.attach(P_MOTOR_4);
-	motor1.writeMicroseconds(1500);
+    exttemp_sense.reset();
+    exttemp_sense.skip();
+    exttemp_sense.write(T_CONVERT);
+    
+    //Initialize node, publishers and subscribers
+    nh.initNode();
+    nh.advertise(ls_data);
+    nh.advertise(hs_feedback);
+    nh.advertise(to_pc);
+    nh.subscribe(hs_control);
+    nh.subscribe(from_pc);
+    
+    //Setup Motors
+    motor1.attach(P_MOTOR_1);
+    motor2.attach(P_MOTOR_2);
+    motor3.attach(P_MOTOR_3);
+    motor4.attach(P_MOTOR_4);
+    motor1.writeMicroseconds(1500);
     motor2.writeMicroseconds(1500);
     motor3.writeMicroseconds(1500);
     motor4.writeMicroseconds(1500);
 
-	//Setup digital IO  
-	pinMode(P_WATER_1, INPUT_PULLUP);
-	pinMode(P_WATER_2, INPUT_PULLUP);
-	pinMode(P_WATER_3, INPUT_PULLUP);
-	pinMode(P_WATER_4, INPUT_PULLUP);
-	pinMode(P_WATER_5, INPUT_PULLUP);
-	pinMode(P_WATER_6, INPUT_PULLUP);
-	pinMode(P_EXT_LED_1, OUTPUT);
-	pinMode(P_EXT_LED_2, OUTPUT);
-	pinMode(P_EXT_LED_3, OUTPUT);
-	pinMode(P_CONTACTOR, OUTPUT);
-	
-	//Setup external ADC
-	extADC.begin(ADDR_EXT_ADC, 2);
-	
-	//Setup temperature/humidity sensor
-	temphumid_sense.begin(ADDR_TEMP_HUMID);
-	temphumid_sense.measure();
-	
-	//Setup Pressure sensor
-	pressure_sense.begin();
-	pressure_sense.setModeBarometer();
-	pressure_sense.setOversampleRate(7); 
-	pressure_sense.enableEventFlags();
-	
-	//Setup battery SMBus objects
-	upper[0].begin(&i2c_bus0);
-	upper[1].begin(&i2c_bus2);
-	upper[2].begin(&i2c_bus4);
-	upper[3].begin(&i2c_bus6);
-	lower[0].begin(&i2c_bus1);
-	lower[1].begin(&i2c_bus3);
-	lower[2].begin(&i2c_bus5);
-	lower[3].begin(&i2c_bus7);
-	
-	//Setup timer 1 to control motors 1, 2 and 4 via output compare
-	/*PRR0 &= ~(1 << PRTIM1); //Clear power reduction disable
-	ICR1 = (uint16_t)20000; //Put 20,000 in input capture register (used as TOP for timer) to make 50 Hz period PWM
-	OCR1A = (uint16_t)0;  //Set output compare registers to 0 (determines duty cycle)
-	OCR1B = (uint16_t)0;  //It turns out that the number in these registers equals the high pulse time of the signal in microseconds
-	OCR1C = (uint16_t)0; 
-	TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << COM1C1); //Set all OC pins to set pin on downcounting match and clear it on upcounting match
-	TCCR1B = (1 << WGM13) | (1 << CS11); //Set clock mode to clk/8 prescalar for a 2 Mhz counter
-	pinMode(P_MOTOR_1, OUTPUT);  //Set all motor pins to outputs
-	pinMode(P_MOTOR_2, OUTPUT);
-	pinMode(P_MOTOR_3, OUTPUT);
+    //Setup digital IO  
+    pinMode(P_WATER_1, INPUT_PULLUP);
+    pinMode(P_WATER_2, INPUT_PULLUP);
+    pinMode(P_WATER_3, INPUT_PULLUP);
+    pinMode(P_WATER_4, INPUT_PULLUP);
+    pinMode(P_WATER_5, INPUT_PULLUP);
+    pinMode(P_WATER_6, INPUT_PULLUP);
+    pinMode(P_EXT_LED_1, OUTPUT);
+    pinMode(P_EXT_LED_2, OUTPUT);
+    pinMode(P_EXT_LED_3, OUTPUT);
+    pinMode(P_CONTACTOR, OUTPUT);
+    
+    //Setup external ADC
+    extADC.begin(ADDR_EXT_ADC, 2);
+    
+    //Setup temperature/humidity sensor
+    temphumid_sense.begin(ADDR_TEMP_HUMID);
+    temphumid_sense.measure();
+    
+    //Setup Pressure sensor
+    pressure_sense.begin();
+    pressure_sense.setModeBarometer();
+    pressure_sense.setOversampleRate(7); 
+    pressure_sense.enableEventFlags();
+    
+    //Setup battery SMBus objects
+    upper[0].begin(&i2c_bus0);
+    upper[1].begin(&i2c_bus2);
+    upper[2].begin(&i2c_bus4);
+    upper[3].begin(&i2c_bus6);
+    lower[0].begin(&i2c_bus1);
+    lower[1].begin(&i2c_bus3);
+    lower[2].begin(&i2c_bus5);
+    lower[3].begin(&i2c_bus7);
+    
+    //Setup timer 1 to control motors 1, 2 and 4 via output compare
+    /*PRR0 &= ~(1 << PRTIM1); //Clear power reduction disable
+    ICR1 = (uint16_t)20000; //Put 20,000 in input capture register (used as TOP for timer) to make 50 Hz period PWM
+    OCR1A = (uint16_t)0;  //Set output compare registers to 0 (determines duty cycle)
+    OCR1B = (uint16_t)0;  //It turns out that the number in these registers equals the high pulse time of the signal in microseconds
+    OCR1C = (uint16_t)0; 
+    TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << COM1C1); //Set all OC pins to set pin on downcounting match and clear it on upcounting match
+    TCCR1B = (1 << WGM13) | (1 << CS11); //Set clock mode to clk/8 prescalar for a 2 Mhz counter
+    pinMode(P_MOTOR_1, OUTPUT);  //Set all motor pins to outputs
+    pinMode(P_MOTOR_2, OUTPUT);
+    pinMode(P_MOTOR_3, OUTPUT);
     pinMode(P_MOTOR_4, OUTPUT);
     REG_MOTOR_1 = 1500;
     REG_MOTOR_2 = 1500;
@@ -368,95 +368,95 @@ void setup()
 }
 
 void loop()
-{	
-	long loop_start, elapsed;
-	
-	//Get start of loop time
-	loop_start = millis();
-	//Increment loop counter
-	counter++;
-	//Clear timing control
-	no_ls = false;
-	delayed_operation = false;
+{    
+    long loop_start, elapsed;
+    
+    //Get start of loop time
+    loop_start = millis();
+    //Increment loop counter
+    counter++;
+    //Clear timing control
+    no_ls = false;
+    delayed_operation = false;
 
     //Check for current status
-	//No PC connection at all
-	if (!nh.connected())  
-	{
-		output_disable = true;
-		status = &STATUS_NO_CONNECTION;
-	}
-	//PC is connected but not sending data (node probably not running)
-	else if (millis() > last_control_msg + CONTROL_DATA_TIMEOUT)
-	{
-	    output_disable = true;
-		status = &STATUS_NO_CONTROL_DATA;
-	}
-	//Getting control data, but motors are disabled (don't expect high speed data)
-	else if (output_disable)
-	    status = &STATUS_DISABLED;
-	//Motors are enabled but no high speed data is being sent (should always get data when enabled)
-	else if (millis() > last_hs_msg + HS_DATA_TIMEOUT)
-	{
-		output_disable = true;
-		err_str = NO_MOTOR_DATA_ERROR;
-		status = &STATUS_NO_HS_DATA;
-	}	
-	//Everything's cool and motors are enabled
-	else
-	    status = &STATUS_ENABLED;
-	    
-	//Blink status LED based on status
-	if (LED_TRIGGER(counter))
-	{
-	    int segment = LED_SEGMENT(counter);
-		led_state = (status->blink_code & (1 << segment));
-		digitalWrite(P_LED_STATUS, led_state);
-	}
-	    
-	//Listen for ros messages
-	nh.spinOnce();	
-		
-	//Check if processing a low speed request has been disabled by the control message handler
-	if (!no_ls)
-	{
-	    //Issue a status change message
-	    if (status != last_status)
-	    {
-	        to_pc_data.type = MainBoardControl::STATUS;
-	        to_pc_data.index = 0;
-	        to_pc_data.value = status->code;
-	        to_pc_data.msg = status->str;
-	        to_pc.publish(&to_pc_data);
-	        last_status = status;
-	    }
-	    //Issue an error
-	    else if (mark_error)
-	    {
-	        to_pc_data.type = MainBoardControl::ERROR;
-	        to_pc_data.index = 0;
-	        to_pc_data.value = 0;
-	        to_pc_data.msg = err_str;
-	        to_pc.publish(&to_pc_data);
-	        mark_error = false;
-	    }
-	    //Do low speed sensor readings
-	    else
-	        doLowSpeedOperations();
-	}
-	    
-	//Do high speed motor control and feedback operations
-	doHighSpeedOperations();	
-	
-	//Sleep until next cycle
-	//This loop should never run longer than 20ms unless there is a delayed operation which is only allowed when disabled
-	elapsed = millis() - loop_start;
-	if (elapsed < ROS_MSG_RATE)	
-		delay(ROS_MSG_RATE-elapsed);
-	else if (!delayed_operation) 
-	{
-	    mark_error = true;
-	    err_str = LOOP_TOO_LONG_ERROR;
-	}
+    //No PC connection at all
+    if (!nh.connected())  
+    {
+        output_disable = true;
+        status = &STATUS_NO_CONNECTION;
+    }
+    //PC is connected but not sending data (node probably not running)
+    else if (millis() > last_control_msg + CONTROL_DATA_TIMEOUT)
+    {
+        output_disable = true;
+        status = &STATUS_NO_CONTROL_DATA;
+    }
+    //Getting control data, but motors are disabled (don't expect high speed data)
+    else if (output_disable)
+        status = &STATUS_DISABLED;
+    //Motors are enabled but no high speed data is being sent (should always get data when enabled)
+    else if (millis() > last_hs_msg + HS_DATA_TIMEOUT)
+    {
+        output_disable = true;
+        err_str = NO_MOTOR_DATA_ERROR;
+        status = &STATUS_NO_HS_DATA;
+    }    
+    //Everything's cool and motors are enabled
+    else
+        status = &STATUS_ENABLED;
+        
+    //Blink status LED based on status
+    if (LED_TRIGGER(counter))
+    {
+        int segment = LED_SEGMENT(counter);
+        led_state = (status->blink_code & (1 << segment));
+        digitalWrite(P_LED_STATUS, led_state);
+    }
+        
+    //Listen for ros messages
+    nh.spinOnce();    
+        
+    //Check if processing a low speed request has been disabled by the control message handler
+    if (!no_ls)
+    {
+        //Issue a status change message
+        if (status != last_status)
+        {
+            to_pc_data.type = MainBoardControl::STATUS;
+            to_pc_data.index = 0;
+            to_pc_data.value = status->code;
+            to_pc_data.msg = status->str;
+            to_pc.publish(&to_pc_data);
+            last_status = status;
+        }
+        //Issue an error
+        else if (mark_error)
+        {
+            to_pc_data.type = MainBoardControl::ERROR;
+            to_pc_data.index = 0;
+            to_pc_data.value = 0;
+            to_pc_data.msg = err_str;
+            to_pc.publish(&to_pc_data);
+            mark_error = false;
+        }
+        //Do low speed sensor readings
+        else
+            doLowSpeedOperations();
+    }
+        
+    //Do high speed motor control and feedback operations
+    doHighSpeedOperations();    
+    
+    //Sleep until next cycle
+    //This loop should never run longer than 20ms unless there is a delayed operation which is only allowed when disabled
+    elapsed = millis() - loop_start;
+    if (elapsed < ROS_MSG_RATE)    
+        delay(ROS_MSG_RATE-elapsed);
+    else if (!delayed_operation) 
+    {
+        mark_error = true;
+        err_str = LOOP_TOO_LONG_ERROR;
+    }
 }
 

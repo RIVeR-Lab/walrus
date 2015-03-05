@@ -14,44 +14,44 @@
 
 namespace walrus_boomboard_driver
 {
-	class BoomBoardDriver
-	{
-		public:
-			BoomBoardDriver(hardware_interface::ActuatorStateInterface& asi,
-				  hardware_interface::EffortActuatorInterface& aei,
-				  ros::NodeHandle& nh, ros::NodeHandle& pnh);
-			bool init();
-			void read();
-			void write();
-			void update_diagnostics();
-			
-		private:
-			diagnostic_updater::Updater diagnostic_updater;
-		
-			hardware_interface::ActuatorStateInterface asi_;
-			hardware_interface::EffortActuatorInterface aei_;
-			
-			void rx_callback(const walrus_firmware_msgs::BoomBoardRXMsg& msg);
-			
-			ros::Subscriber rx;
-			ros::Publisher tx;
-			
-			walrus_firmware_msgs::BoomBoardTXMsg tx_msg;
-			walrus_firmware_msgs::BoomBoardRXMsg rx_msg;
-			
-			double deploy_effort_cmd;
-			double deploy_velocity;
-			double deploy_position;
-			double deploy_effort;
-			double pan_effort_cmd;
-			double pan_velocity;
-			double pan_position;
-			double pan_effort;
-			double tilt_effort_cmd;
-			double tilt_velocity;
-			double tilt_position;
-			double tilt_effort;
-	};
+    class BoomBoardDriver
+    {
+        public:
+            BoomBoardDriver(hardware_interface::ActuatorStateInterface& asi,
+                  hardware_interface::EffortActuatorInterface& aei,
+                  ros::NodeHandle& nh, ros::NodeHandle& pnh);
+            bool init();
+            void read();
+            void write();
+            void update_diagnostics();
+            
+        private:
+            diagnostic_updater::Updater diagnostic_updater;
+        
+            hardware_interface::ActuatorStateInterface asi_;
+            hardware_interface::EffortActuatorInterface aei_;
+            
+            void rx_callback(const walrus_firmware_msgs::BoomBoardRXMsg& msg);
+            
+            ros::Subscriber rx;
+            ros::Publisher tx;
+            
+            walrus_firmware_msgs::BoomBoardTXMsg tx_msg;
+            walrus_firmware_msgs::BoomBoardRXMsg rx_msg;
+            
+            double deploy_effort_cmd;
+            double deploy_velocity;
+            double deploy_position;
+            double deploy_effort;
+            double pan_effort_cmd;
+            double pan_velocity;
+            double pan_position;
+            double pan_effort;
+            double tilt_effort_cmd;
+            double tilt_velocity;
+            double tilt_position;
+            double tilt_effort;
+    };
 }
 
 #endif
