@@ -8,6 +8,10 @@ body {
     background-color:#333;
 }
 
+md-tabs.md-sidepanel-tabs-theme md-tab {
+    color: #888888;
+}
+
 .main-video-shadow {
     box-shadow: -24px -24px 24px 0 rgba(0,0,0,0.3) inset;
 }
