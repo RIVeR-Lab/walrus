@@ -39,6 +39,9 @@ int main(int argc, char **argv)
     walrus_stair_detector::MultiTimer timer;
     detector.detect(cloud, vertical_estimate, &stairs, &timer);
 
+    plane_time(timer.getSegmentTotal("downsize").wall + timer.getSegmentTotal("filter").wall + timer.getSegmentTotal("normals").wall + timer.getSegmentTotal("region grow").wall + timer.getSegmentTotal("plane_model").wall);
+    parameter_time(timer.getSegmentTotal("project to planes").wall + timer.getSegmentTotal("convex hull").wall + timer.getSegmentTotal("plane properties").wall + timer.getSegmentTotal("compute stair direction").wall + timer.getSegmentTotal("compute riser spacing").wall + timer.getSegmentTotal("compute stair rise from risers").wall + timer.getSegmentTotal("finalize model").wall);
+
     if(stairs.size() != 1) {
       std::cout << "Did not find exactly one stair in " << filename << std::endl;
       ++skipped;
@@ -55,8 +58,6 @@ int main(int argc, char **argv)
     width(stair.width);
     num_stairs(stair.num_stairs);
 
-    plane_time(timer.getSegmentTotal("downsize").wall + timer.getSegmentTotal("filter").wall + timer.getSegmentTotal("normals").wall + timer.getSegmentTotal("region grow").wall + timer.getSegmentTotal("plane_model").wall);
-    parameter_time(timer.getSegmentTotal("project to planes").wall + timer.getSegmentTotal("convex hull").wall + timer.getSegmentTotal("plane properties").wall + timer.getSegmentTotal("compute stair direction").wall + timer.getSegmentTotal("compute riser spacing").wall + timer.getSegmentTotal("compute stair rise from risers").wall + timer.getSegmentTotal("finalize model").wall);
     ++count;
   }
   origin /= count;
