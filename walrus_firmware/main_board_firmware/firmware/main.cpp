@@ -82,17 +82,17 @@ void doHighSpeedOperations()
     //Write motor power data if enabled
     if (output_disable)
     {
-        //motor1.writeMicroseconds(0);
-        //motor2.writeMicroseconds(0);
-        //motor3.writeMicroseconds(0);
-        //motor4.writeMicroseconds(0);
+        motor1.writeMicroseconds(0);
+        motor2.writeMicroseconds(0);
+        motor3.writeMicroseconds(0);
+        motor4.writeMicroseconds(0);
     }
     else
     {
-        //motor1.writeMicroseconds(hs_control_msg.motor_power[0]);
-        //motor2.writeMicroseconds(hs_control_msg.motor_power[1]);
-        //motor3.writeMicroseconds(hs_control_msg.motor_power[2]);
-        //motor4.writeMicroseconds(hs_control_msg.motor_power[3]);
+        motor1.writeMicroseconds(hs_control_msg.motor_power[0]);
+        motor2.writeMicroseconds(hs_control_msg.motor_power[1]);
+        motor3.writeMicroseconds(hs_control_msg.motor_power[2]);
+        motor4.writeMicroseconds(hs_control_msg.motor_power[3]);
     }
     if (nh.connected())
     {
@@ -238,9 +238,7 @@ void recv_control(const walrus_firmware_msgs::MainBoardControl& msg)
             //Don't need to do anything, other logic will take care of timeouts
         break;
         case MainBoardControl::SET_LED:
-            //analogWrite(led_pins[msg.index], msg.value & 0xFF);
-            motor3.writeMicroseconds(msg.value);
-            motor4.writeMicroseconds(msg.value);
+            analogWrite(led_pins[msg.index], msg.value & 0xFF);
         break;
         case MainBoardControl::POWER_OFF:
             digitalWrite(P_CONTACTOR, HIGH);
@@ -310,10 +308,10 @@ void setup()
     motor2.attach(P_MOTOR_2);
     motor3.attach(P_MOTOR_3);
     motor4.attach(P_MOTOR_4);
-    motor1.writeMicroseconds(1500);
-    motor2.writeMicroseconds(1500);
-    motor3.writeMicroseconds(1500);
-    motor4.writeMicroseconds(1500);
+    motor1.writeMicroseconds(0);
+    motor2.writeMicroseconds(0);
+    motor3.writeMicroseconds(0);
+    motor4.writeMicroseconds(0);
 
     //Setup digital IO  
     pinMode(P_WATER_1, INPUT_PULLUP);
