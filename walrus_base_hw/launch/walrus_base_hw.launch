@@ -1,6 +1,10 @@
 <!-- Launch file for starting the base robot hardware -->
 <launch>
+  <include file="$(find rosserial_server)/launch/serial.launch">
+    <arg name="port" value="/dev/walrus_main_board"/>
+  </include>
   <node name="walrus_base_hw" pkg="walrus_base_hw" type="walrus_base_hw_node" respawn="true">
     <rosparam command="load" file="$(find walrus_base_hw)/config/epos_motors.yaml" />
+    <rosparam command="load" file="$(find walrus_mainboard_driver)/config/mainboard_param.yaml" />
   </node>
 </launch>

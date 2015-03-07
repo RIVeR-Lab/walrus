@@ -68,7 +68,7 @@
 		<transmission name="${tf_prefix}deploy_joint_trans">
 			<type>transmission_interface/SimpleTransmission</type>
 			<joint name="${tf_prefix}deploy_joint">
-				<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+				<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
 			</joint>
 			<actuator name="${tf_prefix}deploy_joint_actuator">
 				<mechanicalReduction>1</mechanicalReduction>
@@ -109,7 +109,7 @@
 		<transmission name="${tf_prefix}pan_joint_trans">
 			<type>transmission_interface/SimpleTransmission</type>
 			<joint name="${tf_prefix}pan_joint">
-				<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+				<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
 			</joint>
 			<actuator name="${tf_prefix}pan_joint_actuator">
 				<mechanicalReduction>1</mechanicalReduction>
@@ -150,7 +150,7 @@
 		<transmission name="${tf_prefix}tilt_joint_trans">
 			<type>transmission_interface/SimpleTransmission</type>
 			<joint name="${tf_prefix}tilt_joint">
-				<hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+				<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
 			</joint>
 			<actuator name="${tf_prefix}tilt_joint_actuator">
 				<mechanicalReduction>1</mechanicalReduction>

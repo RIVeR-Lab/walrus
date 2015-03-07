@@ -53,38 +53,38 @@ void MPL3115A2::begin(void)
 //Returns -1 if no new data is available
 float MPL3115A2::readAltitude()
 {
-	toggleOneShot(); //Toggle the OST bit causing the sensor to immediately take another reading
+    toggleOneShot(); //Toggle the OST bit causing the sensor to immediately take another reading
 
-	//Wait for PDR bit, indicates we have new pressure data
-	int counter = 0;
-	while( (IIC_Read(STATUS) & (1<<1)) == 0)
-	{
-		if(++counter > 600) return(-999); //Error out after max of 512ms for a read
-		delay(1);
-	}
+    //Wait for PDR bit, indicates we have new pressure data
+    int counter = 0;
+    while( (IIC_Read(STATUS) & (1<<1)) == 0)
+    {
+        if(++counter > 600) return(-999); //Error out after max of 512ms for a read
+        delay(1);
+    }
 
-	// Read pressure registers
-	Wire.beginTransmission(MPL3115A2_ADDRESS);
-	Wire.write(OUT_P_MSB);  // Address of data to get
-	Wire.endTransmission(false); // Send data to I2C dev with option for a repeated start. THIS IS NECESSARY and not supported before Arduino V1.0.1!
-	if (Wire.requestFrom(MPL3115A2_ADDRESS, 3) != 3) { // Request three bytes
-		return -999;
-	}
+    // Read pressure registers
+    Wire.beginTransmission(MPL3115A2_ADDRESS);
+    Wire.write(OUT_P_MSB);  // Address of data to get
+    Wire.endTransmission(false); // Send data to I2C dev with option for a repeated start. THIS IS NECESSARY and not supported before Arduino V1.0.1!
+    if (Wire.requestFrom(MPL3115A2_ADDRESS, 3) != 3) { // Request three bytes
+        return -999;
+    }
 
-	byte msb, csb, lsb;
-	msb = Wire.read();
-	csb = Wire.read();
-	lsb = Wire.read();
+    byte msb, csb, lsb;
+    msb = Wire.read();
+    csb = Wire.read();
+    lsb = Wire.read();
 
-	// The least significant bytes l_altitude and l_temp are 4-bit,
-	// fractional values, so you must cast the calulation in (float),
-	// shift the value over 4 spots to the right and divide by 16 (since 
-	// there are 16 values in 4-bits). 
-	float tempcsb = (lsb>>4)/16.0;
+    // The least significant bytes l_altitude and l_temp are 4-bit,
+    // fractional values, so you must cast the calulation in (float),
+    // shift the value over 4 spots to the right and divide by 16 (since 
+    // there are 16 values in 4-bits). 
+    float tempcsb = (lsb>>4)/16.0;
 
-	float altitude = (float)( (msb << 8) | csb) + tempcsb;
+    float altitude = (float)( (msb << 8) | csb) + tempcsb;
 
-	return(altitude);
+    return(altitude);
 }
 
 //Returns the number of feet above sea level
@@ -98,95 +98,95 @@ float MPL3115A2::readAltitudeFt()
 //Returns -1 if no new data is available
 float MPL3115A2::readPressure()
 {
-	//Check PDR bit, if it's not set then toggle OST
-	if(IIC_Read(STATUS) & (1<<2) == 0) toggleOneShot(); //Toggle the OST bit causing the sensor to immediately take another reading
+    //Check PDR bit, if it's not set then toggle OST
+    if(IIC_Read(STATUS) & (1<<2) == 0) toggleOneShot(); //Toggle the OST bit causing the sensor to immediately take another reading
 
-	//Wait for PDR bit, indicates we have new pressure data
-	int counter = 0;
-	while(IIC_Read(STATUS) & (1<<2) == 0)
-	{
-		if(++counter > 600) return(-999); //Error out after max of 512ms for a read
-		delay(1);
-	}
+    //Wait for PDR bit, indicates we have new pressure data
+    int counter = 0;
+    while(IIC_Read(STATUS) & (1<<2) == 0)
+    {
+        if(++counter > 600) return(-999); //Error out after max of 512ms for a read
+        delay(1);
+    }
 
-	// Read pressure registers
-	Wire.beginTransmission(MPL3115A2_ADDRESS);
-	Wire.write(OUT_P_MSB);  // Address of data to get
-	Wire.endTransmission(false); // Send data to I2C dev with option for a repeated start. THIS IS NECESSARY and not supported before Arduino V1.0.1!
-	if (Wire.requestFrom(MPL3115A2_ADDRESS, 3) != 3) { // Request three bytes
-		return -999;
-	}
+    // Read pressure registers
+    Wire.beginTransmission(MPL3115A2_ADDRESS);
+    Wire.write(OUT_P_MSB);  // Address of data to get
+    Wire.endTransmission(false); // Send data to I2C dev with option for a repeated start. THIS IS NECESSARY and not supported before Arduino V1.0.1!
+    if (Wire.requestFrom(MPL3115A2_ADDRESS, 3) != 3) { // Request three bytes
+        return -999;
+    }
 
-	byte msb, csb, lsb;
-	msb = Wire.read();
-	csb = Wire.read();
-	lsb = Wire.read();
-	
-	toggleOneShot(); //Toggle the OST bit causing the sensor to immediately take another reading
+    byte msb, csb, lsb;
+    msb = Wire.read();
+    csb = Wire.read();
+    lsb = Wire.read();
+    
+    toggleOneShot(); //Toggle the OST bit causing the sensor to immediately take another reading
 
-	// Pressure comes back as a left shifted 20 bit number
-	long pressure_whole = (long)msb<<16 | (long)csb<<8 | (long)lsb;
-	pressure_whole >>= 6; //Pressure is an 18 bit number with 2 bits of decimal. Get rid of decimal portion.
+    // Pressure comes back as a left shifted 20 bit number
+    long pressure_whole = (long)msb<<16 | (long)csb<<8 | (long)lsb;
+    pressure_whole >>= 6; //Pressure is an 18 bit number with 2 bits of decimal. Get rid of decimal portion.
 
-	lsb &= B00110000; //Bits 5/4 represent the fractional component
-	lsb >>= 4; //Get it right aligned
-	float pressure_decimal = (float)lsb/4.0; //Turn it into fraction
+    lsb &= B00110000; //Bits 5/4 represent the fractional component
+    lsb >>= 4; //Get it right aligned
+    float pressure_decimal = (float)lsb/4.0; //Turn it into fraction
 
-	float pressure = (float)pressure_whole + pressure_decimal;
+    float pressure = (float)pressure_whole + pressure_decimal;
 
-	return(pressure);
+    return(pressure);
 }
 
 float MPL3115A2::readTemp()
 {
-	if(IIC_Read(STATUS) & (1<<1) == 0) toggleOneShot(); //Toggle the OST bit causing the sensor to immediately take another reading
+    if(IIC_Read(STATUS) & (1<<1) == 0) toggleOneShot(); //Toggle the OST bit causing the sensor to immediately take another reading
 
-	//Wait for TDR bit, indicates we have new temp data
-	int counter = 0;
-	while( (IIC_Read(STATUS) & (1<<1)) == 0)
-	{
-		if(++counter > 600) return(-999); //Error out after max of 512ms for a read
-		delay(1);
-	}
+    //Wait for TDR bit, indicates we have new temp data
+    int counter = 0;
+    while( (IIC_Read(STATUS) & (1<<1)) == 0)
+    {
+        if(++counter > 600) return(-999); //Error out after max of 512ms for a read
+        delay(1);
+    }
 
-	// Read temperature registers
-	Wire.beginTransmission(MPL3115A2_ADDRESS);
-	Wire.write(OUT_T_MSB);  // Address of data to get
-	Wire.endTransmission(false); // Send data to I2C dev with option for a repeated start. THIS IS NECESSARY and not supported before Arduino V1.0.1!
-	if (Wire.requestFrom(MPL3115A2_ADDRESS, 2) != 2) { // Request two bytes
-		return -999;
-	}
+    // Read temperature registers
+    Wire.beginTransmission(MPL3115A2_ADDRESS);
+    Wire.write(OUT_T_MSB);  // Address of data to get
+    Wire.endTransmission(false); // Send data to I2C dev with option for a repeated start. THIS IS NECESSARY and not supported before Arduino V1.0.1!
+    if (Wire.requestFrom(MPL3115A2_ADDRESS, 2) != 2) { // Request two bytes
+        return -999;
+    }
 
-	byte msb, lsb;
-	msb = Wire.read();
-	lsb = Wire.read();
+    byte msb, lsb;
+    msb = Wire.read();
+    lsb = Wire.read();
 
-	toggleOneShot(); //Toggle the OST bit causing the sensor to immediately take another reading
+    toggleOneShot(); //Toggle the OST bit causing the sensor to immediately take another reading
 
     //Negative temperature fix by D.D.G.
-	word foo = 0;
+    word foo = 0;
     bool negSign = false;
 
     //Check for 2s compliment
-	if(msb > 0x7F)
-	{
+    if(msb > 0x7F)
+    {
         foo = ~((msb << 8) + lsb) + 1;  //2’s complement
         msb = foo >> 8;
         lsb = foo & 0x00F0; 
         negSign = true;
-	}
+    }
 
-	// The least significant bytes l_altitude and l_temp are 4-bit,
-	// fractional values, so you must cast the calulation in (float),
-	// shift the value over 4 spots to the right and divide by 16 (since 
-	// there are 16 values in 4-bits). 
-	float templsb = (lsb>>4)/16.0; //temp, fraction of a degree
+    // The least significant bytes l_altitude and l_temp are 4-bit,
+    // fractional values, so you must cast the calulation in (float),
+    // shift the value over 4 spots to the right and divide by 16 (since 
+    // there are 16 values in 4-bits). 
+    float templsb = (lsb>>4)/16.0; //temp, fraction of a degree
 
-	float temperature = (float)(msb + templsb);
+    float temperature = (float)(msb + templsb);
 
-	if (negSign) temperature = 0 - temperature;
-	
-	return(temperature);
+    if (negSign) temperature = 0 - temperature;
+    
+    return(temperature);
 }
 
 //Give me temperature in fahrenheit!

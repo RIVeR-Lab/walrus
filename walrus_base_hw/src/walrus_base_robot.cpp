@@ -3,22 +3,10 @@
 
 namespace walrus_base_hw {
 
-void WalrusBaseRobot::createFakeActuator(const std::string& name) {
-  boost::shared_ptr<FakeActuatorData> data(new FakeActuatorData(name));
-  hardware_interface::ActuatorStateHandle state_handle(name, &data->position, &data->velocity, &data->effort);
-  as_interface_.registerHandle(state_handle);
-
-  hardware_interface::ActuatorHandle position_handle(state_handle, &data->cmd);
-  ap_interface_.registerHandle(position_handle);
-  hardware_interface::ActuatorHandle velocity_handle(state_handle, &data->cmd);
-  av_interface_.registerHandle(velocity_handle);
-
-  fake_actuator_data.push_back(data);
-}
-
-
 WalrusBaseRobot::WalrusBaseRobot(ros::NodeHandle nh, ros::NodeHandle pnh)
-  : nh_(nh), pnh_(pnh) {
+  : nh_(nh), pnh_(pnh),
+    mainboard_(as_interface_, ae_interface_, nh, pnh),
+    boomboard_(as_interface_, ae_interface_, nh, pnh){
   std::vector<std::string> epos_names;
   epos_names.push_back("left_drive_actuator");
   epos_names.push_back("right_drive_actuator");
@@ -44,24 +32,24 @@ bool WalrusBaseRobot::init() {
 
   if(!epos_manager_->init()) {
     ROS_ERROR("Failed to initialize EPOS");
+    //return false;
+  }
+  
+  if (!mainboard_.init()) {
+    ROS_ERROR("Failed to initialize Main Board");
     return false;
   }
-
-  // Create fake actuators so that transmission loading doesn't fail
-  createFakeActuator("walrus/back_left_pod_joint_actuator");
-  createFakeActuator("walrus/front_left_pod_joint_actuator");
-  createFakeActuator("walrus/back_right_pod_joint_actuator");
-  createFakeActuator("walrus/front_right_pod_joint_actuator");
-
-  createFakeActuator("walrus/boom/deploy_joint_actuator");
-  createFakeActuator("walrus/boom/pan_joint_actuator");
-  createFakeActuator("walrus/boom/tilt_joint_actuator");
-
+  
+  if (!boomboard_.init()) {
+    ROS_ERROR("Failed to initialize Boom Board");
+    return false;
+  }
 
   // Register ros_control interfaces
   registerInterface(&as_interface_);
   registerInterface(&av_interface_);
   registerInterface(&ap_interface_);
+  registerInterface(&ae_interface_);
 
 
   // Load the robot description
@@ -81,35 +69,30 @@ bool WalrusBaseRobot::init() {
 
 // Write controller output to actuators
 void WalrusBaseRobot::write(){
-  robot_transmissions_.get<JointToActuatorPositionInterface>()->propagate();
+  robot_transmissions_.get<JointToActuatorEffortInterface>()->propagate();
   robot_transmissions_.get<JointToActuatorVelocityInterface>()->propagate();
 
   // Write actuator commands
-  epos_manager_->write();
-
-  // Print fake actuator commands
-  static ros::Time last = ros::Time::now();
-  if(ros::Time::now() - last >= ros::Duration(5.0)) {
-    last = ros::Time::now();
-    ROS_INFO_STREAM("------------------------------------");
-    BOOST_FOREACH(const boost::shared_ptr<FakeActuatorData>& data, fake_actuator_data) {
-      ROS_INFO_STREAM("Fake Actuator (" << data->name << ") Cmd: " << data->cmd);
-    }
-    ROS_INFO_STREAM("------------------------------------");
-  }
+  //epos_manager_->write();
+  mainboard_.write();
+  boomboard_.write();
 
 }
 
 // Read robot state
 void WalrusBaseRobot::read(){
   // Read actuator commands
-  epos_manager_->read();
+  //epos_manager_->read();
+  mainboard_.read();
+  boomboard_.read();
 
   robot_transmissions_.get<ActuatorToJointStateInterface>()->propagate();
 }
 
 void WalrusBaseRobot::update_diagnostics(){
-  epos_manager_->update_diagnostics();
+  //epos_manager_->update_diagnostics();
+  mainboard_.update_diagnostics();
+  boomboard_.update_diagnostics();
 }
 
 

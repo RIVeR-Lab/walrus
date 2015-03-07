@@ -6,112 +6,112 @@
 //Constructor
 SmartBatt::SmartBatt()
 {
-	started = false;
+    started = false;
 }
-	
+    
 //Setup this object, must be called before using other functions
 void SmartBatt::begin(i2c_bus_t* bus)
 {
-	started = true;
-	i2c_bus = bus;
-	bus->init();
+    started = true;
+    i2c_bus = bus;
+    bus->init();
 }
 
 //Get the battery output voltage in mV
 int SmartBatt::getVoltage()
 {
-	if (started)
-		 return read_word(i2c_bus, 11, 0x09);
-	return 0;
+    if (started)
+         return read_word(i2c_bus, 11, 0x09);
+    return 0;
 }
 
 //Get the battery output current in mA
 int SmartBatt::getCurrent()
 {
-	if (started)
-		return read_word(i2c_bus, 11, 0x0a);
-	return 0;
+    if (started)
+        return read_word(i2c_bus, 11, 0x0a);
+    return 0;
 }
 
 //Get the battery output charge in hundredths of a percent (0.01%)
 int SmartBatt::getCharge()
 {
-	if (started)
-		return read_word(i2c_bus, 11, 0x0e);
-	return 0;
+    if (started)
+        return read_word(i2c_bus, 11, 0x0e);
+    return 0;
 }
 
 //Get the battery temperature in hundredths of a degree C
 int SmartBatt::getTemp()
 {
-	if (started)
-		return read_word(i2c_bus, 11, 0x08);
-	return 0;
+    if (started)
+        return read_word(i2c_bus, 11, 0x08);
+    return 0;
 }
 
 //Get manufacturer name
 void SmartBatt::getManufacturer(char* buf, int len)
 {
-	if (started)
-	{
-		 int len;
-		 len = read_block(i2c_bus, 11, 0x20, (byte*)buf, len-1);
-		 buf[len-1] = '\0';		 
-	}
+    if (started)
+    {
+         int len;
+         len = read_block(i2c_bus, 11, 0x20, (byte*)buf, len-1);
+         buf[len-1] = '\0';         
+    }
 }
 
 //Get device name
 void SmartBatt::getDeviceName(char* buf, int len)
 {
-	if (started)
-	{
-		 int len;
-		 len = read_block(i2c_bus, 11, 0x21, (byte*)buf, len-1);
-		 buf[len-1] = '\0';		 
-	}
+    if (started)
+    {
+         int len;
+         len = read_block(i2c_bus, 11, 0x21, (byte*)buf, len-1);
+         buf[len-1] = '\0';         
+    }
 }
 
 //Get device chemistry
 void SmartBatt::getChemistry(char* buf, int len)
 {
-	if (started)
-	{
-		 int len;
-		 len = read_block(i2c_bus, 11, 0x22, (byte*)buf, len-1);
-		 buf[len-1] = '\0';		 
-	}
+    if (started)
+    {
+         int len;
+         len = read_block(i2c_bus, 11, 0x22, (byte*)buf, len-1);
+         buf[len-1] = '\0';         
+    }
 }
 
 //Get serial number
 int SmartBatt::getSerial()
 {
-	if (started)
-		return read_word(i2c_bus, 11, 0x1c);
-	return 0;
+    if (started)
+        return read_word(i2c_bus, 11, 0x1c);
+    return 0;
 }
 
 //Get average current
 int SmartBatt::getAvgCurrent()
 {
-	if (started)
-		 return read_word(i2c_bus, 11, 0x0b);
-	return 0;
+    if (started)
+         return read_word(i2c_bus, 11, 0x0b);
+    return 0;
 }
 
 //Get remaining capacity
 int SmartBatt::getRemCap()
 {
-	if (started)
-		return read_word(i2c_bus, 11, 0x0f);
-	return 0;
+    if (started)
+        return read_word(i2c_bus, 11, 0x0f);
+    return 0;
 }
 
 //Get full capacity
 int SmartBatt::getFullCap()
 {
-	if (started)
-		return read_word(i2c_bus, 11, 0x10);
-	return 0;
+    if (started)
+        return read_word(i2c_bus, 11, 0x10);
+    return 0;
 }
 
 

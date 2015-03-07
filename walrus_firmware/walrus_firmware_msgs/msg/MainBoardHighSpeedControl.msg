@@ -1,5 +1,5 @@
-#Values are interpreted as servo pulse width in microseconds (20ms period)
-uint16 motor1_effort
-uint16 motor2_effort
-uint16 motor3_effort
-uint16 motor4_effort
+# Values are interpreted as servo pulse width in microseconds (20ms period)
+# 1500us = neutral
+# >1500us = forward
+# <1500us = reverse
+uint16[4] motor_power

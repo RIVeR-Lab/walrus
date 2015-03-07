@@ -1,0 +1,71 @@
+frontleft_pod_id: 1
+frontright_pod_id: 2
+backright_pod_id: 3
+backleft_pod_id: 4
+frontleft_motor_temp_id: 1
+frontright_motor_temp_id: 2
+backright_motor_temp_id: 3
+backleft_motor_temp_id: 4
+frontleft_controller_temp_id: 5
+frontright_controller_temp_id: 5
+backright_controller_temp_id: 6
+backleft_controller_temp_id: 6
+victor_temp_id: 7
+top_plate_temp_id: 8
+right_drive_motor_temp_id: 9
+left_drive_motor_temp_id: 10
+front_cam_led_id: 1
+bottom_cam_led_id: 2 
+back_cam_led_id: 3
+backup_batt_voltage_id: 1
+
+frontleft_pod_neutral_position: 0.0
+frontright_pod_neutral_position: 0.0
+backright_pod_neutral_position: 0.0
+backleft_pod_neutral_position: 0.0
+frontleft_pod_reverse: false
+frontright_pod_reverse: false
+backright_pod_reverse: false
+backleft_pod_reverse: false
+pod_output_torque_per_amp: 29.184
+pod_output_power_neutral: 1500
+pod_output_power_limit: 100
+
+water_sense_1_position: 'Water Sensor 1'
+water_sense_2_position: 'Water Sensor 2'
+water_sense_3_position: 'Water Sensor 3'
+water_sense_4_position: 'Water Sensor 4'
+water_sense_5_position: 'Water Sensor 5'
+water_sense_6_position: 'Water Sensor 6'
+
+top_plate_temp_high_above: 75.0
+top_plate_temp_error_above: 100.0
+abmient_temp_high_above: 75.0
+ambient_temp_error_above: 100.0
+pressure_low_below: 100
+pressure_error_below: 95
+humidity_high_above: 60
+humidity_error_above: 90
+
+pod_motor_temp_high_above: 75.0
+pod_motor_temp_error_above: 100.0
+pod_controller_temp_high_above: 75.0
+pod_controller_temp_error_above: 100.0
+pod_motor_current_high_above: 75.0
+pod_motor_current_error_above: 100.0
+
+feedback_timeout: 250
+
+main_batt_voltage_low_below: 24
+main_batt_charge_low_below: 10
+main_batt_temp_high_above: 75
+
+vicor_temp_high_above: 75
+vicor_temp_error_above: 100
+backup_batt_voltage_low_below: 11 
+main_voltage_low_below: 24 
+main_charge_low_below: 10
+
+drive_motor_temp_high_above: 75.0
+drive_motor_temp_error_above: 100.0
+

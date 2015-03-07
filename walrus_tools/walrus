@@ -62,6 +62,11 @@ def embedded_project_upload(args):
     hex_filename = project+'_firmware.hex'
     board = '/dev/walrus_'+project
 
+    ret = subprocess.call(['catkin', 'build', project+'_firmware'])
+    if (ret):
+        print "Build failed."
+        return
+
     #Check if the bootloader is already running
     if not 'avr_bootloader' in listdir('/dev'):
         #Issue a reset to the board
