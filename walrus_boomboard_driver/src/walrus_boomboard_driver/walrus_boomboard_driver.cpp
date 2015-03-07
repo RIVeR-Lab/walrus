@@ -8,8 +8,8 @@ namespace walrus_boomboard_driver
                   ros::NodeHandle& nh, ros::NodeHandle& pnh)
     : asi_(asi), aei_(aei), diagnostic_updater(nh, pnh)
     {
-        tx = nh.advertise<walrus_firmware_msgs::BoomBoardTXMsg>("/walrus/boom_board/tx", 1000);
-        rx = nh.subscribe("/walrus/boom_board/rx", 1000, &BoomBoardDriver::rx_callback, this);
+        tx = nh.advertise<walrus_firmware_msgs::BoomBoardTXMsg>("boom_board/tx", 1000);
+        rx = nh.subscribe("boom_board/rx", 1000, &BoomBoardDriver::rx_callback, this);
         
         hardware_interface::ActuatorStateHandle state_handle_deploy("walrus/boom/deploy_joint_actuator", &deploy_position, &deploy_velocity, &deploy_effort);
         asi.registerHandle(state_handle_deploy);

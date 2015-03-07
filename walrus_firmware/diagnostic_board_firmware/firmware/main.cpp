@@ -13,9 +13,9 @@ void recv_msg(const walrus_firmware_msgs::DiagnosticTXMsg& msg);
 ros::NodeHandle nh;
 //ROS Message publisher
 walrus_firmware_msgs::DiagnosticRXMsg rx_msg;
-ros::Publisher rx("/walrus/diagnostic_board/rx", &rx_msg);
+ros::Publisher rx("diagnostic_board/rx", &rx_msg);
 //ROS Message subscriber
-ros::Subscriber<walrus_firmware_msgs::DiagnosticTXMsg> tx("/walrus/diagnostic_board/tx", &recv_msg);
+ros::Subscriber<walrus_firmware_msgs::DiagnosticTXMsg> tx("diagnostic_board/tx", &recv_msg);
 
 //LCD Object
 LiquidCrystal lcd(P_DISP_RS, P_DISP_RW, P_DISP_EN, P_DISP_D0, P_DISP_D1, P_DISP_D2, P_DISP_D3, P_DISP_D4, P_DISP_D5, P_DISP_D6, P_DISP_D7);

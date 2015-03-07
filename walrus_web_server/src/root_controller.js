@@ -1,6 +1,6 @@
 angular.module("app").controller("RootCtrl",
 					      function( $scope, roslib, gamepadService, $interval ) {
-    var joyPub = roslib.advertise("/walrus/web_interface/joy", "sensor_msgs/Joy");
+    var joyPub = roslib.advertise("web_interface/joy", "sensor_msgs/Joy");
 
     var lastJoyData = null;
     var publish_joy_data = function() {
@@ -27,10 +27,10 @@ angular.module("app").controller("RootCtrl",
 	"touch_joystick" : true
     };
     $scope.available_video_streams = [
-	{ label: "Front Camera", topic: "/walrus/front_camera/image_raw" },
-	{ label: "Back Camera", topic: "/walrus/back_camera/image_raw" },
-	{ label: "Boom Camera", topic: "/walrus/boom/kinect/rgb/image_raw" },
-	{ label: "Boom Depth Camera", topic: "/walrus/boom/kinect/depth/image_raw" }
+	{ label: "Front Camera", topic: "front_camera/image_raw" },
+	{ label: "Back Camera", topic: "back_camera/image_raw" },
+	{ label: "Boom Camera", topic: "boom/kinect/rgb/image_raw" },
+	{ label: "Boom Depth Camera", topic: "boom/kinect/depth/image_raw" }
     ];
     $scope.primary_video_stream = $scope.available_video_streams[0];
     $scope.secondary_video_stream = $scope.available_video_streams[3];

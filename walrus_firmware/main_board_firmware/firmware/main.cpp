@@ -29,14 +29,14 @@ void doHighSpeedOperations();
 void recv_hs_control(const walrus_firmware_msgs::MainBoardHighSpeedControl& msg);
 walrus_firmware_msgs::MainBoardHighSpeedFeedback hs_feedback_msg;
 walrus_firmware_msgs::MainBoardHighSpeedControl hs_control_msg;
-ros::Publisher hs_feedback("/walrus/main_board/hs_feedback", &hs_feedback_msg);
-ros::Subscriber<walrus_firmware_msgs::MainBoardHighSpeedControl> hs_control("/walrus/main_board/hs_control", &recv_hs_control);
+ros::Publisher hs_feedback("main_board/hs_feedback", &hs_feedback_msg);
+ros::Subscriber<walrus_firmware_msgs::MainBoardHighSpeedControl> hs_control("main_board/hs_control", &recv_hs_control);
 
 //Do low speed motor control operations, stagger across cycles
 void doLowSpeedOperations();
 int report_state = 0;
 walrus_firmware_msgs::MainBoardLowSpeedData ls_data_msg;
-ros::Publisher ls_data("/walrus/main_board/ls_data", &ls_data_msg);
+ros::Publisher ls_data("main_board/ls_data", &ls_data_msg);
 
 //Control pipes
 bool mark_error = false;
@@ -46,8 +46,8 @@ bool delayed_operation = false;
 bool no_ls = false;
 void recv_control(const walrus_firmware_msgs::MainBoardControl& msg);
 walrus_firmware_msgs::MainBoardControl to_pc_data;
-ros::Publisher to_pc("/walrus/main_board/board_to_PC_control", &to_pc_data);
-ros::Subscriber<walrus_firmware_msgs::MainBoardControl> from_pc("/walrus/main_board/PC_to_board_control", &recv_control);
+ros::Publisher to_pc("main_board/board_to_PC_control", &to_pc_data);
+ros::Subscriber<walrus_firmware_msgs::MainBoardControl> from_pc("main_board/PC_to_board_control", &recv_control);
 
 
 //Pressure sensor

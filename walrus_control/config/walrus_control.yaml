@@ -3,24 +3,6 @@ joint_state_controller:
   type: joint_state_controller/JointStateController
   publish_rate: 50
 
-# Pod Controller
-front_left_pod_joint_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/front_left_pod_joint
-  pid: {p : 0.0, i : 0.0, d : 0.0}
-back_left_pod_joint_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/back_left_pod_joint
-  pid: {p : 0.0, i : 0.0, d : 0.0}
-front_right_pod_joint_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/front_right_pod_joint
-  pid: {p : 0.0, i : 0.0, d : 0.0}
-back_right_pod_joint_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/back_right_pod_joint
-  pid: {p : 0.0, i : 0.0, d : 0.0}
-
 # Drive Controllers
 drive_controller:
   type: walrus_drive_controller/WalrusDriveController
@@ -35,18 +17,3 @@ drive_controller:
   cmd_vel_timeout: 0.5
   base_frame_id: walrus/base_link
   odom_frame_id: walrus/odom
-
-#Boom
-boom_deploy_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/boom/deploy_joint
-  pid: {p : 0.0, i : 0.0, d : 0.0}
-boom_pan_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/boom/pan_joint
-  pid: {p : 0.0, i : 0.0, d : 0.0}
-boom_tilt_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/boom/tilt_joint
-  pid: {p : 0.0, i : 0.0, d : 0.0}
-  

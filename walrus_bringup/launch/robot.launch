@@ -1,24 +1,24 @@
 <!-- Bringup file for the robot -->
 <launch>
-  <group ns="walrus">
-    <include file="$(find walrus_base_hw)/launch/walrus_base_hw.launch" />
+  <include file="$(find walrus_base_hw)/launch/walrus_base_hw.launch" />
 
-    <!-- IMU -->
-    <node name="orientus_node" pkg="orientus_driver" type="orientus_node" respawn="true">
-      <param name="port" value="/dev/ttyUSB0"/>
-    </node>
+  <!-- IMU -->
+  <node name="orientus_node" pkg="orientus_driver" type="orientus_node" respawn="true">
+    <param name="port" value="/dev/ttyUSB0"/>
+  </node>
 
-    <include file="$(find walrus_bringup)/launch/includes/computer_monitor.launch.xml">
-      <arg name="name" value="primary_computer"/>
-    </include>
+  <include file="$(find walrus_bringup)/launch/includes/computer_monitor.launch.xml">
+    <arg name="name" value="primary_computer"/>
+  </include>
 
-    <node name="robot_bullet_monitor" pkg="ubiquiti_bullet" type="bullet_monitor.py" respawn="true">
-      <param name="ip_address" value="192.168.1.20"/>
-    </node>
-    <node name="remote_bullet_monitor" pkg="ubiquiti_bullet" type="bullet_monitor.py" respawn="true">
-      <param name="ip_address" value="192.168.1.21"/>
-    </node>
+  <node name="robot_bullet_monitor" pkg="ubiquiti_bullet" type="bullet_monitor.py" respawn="true">
+    <param name="ip_address" value="192.168.1.20"/>
+  </node>
+  <node name="remote_bullet_monitor" pkg="ubiquiti_bullet" type="bullet_monitor.py" respawn="true">
+    <param name="ip_address" value="192.168.1.21"/>
+  </node>
 
-    <include file="$(find walrus_bringup)/launch/includes/common.launch.xml" />
-  </group>
+  <include file="$(find walrus_bringup)/launch/includes/common.launch.xml">
+    <arg name="type" value="robot"/>
+  </include>
 </launch>

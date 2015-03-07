@@ -136,11 +136,11 @@ namespace walrus_mainboard_driver
     bool MainBoardDriver::init()
     {        
         //Setup publishers and subscribers to communicate with the embedded board
-        hs_control = nh.advertise<walrus_firmware_msgs::MainBoardHighSpeedControl>("/walrus/main_board/hs_control", 1000);
-        to_board = nh.advertise<walrus_firmware_msgs::MainBoardControl>("/walrus/main_board/PC_to_board_control", 1000);
-        hs_feedback = nh.subscribe("/walrus/main_board/hs_feedback", 1000, &MainBoardDriver::hs_feedback_callback, this);
-        ls_data = nh.subscribe("/walrus/main_board/ls_data", 1000, &MainBoardDriver::ls_data_callback, this);
-        from_board = nh.subscribe("/walrus/main_board/board_to_PC_control", 1000, &MainBoardDriver::from_board_callback, this);
+        hs_control = nh.advertise<walrus_firmware_msgs::MainBoardHighSpeedControl>("main_board/hs_control", 1000);
+        to_board = nh.advertise<walrus_firmware_msgs::MainBoardControl>("main_board/PC_to_board_control", 1000);
+        hs_feedback = nh.subscribe("main_board/hs_feedback", 1000, &MainBoardDriver::hs_feedback_callback, this);
+        ls_data = nh.subscribe("main_board/ls_data", 1000, &MainBoardDriver::ls_data_callback, this);
+        from_board = nh.subscribe("main_board/board_to_PC_control", 1000, &MainBoardDriver::from_board_callback, this);
         return true;
     }
     

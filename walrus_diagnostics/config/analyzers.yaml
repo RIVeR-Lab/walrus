@@ -4,17 +4,17 @@ analyzers:
     type: diagnostic_aggregator/GenericAnalyzer
     path: General
     expected: [
-        'walrus/walrus_base_hw: Top Plate Temperature', 
-        'walrus/walrus_base_hw: Internal Temperature',
-        'walrus/walrus_base_hw: Internal Humidity',
-        'walrus/walrus_base_hw: Internal Pressure',
-        'walrus/walrus_base_hw: Water Sensor 1',
-        'walrus/walrus_base_hw: Water Sensor 2',
-        'walrus/walrus_base_hw: Water Sensor 3',
-        'walrus/walrus_base_hw: Water Sensor 4',
-        'walrus/walrus_base_hw: Water Sensor 5',
-        'walrus/walrus_base_hw: Water Sensor 6']
-    remove_prefix: 'walrus/walrus_base_hw: '
+        'walrus_base_hw: Top Plate Temperature',
+        'walrus_base_hw: Internal Temperature',
+        'walrus_base_hw: Internal Humidity',
+        'walrus_base_hw: Internal Pressure',
+        'walrus_base_hw: Water Sensor 1',
+        'walrus_base_hw: Water Sensor 2',
+        'walrus_base_hw: Water Sensor 3',
+        'walrus_base_hw: Water Sensor 4',
+        'walrus_base_hw: Water Sensor 5',
+        'walrus_base_hw: Water Sensor 6']
+    remove_prefix: 'walrus_base_hw: '
   computers:
     type: diagnostic_aggregator/AnalyzerGroup
     path: Computers
@@ -26,21 +26,21 @@ analyzers:
           sensors:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Sensors
-            find_and_remove_prefix: 'walrus/primary_computer_sensors_monitor: '
+            find_and_remove_prefix: 'primary_computer_sensors_monitor: '
           resources:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Resources
-            find_and_remove_prefix: 'walrus/primary_computer_resource_monitor: '
+            find_and_remove_prefix: 'primary_computer_resource_monitor: '
   embedded:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Embedded Boards
     expected: [
-        'walrus/walrus_base_hw: Main Control Board' ]
-    remove_prefix: 'walrus/walrus_base_hw: '
+        'walrus_base_hw: Main Control Board' ]
+    remove_prefix: 'walrus_base_hw: '
   imu:
     type: diagnostic_aggregator/GenericAnalyzer
     path: IMU
-    find_and_remove_prefix: 'walrus/orientus_node: '
+    find_and_remove_prefix: 'orientus_node: '
   drive:
     type: diagnostic_aggregator/AnalyzerGroup
     path: Drive
@@ -49,33 +49,33 @@ analyzers:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Left Drive
             expected: [
-                'walrus/walrus_base_hw: Left Drive Motor Temperature' ]
-            remove_prefix: 'walrus/walrus_base_hw: '
+                'walrus_base_hw: Left Drive Motor Temperature' ]
+            remove_prefix: 'walrus_base_hw: '
         right_drive:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Right Drive
             expected: [
-                'walrus/walrus_base_hw: Right Drive Motor Temperature']
-            remove_prefix: 'walrus/walrus_base_hw: '
+                'walrus_base_hw: Right Drive Motor Temperature']
+            remove_prefix: 'walrus_base_hw: '
   pods:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Pods
     expected: [
-        'walrus/walrus_base_hw: Front Left Pod',
-        'walrus/walrus_base_hw: Front Right Pod',
-        'walrus/walrus_base_hw: Back Right Pod',
-        'walrus/walrus_base_hw: Back Left Pod']
-    remove_prefix: 'walrus/walrus_base_hw: '
+        'walrus_base_hw: Front Left Pod',
+        'walrus_base_hw: Front Right Pod',
+        'walrus_base_hw: Back Right Pod',
+        'walrus_base_hw: Back Left Pod']
+    remove_prefix: 'walrus_base_hw: '
   power:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Power
     expected: [
-        'walrus/walrus_base_hw: Power Systems',
-        'walrus/walrus_base_hw: Battery 1',
-        'walrus/walrus_base_hw: Battery 2',
-        'walrus/walrus_base_hw: Battery 3',
-        'walrus/walrus_base_hw: Battery 4']
-    remove_prefix: 'walrus/walrus_base_hw: '
+        'walrus_base_hw: Power Systems',
+        'walrus_base_hw: Battery 1',
+        'walrus_base_hw: Battery 2',
+        'walrus_base_hw: Battery 3',
+        'walrus_base_hw: Battery 4']
+    remove_prefix: 'walrus_base_hw: '
   networking:
     type: diagnostic_aggregator/AnalyzerGroup
     path: Networking
@@ -83,8 +83,8 @@ analyzers:
       robot_bullet:
         type: diagnostic_aggregator/GenericAnalyzer
         path: Robot Bullet
-        find_and_remove_prefix: 'walrus/robot_bullet_monitor: '
+        find_and_remove_prefix: 'robot_bullet_monitor: '
       remote_bullet:
         type: diagnostic_aggregator/GenericAnalyzer
         path: Remote Bullet
-        find_and_remove_prefix: 'walrus/remote_bullet_monitor: '
+        find_and_remove_prefix: 'remote_bullet_monitor: '

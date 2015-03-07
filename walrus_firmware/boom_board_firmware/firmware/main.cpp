@@ -18,9 +18,9 @@
 //ros::NodeHandle nh;
 //ROS Message publisher
 //walrus_firmware_msgs::BoomBoardRXMsg rx_msg;
-//ros::Publisher rx("walrus/main_board/rx", &rx_msg);
+//ros::Publisher rx("main_board/rx", &rx_msg);
 //ROS Message subscriber
-//ros::Subscriber<walrus_firmware_msgs::BoomBoardTXMsg> tx("/walrus/boom_board/tx", &recv_msg);
+//ros::Subscriber<walrus_firmware_msgs::BoomBoardTXMsg> tx("boom_board/tx", &recv_msg);
 
 //External ADC
 ExternalADC extADC;

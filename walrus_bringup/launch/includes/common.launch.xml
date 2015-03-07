@@ -1,7 +1,10 @@
 <!-- Launch everything common between simulation and the real robot -->
 <launch>
+  <arg name="type" />
   <include file="$(find walrus_description)/launch/description.launch" />
-  <include file="$(find walrus_control)/launch/walrus_control.launch" />
+  <include file="$(find walrus_control)/launch/walrus_control.launch">
+    <arg name="type" value="$(arg type)"/>
+  </include>
   <include file="$(find walrus_diagnostics)/launch/diagnostics.launch" />
   <include file="$(find walrus_web_interface_controller)/launch/web_interface.launch" ns="web_interface" />
 </launch>
