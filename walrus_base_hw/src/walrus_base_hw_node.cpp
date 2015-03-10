@@ -4,6 +4,8 @@
 #include <controller_manager/controller_manager.h>
 #include <boost/chrono/system_clocks.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/asio.hpp>
+#include <rosserial_server/serial_session.h>
 
 #define NSEC_PER_SEC (1e9d)
 
@@ -15,6 +17,23 @@ int main( int argc, char** argv ){
 
   double controller_rate;
   pnh.param<double>("controller_rate", controller_rate, 50);
+
+  std::string mainboard_port;
+  pnh.param<std::string>("mainboard_port", mainboard_port, "/dev/walrus_main_board");
+  int mainboard_baud;
+  pnh.param("mainboard_baud", mainboard_baud, 57600);
+
+  std::string boomboard_port;
+  pnh.param<std::string>("boomboard_port", boomboard_port, "/dev/walrus_boom_board");
+  int boomboard_baud;
+  pnh.param("boomboard_baud", boomboard_baud, 57600);
+
+  boost::asio::io_service io_service;
+  // Destructor is private...
+  new rosserial_server::SerialSession(io_service, mainboard_port, mainboard_baud);
+  new rosserial_server::SerialSession(io_service, boomboard_port, boomboard_baud);
+
+  boost::thread(boost::bind(&boost::asio::io_service::run, &io_service));
 
   walrus_base_hw::WalrusBaseRobot robot(nh, pnh);
   controller_manager::ControllerManager cm(&robot, nh);

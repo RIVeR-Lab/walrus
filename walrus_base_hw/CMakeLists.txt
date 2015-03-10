@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   transmission_interface
   epos_hardware
+  rosserial_server
   walrus_mainboard_driver
   walrus_boomboard_driver
 )
