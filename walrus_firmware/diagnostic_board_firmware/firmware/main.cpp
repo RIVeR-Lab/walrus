@@ -1,21 +1,21 @@
 
 #include <Arduino.h>
 #include <ros.h>
-#include <walrus_firmware_msgs/DiagnosticRXMsg.h>
-#include <walrus_firmware_msgs/DiagnosticTXMsg.h>
+#include <walrus_firmware_msgs/DiagnosticScreen.h>
+#include <walrus_firmware_msgs/DiagnosticButton.h>
 #include "constants.h"
 #include "Bounce2.h"
 #include "LiquidCrystal.h"
 
-void recv_msg(const walrus_firmware_msgs::DiagnosticTXMsg& msg);
+void recv_msg(const walrus_firmware_msgs::DiagnosticScreen& msg);
  
 //ROS node handle
 ros::NodeHandle nh;
 //ROS Message publisher
-walrus_firmware_msgs::DiagnosticRXMsg rx_msg;
+walrus_firmware_msgs::DiagnosticButton rx_msg;
 ros::Publisher rx("diagnostic_board/rx", &rx_msg);
 //ROS Message subscriber
-ros::Subscriber<walrus_firmware_msgs::DiagnosticTXMsg> tx("diagnostic_board/tx", &recv_msg);
+ros::Subscriber<walrus_firmware_msgs::DiagnosticScreen> tx("diagnostic_board/tx", &recv_msg);
 
 //LCD Object
 LiquidCrystal lcd(P_DISP_RS, P_DISP_RW, P_DISP_EN, P_DISP_D0, P_DISP_D1, P_DISP_D2, P_DISP_D3, P_DISP_D4, P_DISP_D5, P_DISP_D6, P_DISP_D7);
@@ -25,12 +25,13 @@ Bounce up, right, down, left, cent;
 long last_time = 0;
 //LED that is currently on when spinning LEDs
 int last_on = 0;
-//Reme
+//Marks whether the node was connected on the last check
 bool was_connected;
 
 
+
 //Receive TX message from ROS master
-void recv_msg(const walrus_firmware_msgs::DiagnosticTXMsg& msg)
+void recv_msg(const walrus_firmware_msgs::DiagnosticScreen& msg)
 {
 	//msg.display contains an array of 80 characters in row major order
 	//all characters in the array are required to be set (blanks are ascii spaces)
@@ -69,6 +70,14 @@ void setup()
 	
 	//Setup LCD Object
 	lcd.begin(20,4);
+	lcd.createChar(walrus_firmware_msgs::DiagnosticScreen::BATT_0, BATT_0_CHAR);
+	lcd.createChar(walrus_firmware_msgs::DiagnosticScreen::BATT_20, BATT_20_CHAR);
+	lcd.createChar(walrus_firmware_msgs::DiagnosticScreen::BATT_40, BATT_40_CHAR);
+	lcd.createChar(walrus_firmware_msgs::DiagnosticScreen::BATT_60, BATT_60_CHAR);
+	lcd.createChar(walrus_firmware_msgs::DiagnosticScreen::BATT_80, BATT_80_CHAR);
+	lcd.createChar(walrus_firmware_msgs::DiagnosticScreen::BATT_100, BATT_100_CHAR);
+	lcd.createChar(walrus_firmware_msgs::DiagnosticScreen::UP_ARROW, UP_ARROW_CHAR);
+	lcd.createChar(walrus_firmware_msgs::DiagnosticScreen::DOWN_ARROW, DOWN_ARROW_CHAR);
 	
 	//Setup Buttons
 	up.interval(DEBOUNCE_TIME);
@@ -104,6 +113,14 @@ void loop()
 		lcd.clear();
 		lcd.home();
 		lcd.print("Waiting for PC...");
+		lcd.write((uint8_t)0);
+		lcd.write(1);
+		lcd.write(2);
+		lcd.write(3);
+		lcd.write(4);
+		lcd.write(5);
+		lcd.write(6);
+		lcd.write(7);
 		was_connected = false;
 		digitalWrite(P_LED_STATUS, LOW);
 		digitalWrite(P_LED_CENT, HIGH);
