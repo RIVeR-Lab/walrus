@@ -1,0 +1,28 @@
+# Time in seconds
+# Current in amps
+# position, velocity, and acceleration in device units
+operation_mode: 'profile_velocity'
+clear_faults: true
+
+motor:
+  type: 10
+  ec_motor:
+    nominal_current: 9.650
+    max_output_current: 12.500
+    thermal_time_constant: 31
+    number_of_pole_pairs: 1
+
+sensor:
+  type: 1
+  incremental_encoder:
+    resolution: 500
+    inverted_polarity: false
+
+safety:
+  max_following_error: 20000
+  max_profile_velocity: 8000
+  max_acceleration: 15000
+
+velocity_profile:
+  acceleration: 8000
+  deceleration: 9000

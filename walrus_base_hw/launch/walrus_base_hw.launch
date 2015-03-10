@@ -5,6 +5,8 @@
   </include>
   <node name="walrus_base_hw" pkg="walrus_base_hw" type="walrus_base_hw_node" respawn="true" respawn_delay="5">
     <rosparam command="load" file="$(find walrus_base_hw)/config/epos_motors.yaml" />
+    <rosparam command="load" file="$(find walrus_base_hw)/config/drive_epos_motor.yaml" param="left_drive_actuator"/>
+    <rosparam command="load" file="$(find walrus_base_hw)/config/drive_epos_motor.yaml" param="right_drive_actuator"/>
     <rosparam command="load" file="$(find walrus_mainboard_driver)/config/mainboard_param.yaml" />
   </node>
 </launch>
