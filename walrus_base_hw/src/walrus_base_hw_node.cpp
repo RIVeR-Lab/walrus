@@ -2,10 +2,12 @@
 #include <ros/spinner.h>
 #include "walrus_base_hw/walrus_base_robot.h"
 #include <controller_manager/controller_manager.h>
-#include <boost/chrono/system_clocks.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/asio.hpp>
 #include <rosserial_server/serial_session.h>
+#if HAVE_BOOST_CHRONO
+#include <boost/chrono/system_clocks.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#endif
 
 #define NSEC_PER_SEC (1e9d)
 
@@ -48,35 +50,53 @@ int main( int argc, char** argv ){
   }
 
 
-  //won't run this is simulation so regular time is ok
+#if HAVE_BOOST_CHRONO
+  ROS_INFO_ONCE("Using Boost chrono for timing");
   boost::chrono::nanoseconds controller_period((long)(NSEC_PER_SEC/controller_rate));
   boost::chrono::steady_clock::time_point next_time = boost::chrono::steady_clock::now(); // store the next time the controller loop should run
-
   bool first_period = true;
   boost::chrono::steady_clock::time_point previous_time;
+#else
+  ROS_INFO_ONCE("Falling back to rostime for timing");
+  ros::Rate controller_ros_rate(controller_rate);
+  ros::Time last = ros::Time::now();
+#endif
   while (ros::ok()) {
+    robot.read();
+#if HAVE_BOOST_CHRONO
     boost::chrono::steady_clock::time_point now = boost::chrono::steady_clock::now();
     if(first_period) {
       first_period = false;
       previous_time = now;
     }
     boost::chrono::nanoseconds time_since_last = now - previous_time;
-    robot.read();
-    cm.update(ros::Time::now(), ros::Duration(time_since_last.count() / NSEC_PER_SEC));
+    ros::Duration dt(time_since_last.count() / NSEC_PER_SEC);
+#else
+    ros::Time now = ros::Time::now();
+    ros::Duration dt = now - last;
+#endif
+    cm.update(ros::Time::now(), dt);
     robot.write();
+
+    robot.update_diagnostics();
+
+
+#if HAVE_BOOST_CHRONO
+    boost::chrono::nanoseconds update_time = boost::chrono::steady_clock::now()-now;
+    ROS_DEBUG_THROTTLE(1.0, "Controller update took %dns", update_time.count());
 
     previous_time = now;
     next_time = next_time + controller_period;
-
-    robot.update_diagnostics();
-    boost::chrono::nanoseconds update_time = boost::chrono::steady_clock::now()-now;
-    ROS_DEBUG_THROTTLE(1.0, "Controller update took %dns", update_time.count());
 
     boost::chrono::nanoseconds sleep_time = next_time - boost::chrono::steady_clock::now();
     if(sleep_time.count() > 0)
       boost::this_thread::sleep(boost::posix_time::microseconds(boost::chrono::duration_cast<boost::chrono::microseconds>(sleep_time).count()));
     else
       ROS_ERROR_THROTTLE(0.5, "Controller update took longer than loop rate!!!");
+#else
+    last = now;
+    controller_ros_rate.sleep();
+#endif
   }
 
 }

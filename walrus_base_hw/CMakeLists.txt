@@ -12,7 +12,11 @@ find_package(catkin REQUIRED COMPONENTS
   walrus_boomboard_driver
 )
 
-find_package(Boost REQUIRED COMPONENTS chrono)
+find_package(Boost COMPONENTS chrono)
+
+if(Boost_CHRONO_FOUND)
+  add_definitions(-DHAVE_BOOST_CHRONO=1)
+endif()
 
 catkin_package()
 
