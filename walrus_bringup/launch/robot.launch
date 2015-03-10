@@ -13,7 +13,7 @@
         - {name: '/dev/video0', topic: 'front_camera/image_raw', frame_id: 'front_camera'}
         - {name: '/dev/video1', topic: 'back_camera/image_raw', frame_id: 'back_camera'}
         - {name: '/dev/video2', topic: 'bottom_camera/image_raw', frame_id: 'bottom_camera'}
-      configs:
+      configs: # Each level of configuration is for number of cameras running concurrently (first is for one camera, second is for two, etc)
         - {width: 1280, height: 720, fps: 30}
         - {width: 320, height: 240, fps: 10}
     </rosparam>
