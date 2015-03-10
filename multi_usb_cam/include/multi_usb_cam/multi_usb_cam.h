@@ -20,26 +20,36 @@ public:
   int fps;
 };
 
+class CameraDefinition {
+public:
+  CameraDefinition(const std::string& name, const std::string& topic, const std::string& frame_id)
+    : name(name), topic(topic), frame_id(frame_id) {}
+  std::string name;
+  std::string topic;
+  std::string frame_id;
+};
+
 class MultiUsbCam : private boost::noncopyable {
  public:
-  const static int STATE_UNINITIALIZED = -1;
-  const static int STATE_INACTIVE = 0;
-  // If a camera's state is greater than zero then it is total number of active cameras
+  enum State {
+    STATE_UNINITIALIZED, STATE_INACTIVE, STATE_ACTIVE
+  };
 
-  MultiUsbCam(const std::string& device_name, image_transport::CameraPublisher pub);
+  MultiUsbCam(const CameraDefinition& definition, image_transport::CameraPublisher pub);
 
-  void change_state(int new_state);
-  bool active() { return state_ > STATE_INACTIVE; }
+  void activate(const CameraConfiguration& config);
+  void deactivate();
+  bool active() { return state_ == STATE_ACTIVE; }
   std::string topic() { return pub_.getTopic(); }
   void publish_image();
 
  private:
-  std::string device_name_;
+  CameraDefinition definition_;
   usb_cam::UsbCam camera_;
   image_transport::CameraPublisher pub_;
   sensor_msgs::Image img_;
 
-  int state_;
+  State state_;
 
 };
 
@@ -52,6 +62,7 @@ class MultiUsbCamNode {
   void spin();
 
  private:
+  std::vector<CameraConfiguration> camera_configs_;
   std::vector<boost::shared_ptr<MultiUsbCam> > cameras_;
   typedef std::map<std::string, int> CameraSubs;
   CameraSubs camera_subs_;
