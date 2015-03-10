@@ -3,7 +3,7 @@
   <include file="$(find walrus_base_hw)/launch/walrus_base_hw.launch" />
 
   <!-- IMU -->
-  <node name="orientus_node" pkg="orientus_driver" type="orientus_node" respawn="true">
+  <node name="orientus_node" pkg="orientus_driver" type="orientus_node" respawn="true" respawn_delay="10">
     <param name="port" value="/dev/ttyUSB0"/>
   </node>
 
