@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package>
+  <name>multi_usb_cam</name>
+  <version>0.0.0</version>
+  <description>The multi_usb_cam package</description>
+
+  <maintainer email="mwills@wpi.edu">Mitchell Wills</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://robot.wpi.edu/walrus</url>
+  <url type="repository">https://github.com/RIVeR-Lab/walrus</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>usb_cam</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>camera_info_manager</build_depend>
+  <run_depend>image_transport</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>usb_cam</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>camera_info_manager</run_depend>
+
+  <export>
+  </export>
+</package>

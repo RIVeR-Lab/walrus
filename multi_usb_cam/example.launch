@@ -1,0 +1,13 @@
+<launch>
+  <node pkg="multi_usb_cam" type="multi_usb_cam_node" name="multi_usb_cam_node">
+    <rosparam>
+      cameras:
+        - {name: '/dev/video0', topic: 'video0/image_raw', frame_id: 'camera0'}
+        - {name: '/dev/video1', topic: 'video1/image_raw', frame_id: 'camera1'}
+        - {name: '/dev/video2', topic: 'video2/image_raw', frame_id: 'camera2'}
+      configs: # Each level of configuration is for number of cameras running concurrently (first is for one camera, second is for two, etc)
+        - {width: 1280, height: 720, fps: 30}
+        - {width: 320, height: 240, fps: 10}
+    </rosparam>
+  </node>
+</launch>
