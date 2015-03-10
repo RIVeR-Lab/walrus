@@ -24,6 +24,8 @@ namespace walrus_boomboard_driver
         aei.registerHandle(effort_handle_pan);
         hardware_interface::ActuatorHandle effort_handle_tilt(state_handle_tilt, &tilt_effort_cmd);
         aei.registerHandle(effort_handle_tilt);
+
+        diagnostic_updater.setHardwareID("Walrus Boom Board");
     }
     
     bool BoomBoardDriver::init()
