@@ -3,11 +3,18 @@ angular.module("app").controller("RootCtrl",
     var joyPub = roslib.advertise("web_interface/joy", "sensor_msgs/Joy");
 
     var lastJoyData = null;
+    var joyConnected = false;
     var publish_joy_data = function() {
-	if(lastJoyData) {
+	if(lastJoyData && joyConnected) {
 	    joyPub.publish(lastJoyData);
 	}
     };
+    $scope.$on("gamepad-connected", function() {
+	joyConnected = true;
+    });
+    $scope.$on("gamepad-disconnected", function() {
+	joyConnected = false;
+    });
     $scope.$on("gamepad-data", function(ev, data) {
 	var currentTime = new Date();
 	var secs = Math.floor(currentTime.getTime()/1000);
