@@ -62,7 +62,6 @@ int main( int argc, char** argv ){
   ros::Time last = ros::Time::now();
 #endif
   while (ros::ok()) {
-    robot.read();
 #if HAVE_BOOST_CHRONO
     boost::chrono::steady_clock::time_point now = boost::chrono::steady_clock::now();
     if(first_period) {
@@ -76,7 +75,8 @@ int main( int argc, char** argv ){
     ros::Duration dt = now - last;
 #endif
     cm.update(ros::Time::now(), dt);
-    robot.write();
+    robot.read(dt);
+    robot.write(dt);
 
     robot.update_diagnostics();
 

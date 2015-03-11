@@ -65,23 +65,23 @@ bool WalrusBaseRobot::init() {
 }
 
 // Write controller output to actuators
-void WalrusBaseRobot::write(){
+void WalrusBaseRobot::write(ros::Duration dt){
   robot_transmissions_.get<JointToActuatorEffortInterface>()->propagate();
   robot_transmissions_.get<JointToActuatorVelocityInterface>()->propagate();
 
   // Write actuator commands
   epos_manager_->write();
-  mainboard_.write();
-  boomboard_.write();
+  mainboard_.write(dt);
+  boomboard_.write(dt);
 
 }
 
 // Read robot state
-void WalrusBaseRobot::read(){
+void WalrusBaseRobot::read(ros::Duration dt){
   // Read actuator commands
   epos_manager_->read();
-  mainboard_.read();
-  boomboard_.read();
+  mainboard_.read(dt);
+  boomboard_.read(dt);
 
   robot_transmissions_.get<ActuatorToJointStateInterface>()->propagate();
 }

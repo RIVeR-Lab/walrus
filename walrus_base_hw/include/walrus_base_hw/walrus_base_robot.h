@@ -27,8 +27,8 @@ class WalrusBaseRobot : public RobotHW
 
   bool init();
 
-  void write();
-  void read();
+  void write(ros::Duration dt);
+  void read(ros::Duration dt);
   void update_diagnostics();
 
  private:

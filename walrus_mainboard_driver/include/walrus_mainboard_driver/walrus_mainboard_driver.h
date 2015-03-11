@@ -44,8 +44,8 @@ namespace walrus_mainboard_driver
                   hardware_interface::EffortActuatorInterface& aei,
                   ros::NodeHandle& nh, ros::NodeHandle& pnh);
             bool init();
-            void read();
-            void write();
+            void read(ros::Duration dt);
+            void write(ros::Duration dt);
             void update_diagnostics();
             
         private:

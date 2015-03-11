@@ -144,39 +144,33 @@ namespace walrus_mainboard_driver
         return true;
     }
     
-    void MainBoardDriver::read()
+    void MainBoardDriver::read(ros::Duration dt)
     {       
-        double interval = (ros::Time::now() - last_read).toSec();
-        last_read = ros::Time::now();
-        
+        boost::lock_guard<boost::mutex> lock(control_data_mutex);
+       
+        for (int l = 0; l < 4; l++)
         {
-            boost::lock_guard<boost::mutex> lock(control_data_mutex);
-           
-            for (int l = 0; l < 4; l++)
-            {
-                double position, delta;
-                position = (hs_feedback_msg.pod_position[l]/1023.0)*2*M_PI; //Convert raw ADC value (0-1023) to angle (0-2pi)
-                if (POD_REV[l])
-                    position = (2*M_PI) - position;
-                position -= POD_POSITION_NEUTRAL[l];
-                if (position < 0)
-                    position += 2*M_PI;
-                delta = position - pod_position[l];
-                if (delta > M_PI) //Decrease angle across 0
-                    pod_velocity[l] = (delta-2*M_PI)/interval;
-                else if (delta < -M_PI) //Increase angle across 0
-                    pod_velocity[l] = (delta+2*M_PI)/interval;
-                else  
-                    pod_velocity[l] = delta/interval;
-                pod_position[l] = position;        
-                pod_current[l] = (hs_feedback_msg.motor_current[l] / 1000.0); //mA -> A
-                pod_effort[l] = pod_effort[l] * OUTPUT_TORQUE_PER_AMP;
-            }        
-        }
-
+            double position, delta;
+            position = (hs_feedback_msg.pod_position[l]/1023.0)*2*M_PI; //Convert raw ADC value (0-1023) to angle (0-2pi)
+            if (POD_REV[l])
+                position = (2*M_PI) - position;
+            position -= POD_POSITION_NEUTRAL[l];
+            if (position < 0)
+                position += 2*M_PI;
+            delta = position - pod_position[l];
+            if (delta > M_PI) //Decrease angle across 0
+                pod_velocity[l] = (delta-2*M_PI)/dt.toSec();
+            else if (delta < -M_PI) //Increase angle across 0
+                pod_velocity[l] = (delta+2*M_PI)/dt.toSec();
+            else  
+                pod_velocity[l] = delta/dt.toSec();
+            pod_position[l] = position;        
+            pod_current[l] = (hs_feedback_msg.motor_current[l] / 1000.0); //mA -> A
+            pod_effort[l] = pod_effort[l] * OUTPUT_TORQUE_PER_AMP;
+        }        
     }
     
-    void MainBoardDriver::write()
+    void MainBoardDriver::write(ros::Duration dt)
     {            
         walrus_firmware_msgs::MainBoardHighSpeedControl hs_control_msg;    
         {
