@@ -3,7 +3,7 @@
   <arg name="name" default="computer" />
 
   <!-- Monitors internal computer sensors (fan, temperature, etc) -->
-  <node pkg="libsensors_monitor" type="libsensors_monitor" name="$(arg name)_sensors_monitor" />
+  <node pkg="libsensors_monitor" type="libsensors_monitor" name="$(arg name)_sensors_monitor" respawn="true" respawn_delay="5" />
   <!-- Monitors computer resources -->
-  <node pkg="walrus_diagnostics" type="host_resource_monitor.py" name="$(arg name)_resource_monitor" />
+  <node pkg="walrus_diagnostics" type="host_resource_monitor.py" name="$(arg name)_resource_monitor" respawn="true" respawn_delay="5" />
 </launch>

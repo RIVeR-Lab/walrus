@@ -24,6 +24,8 @@ namespace walrus_boomboard_driver
         aei.registerHandle(effort_handle_pan);
         hardware_interface::ActuatorHandle effort_handle_tilt(state_handle_tilt, &tilt_effort_cmd);
         aei.registerHandle(effort_handle_tilt);
+
+        diagnostic_updater.setHardwareID("Walrus Boom Board");
     }
     
     bool BoomBoardDriver::init()
@@ -31,7 +33,7 @@ namespace walrus_boomboard_driver
         return true;
     }
     
-    void BoomBoardDriver::read()
+    void BoomBoardDriver::read(ros::Duration dt)
     {
         deploy_velocity = 0;
         deploy_position = rx_msg.deploy_position;
@@ -44,7 +46,7 @@ namespace walrus_boomboard_driver
         tilt_effort = rx_msg.tilt_current;
     }
     
-    void BoomBoardDriver::write()
+    void BoomBoardDriver::write(ros::Duration dt)
     {        
         tx_msg.deploy_power = deploy_effort_cmd;
         tx_msg.pan_power = pan_effort_cmd;

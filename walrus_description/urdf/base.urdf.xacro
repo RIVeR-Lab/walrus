@@ -140,7 +140,7 @@
       </gazebo>
 
       <!-- Center Treads -->
-      <walrus_center_tread lr="left" parent="${tf_prefix}base_link" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
+      <walrus_center_tread lr="left" parent="${tf_prefix}base_link" translateY="1" flipY="1" tf_prefix="${tf_prefix}"/>
       <walrus_center_tread lr="right" parent="${tf_prefix}base_link" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
 
       <!-- Pods -->

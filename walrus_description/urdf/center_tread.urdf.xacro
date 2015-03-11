@@ -109,7 +109,7 @@
 		    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
 		  </joint>
 		  <actuator name="${tf_prefix}${lr}_drive_actuator">
-		    <mechanicalReduction>1</mechanicalReduction>
+		    <mechanicalReduction>${flipY * 12 * 2.5 * 60}</mechanicalReduction><!-- gearbox: 12, chain: 2.5, is in rpm: 60 -->
 		  </actuator>
 		</transmission>
   	</xacro:macro>
