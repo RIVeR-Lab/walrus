@@ -49,7 +49,7 @@
   <text x="485" y="45" text-anchor="middle" alignment-baseline="middle" font-weight="bolder" font-size="larger">ROS</text>
 
   <!-- Gamepad -->
-  <rect x="450" y="90" width="70" height="70" rx="10" ry="10" ng-attr-style="fill:{{(gamepad.connected?'green':'red')}}" />
+  <rect x="450" y="90" width="70" height="70" rx="10" ry="10" ng-attr-style="fill:{{(gamepad.connected?(gamepad.valid?'green':'yellow'):'red')}}" />
   <image xlink:href="img/gamepad.svg" x="450" y="90" width="70px" height="70px"/>
 
   <rect x="550" y="30" width="110" height="110" rx="10" ry="10" style="fill:green;" />

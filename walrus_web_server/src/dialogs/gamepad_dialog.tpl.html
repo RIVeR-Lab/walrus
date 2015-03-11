@@ -1,14 +1,20 @@
 <md-dialog style="display:flex;flex-direction:column;">
   <md-content>
     <div ng-show="gamepad.connected">
-      <h1>{{gamepad.data.id}}</h1>
-      Timestamp: {{gamepad.data.timestamp}}
+      <h1>{{gamepad.lastRawData.id}}</h1>
+      Timestamp: {{gamepad.lastRawData.timestamp}}
       <div style="display:flex;">
-	<span ng-repeat="axis in gamepad.data.axes track by $index" style="width:100px;height:30px;background-color:rgb({{Math.round(211-100*Math.abs(axis))}}, {{Math.round(211-100*Math.abs(axis))}}, {{Math.round(211-100*Math.abs(axis))}});margin:4px;padding:3px;">{{axis|number:4}}</span>
+	<span ng-repeat="axis in gamepad.lastRawData.axes track by $index" style="width:100px;height:30px;background-color:rgb({{Math.round(211-100*Math.abs(axis))}}, {{Math.round(211-100*Math.abs(axis))}}, {{Math.round(211-100*Math.abs(axis))}});margin:4px;padding:3px;">
+	  {{axis|number:4}}
+	  <span style="float:right;">
+	    <span ng-if="gamepad.config.axes.inverted[$index]" style="font-family:monospace;color:blue;">I</span>
+	  </span>
+	</span>
       </div>
       <div style="display:flex;">
-	<span ng-repeat="button in gamepad.data.buttons track by $index" style="width:50px;background-color:{{button.pressed?'DarkGray':'LightGray'}};margin:4px;padding:3px;text-align:center;">{{$index}}</span>
+	<span ng-repeat="button in gamepad.lastRawData.buttons track by $index" style="width:50px;background-color:{{button.pressed?'DarkGray':'LightGray'}};margin:4px;padding:3px;text-align:center;">{{$index}}</span>
       </div>
+      <h3 style="color:red;" ng-if="!gamepad.valid">Invalid</h3>
     </div>
     <div ng-hide="gamepad.connected">
       <h1>No Gamepad Found</h1>

@@ -1,19 +1,10 @@
 angular.module("app").controller("DiagnosticsCtrl",
-				 function( $scope, $mdDialog, $mdBottomSheet, diagnosticsService ) {
+				 function( $scope, $mdDialog, $mdBottomSheet, diagnosticsService, gamepadService ) {
     $scope.ros = {
 	connected: false
     };
 
-    $scope.gamepad = {
-	connected: false
-    };
-
-    $scope.$on("gamepad-connected", function() {
-	$scope.gamepad.connected = true;
-    });
-    $scope.$on("gamepad-disconnected", function() {
-	$scope.gamepad.connected = false;
-    });
+    $scope.gamepad = gamepadService.gamepad;
 
     $scope.$on("ros-connection", function() {
 	$scope.ros.connected = true;

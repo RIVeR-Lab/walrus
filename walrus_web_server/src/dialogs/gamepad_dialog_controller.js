@@ -1,19 +1,6 @@
 angular.module("app").controller("GamepadDialogController",
 					   function($scope, $mdDialog, gamepadService) {
-    $scope.gamepad = {
-	connected: gamepadService.isConnected(),
-	data: gamepadService.getLastData()
-    };
-
-    $scope.$on("gamepad-connected", function() {
-	$scope.gamepad.connected = true;
-    });
-    $scope.$on("gamepad-disconnected", function() {
-	$scope.gamepad.connected = false;
-    });
-    $scope.$on("gamepad-data", function(ev, data) {
-	$scope.gamepad.data = data;
-    });
+    $scope.gamepad = gamepadService.gamepad;
 
     $scope.Math = window.Math;
     $scope.hide = function() {

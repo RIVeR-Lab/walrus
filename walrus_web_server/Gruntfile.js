@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 		singleGroups: false,
 
 		quotmark: "double",
-		maxparams: 4,
+		maxparams: 5,
 		maxdepth: 2,
 		maxstatements: 16,
 		maxcomplexity: 5
