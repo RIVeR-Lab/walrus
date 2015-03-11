@@ -3,8 +3,8 @@
 # position, velocity, and acceleration in device units
 left_drive_actuator:
   actuator_name: walrus/left_drive_actuator
-  serial_number: '662080000026'
+  serial_number: '0x662080004767'
 
 right_drive_actuator:
   actuator_name: walrus/right_drive_actuator
-  serial_number: '662080000026'
+  serial_number: '0x662080004917'

@@ -38,7 +38,6 @@ int main( int argc, char** argv ){
   boost::thread(boost::bind(&boost::asio::io_service::run, &io_service));
 
   walrus_base_hw::WalrusBaseRobot robot(nh, pnh);
-  controller_manager::ControllerManager cm(&robot, nh);
 
   // Startup ROS spinner in background
   ros::AsyncSpinner spinner(1);
@@ -48,6 +47,8 @@ int main( int argc, char** argv ){
     ROS_FATAL("Failed to initailize robot");
     return 1;
   }
+
+  controller_manager::ControllerManager cm(&robot, nh);
 
 
 #if HAVE_BOOST_CHRONO
@@ -74,8 +75,8 @@ int main( int argc, char** argv ){
     ros::Time now = ros::Time::now();
     ros::Duration dt = now - last;
 #endif
-    cm.update(ros::Time::now(), dt);
     robot.read(dt);
+    cm.update(ros::Time::now(), dt);
     robot.write(dt);
 
     robot.update_diagnostics();

@@ -7,8 +7,8 @@ clear_faults: true
 motor:
   type: 10
   ec_motor:
-    nominal_current: 9.650
-    max_output_current: 12.500
+    nominal_current: 10.000
+    max_output_current: 20.000
     thermal_time_constant: 31
     number_of_pole_pairs: 1
 
@@ -21,8 +21,8 @@ sensor:
 safety:
   max_following_error: 20000
   max_profile_velocity: 8000
-  max_acceleration: 15000
+  max_acceleration: 20000
 
 velocity_profile:
-  acceleration: 8000
-  deceleration: 9000
+  acceleration: 4000
+  deceleration: 8000
