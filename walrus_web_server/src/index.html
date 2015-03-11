@@ -41,7 +41,7 @@
     </div>
   </div>
   <div style="flex:20;display:flex;flex-direction:column;" ng-controller="SidepanelCtrl">
-    <md-tabs md-selected="tabs.selectedIndex" style="flex:none;" md-theme="sidepanel-tabs">
+    <md-tabs md-selected="tabs.selectedIndex" style="flex:none;" class="md-primary">
       <md-tab>
         Model
       </md-tab>
@@ -54,7 +54,6 @@
       <ng-include src="'/sidepanel/autonomy_tab.tpl.html'" ng-show="tabs.selectedIndex==1"></ng-include>
     </div>
     <video-viewer style="flex:none;" stream="secondary_video_stream" available-streams="available_video_streams"></video-viewer>
-    <img src="img/joystick.svg" ng-show="settings.touch_joystick"/>
   </div>
 </body>
 </html>

@@ -8,8 +8,8 @@ body {
     background-color:#333;
 }
 
-md-tabs.md-sidepanel-tabs-theme md-tab {
-    color: #888888;
+.video-stream-button {
+    margin: 3px;
 }
 
 .main-video-shadow {

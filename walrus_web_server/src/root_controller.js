@@ -31,7 +31,6 @@ angular.module("app").controller("RootCtrl",
     $interval(publish_joy_data, 250); // republish joystick data every quarter second
 
     $scope.settings = {
-	"touch_joystick" : true
     };
     $scope.available_video_streams = [
 	{ label: "Front Camera", topic: "front_camera/image_raw" },
