@@ -8,7 +8,7 @@
   <title>WALRUS Rover</title>
 
   <link rel="stylesheet" href="libs/angular-material/angular-material.min.css">
-  <link rel="stylesheet" href="walrus_web.min.css">
+  <link rel="stylesheet" href="web_interface.min.css">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=RobotoDraft:400,500,700,400italic">
 
   <script src="libs/angular/angular.min.js"></script>
@@ -24,17 +24,17 @@
   <script type="text/javascript" src="libs/ColladaLoader2.js"></script>
   <script type="text/javascript" src="libs/ros3d.js"></script>
 
-  <script src="walrus_web.min.js"></script>
+  <script src="web_interface.min.js"></script>
 </head>
 
 <body style="display:flex;flex-direction:row;" ng-controller="RootCtrl">
   <div style="flex:80;display:flex;flex-direction:column;">
     <div style="flex:none;position:relative;">
-      <video-viewer class="main-video" stream="primary_video_stream" available-streams="available_video_streams"></video-viewer>
+      <video-viewer class="main-video" stream="primary_video_stream" ng-click="showPrimaryStreamSelectorDialog($event)"></video-viewer>
       <div style="max-width:100%;width:100%;height:100%;position:absolute;left:0px;top:0px;pointer-events:none;" class="main-video-shadow" ></div>
     </div>
     <div style="flex:1;display:flex;flex-direction:row;position:relative;" ng-controller="DiagnosticsCtrl">
-      <ng-include style="flex:1;display:flex;" src="'/diagnostics.tpl.svg'"></ng-include>
+      <ng-include style="flex:1;display:flex;" src="'/web_interface/diagnostics.tpl.svg'"></ng-include>
       <md-button class="md-fab md-primary md-fab-bottom-right" ng-click="showOptions()">
         <md-icon md-svg-src="/img/gear.svg" style="width: 24px; height: 24px;"></md-icon>
 	<md-tooltip>
@@ -53,10 +53,10 @@
       </md-tab>
     </md-tabs>
     <div style="flex:1;">
-      <ng-include src="'/sidepanel/model_tab.tpl.html'" ng-show="tabs.selectedIndex==0"></ng-include>
-      <ng-include src="'/sidepanel/autonomy_tab.tpl.html'" ng-show="tabs.selectedIndex==1"></ng-include>
+      <ng-include src="'/web_interface/sidepanel/model_tab.tpl.html'" ng-show="tabs.selectedIndex==0"></ng-include>
+      <ng-include src="'/web_interface/sidepanel/autonomy_tab.tpl.html'" ng-show="tabs.selectedIndex==1"></ng-include>
     </div>
-    <video-viewer style="flex:none;" stream="secondary_video_stream" available-streams="available_video_streams"></video-viewer>
+    <video-viewer style="flex:none;" stream="secondary_video_stream" ng-click="showSecondaryStreamSelectorDialog($event)"></video-viewer>
   </div>
 </body>
 </html>

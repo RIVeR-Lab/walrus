@@ -38,9 +38,9 @@ module.exports = function(grunt) {
 	    }
 	},
 	cssmin: {
-	    target: {
+	    web_interface: {
 		files: {
-		    "web/<%= pkg.name %>.min.css": ["src/**/*.css"]
+		    "web/web_interface.min.css": ["src/web_interface/**/*.css"]
 		}
 	    }
 	},
@@ -63,7 +63,7 @@ module.exports = function(grunt) {
 	    html_templates: {
 		options: {
 		    prefix: "/",
-		    htmlmin:  "<%= htmlmin.app.options %>"
+		    htmlmin:  "<%= htmlmin.options %>"
 		},
 		cwd: "src",
 		src: "**/*.tpl.html",
@@ -82,16 +82,20 @@ module.exports = function(grunt) {
 	    options: {
 		separator: ";"
 	    },
-	    js: {
+	    web_interface: {
 		src: [
 		    // make sure that the modules definitions are first
-		    "build/annotated/app.annotated.js",
+		    "build/annotated/web_interface/app.annotated.js",
 		    "build/annotated/services/ros/ros.annotated.js",
-		    "build/annotated/**/*.js",
+		    "build/annotated/services/gamepad_service.annotated.js",
+		    "build/annotated/services/**/*.js",
+		    "build/annotated/directives/**/*.js",
+		    "build/annotated/util/**/*.js",
+		    "build/annotated/web_interface/**/*.js",
 		    "<%= ngtemplates.html_templates.dest %>",
 		    "<%= ngtemplates.svg_templates.dest %>"
 		],
-		dest: "build/<%= pkg.name %>.js"
+		dest: "build/web_interface.js"
 	    }
 	},
 	uglify: {
@@ -103,21 +107,21 @@ module.exports = function(grunt) {
 		sourceMapIncludeSources: true,
 		mangle: true
 	    },
-	    js: {
+	    web_interface: {
 		files: {
-		    "web/<%= pkg.name %>.min.js": ["<%= concat.js.dest %>"]
+		    "web/web_interface.min.js": ["<%= concat.web_interface.dest %>"]
 		}
 	    }
 	},
 	htmlmin: {
-	    app: {
-		options: {
-		    removeComments: true,
-		    collapseWhitespace: true
-		},
+	    options: {
+		removeComments: true,
+		collapseWhitespace: true
+	    },
+	    web_interface: {
 		files: [{
 		    expand: true,
-		    cwd: "src/",
+		    cwd: "src/web_interface",
 		    src: "index.html",
 		    dest: "web/"
 		}]
