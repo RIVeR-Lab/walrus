@@ -10,13 +10,11 @@ angular.module("app").controller("RootCtrl",
     };
     $scope.$watch(function() { return gamepadService.gamepad.lastValidData; }, function (data) {
 	if(data) {
-	    var currentTime = new Date();
-	    var secs = Math.floor(currentTime.getTime()/1000);
-            var nsecs = Math.round(1000000000 * (currentTime.getTime() / 1000 - secs));
 	    var joyData = {
-		header: { stamp: { secs: secs, nsecs: nsecs } },
+		header: { stamp: roslib.time_now() },
 		axes: data.axes,
-		buttons: data.buttons.map(function(button){return button.pressed?1:0;})};
+		buttons: data.buttons.map(function(button){return button.pressed?1:0;})
+	    };
 	    lastJoyData = joyData;
 	}
 	else {
