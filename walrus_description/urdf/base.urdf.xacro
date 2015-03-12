@@ -107,11 +107,13 @@
 	</inertial>
 
 	<visual>
-	  <origin xyz="0 0 ${-base_z_size/2}" rpy="0 0 0" />
-	  <geometry>
-	    <box size = "${base_x_size} ${base_y_size} ${base_z_size}"/>
-	  </geometry>
-	  <material name="Black" />
+	  <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <mesh filename="package://walrus_description/meshes/base.stl" />
+          </geometry>
+	  <material name="Red">
+	    <color rgba=".4 0 0 1"/>
+	  </material>
 	</visual>
 
 	<collision>
@@ -122,7 +124,7 @@
 	</collision>
       </link>
       <gazebo reference="${tf_prefix}base_link">
-	<material>Gazebo/Green</material>
+	<material>Gazebo/Red</material>
 	<turnGravityOff>false</turnGravityOff>
       </gazebo>
 
@@ -147,9 +149,9 @@
       <walrus_center_tread lr="right" parent="${tf_prefix}base_link" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
 
       <!-- Pods -->
-      <walrus_pod fb="back" lr="left" parent="${tf_prefix}base_link" translateX="-1" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
+      <walrus_pod fb="back" lr="left" parent="${tf_prefix}base_link" translateX="-1" translateY="1" flipY="1" tf_prefix="${tf_prefix}"/>
       <walrus_pod fb="back" lr="right" parent="${tf_prefix}base_link" translateX="-1" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
-      <walrus_pod fb="front" lr="left" parent="${tf_prefix}base_link" translateX="1" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
+      <walrus_pod fb="front" lr="left" parent="${tf_prefix}base_link" translateX="1" translateY="1" flipY="1" tf_prefix="${tf_prefix}"/>
       <walrus_pod fb="front" lr="right" parent="${tf_prefix}base_link" translateX="1" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
 
       <!-- Cameras -->

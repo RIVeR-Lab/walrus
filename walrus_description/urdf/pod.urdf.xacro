@@ -9,12 +9,12 @@
 					iyy="${pod_iyy_com_cs}" iyz="${pod_iyz_com_cs}" izz="${pod_izz_com_cs}" />
 			</inertial>
 			<visual>
-				<origin xyz="${pod_inner_length/2} 0 0" rpy="${flipY*M_PI} 0 0" />
+				<origin xyz="0 0 0" rpy="${M_PI/2 - flipY*M_PI/2} 0 0" />
 				<geometry>
-			                <box size = "${pod_inner_length} ${tread_width} ${tread_pod_idler_radius*2}"/>
+				  <mesh filename="package://walrus_description/meshes/pod.stl" />
 				</geometry>
-				<material name="blue">
-					<color rgba="0 0 0.8 1"/>
+				<material name="Red">
+				  <color rgba=".4 0 0 1"/>
 				</material>
 			</visual>
 			<collision>
@@ -25,7 +25,7 @@
 			</collision>
 		</link>
 		<gazebo reference="${tf_prefix}${fb}_${lr}_pod">
-			<material>Gazebo/FlatBlack</material>
+			<material>Gazebo/Red</material>
 			<turnGravityOff>false</turnGravityOff>
 		</gazebo>
 
@@ -53,14 +53,6 @@
 				<inertia ixx="${tread_cylinder_ixx_com_cs}" ixy="${tread_cylinder_ixy_com_cs}" ixz="${tread_cylinder_ixz_com_cs}"
 					 iyy="${tread_cylinder_iyy_com_cs}" iyz="${tread_cylinder_iyz_com_cs}" izz="${tread_cylinder_izz_com_cs}" />
 			</inertial>
-			<visual>
-				<geometry>
-					<cylinder length="${tread_width}" radius="${tread_radius}" />
-				</geometry>
-				<material name="red">
-					<color rgba="0.8 0 0 1"/>
-				</material>
-			</visual>
 			<collision>
 				<geometry>
 					<cylinder length="${tread_width}" radius="${tread_radius}" />
@@ -90,14 +82,6 @@
 				<inertia ixx="${tread_cylinder_ixx_com_cs}" ixy="${tread_cylinder_ixy_com_cs}" ixz="${tread_cylinder_ixz_com_cs}"
 					 iyy="${tread_cylinder_iyy_com_cs}" iyz="${tread_cylinder_iyz_com_cs}" izz="${tread_cylinder_izz_com_cs}" /> 
 			</inertial>
-			<visual>
-				<geometry>
-					<cylinder length="${tread_width}" radius="${tread_pod_idler_radius}" />
-				</geometry>
-				<material name="red">
-					<color rgba="0.8 0 0 1"/>
-				</material>
-			</visual>
 			<collision>
 				<geometry>
 					<cylinder length="${tread_width}" radius="${tread_pod_idler_radius}" />

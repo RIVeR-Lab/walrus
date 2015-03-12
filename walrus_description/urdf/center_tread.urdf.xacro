@@ -9,12 +9,12 @@
 					iyy="${center_tread_iyy_com_cs}" iyz="${center_tread_iyz_com_cs}" izz="${center_tread_izz_com_cs}" />
 			</inertial>
 			<visual>
-				<origin xyz="0 0 0" rpy="${flipY*M_PI} 0 0" />
+				<origin xyz="0 0 0" rpy="0 0 0" />
 				<geometry>
-			                <box size = "${center_tread_inner_length} ${tread_width} ${tread_radius*2}"/>
+				  <mesh filename="package://walrus_description/meshes/${lr}_center_tread.stl"/>
 				</geometry>
-				<material name="blue">
-					<color rgba="0 0 0.8 1"/>
+				<material name="Grey">
+				  <color rgba=".2 .2 .2 1"/>
 				</material>
 			</visual>
 			<collision>
@@ -23,6 +23,10 @@
 				</geometry>
 			</collision>
 		</link>
+		<gazebo reference="${tf_prefix}${lr}_center_tread">
+			<material>Gazebo/DarkGrey</material>
+			<turnGravityOff>false</turnGravityOff>
+		</gazebo>
 
 		<joint name="${tf_prefix}${lr}_center_tread_joint" type="fixed">
 			<parent link="${parent}"/>
@@ -37,14 +41,6 @@
 				<inertia ixx="${tread_cylinder_ixx_com_cs}" ixy="${tread_cylinder_ixy_com_cs}" ixz="${tread_cylinder_ixz_com_cs}"
 					 iyy="${tread_cylinder_iyy_com_cs}" iyz="${tread_cylinder_iyz_com_cs}" izz="${tread_cylinder_izz_com_cs}" />
 			</inertial>
-		<visual>
-				<geometry>
-					<cylinder length="${tread_width}" radius="${tread_radius}" />
-				</geometry>
-				<material name="red">
-					<color rgba="0.8 0 0 1"/>
-				</material>
-			</visual>
 			<collision>
 				<geometry>
 					<cylinder length="${tread_width}" radius="${tread_radius}" />
@@ -73,14 +69,6 @@
 				<inertia ixx="${tread_cylinder_ixx_com_cs}" ixy="${tread_cylinder_ixy_com_cs}" ixz="${tread_cylinder_ixz_com_cs}"
 					 iyy="${tread_cylinder_iyy_com_cs}" iyz="${tread_cylinder_iyz_com_cs}" izz="${tread_cylinder_izz_com_cs}" />
 			</inertial>
-			<visual>
-				<geometry>
-					<cylinder length="${tread_width}" radius="${tread_radius}" />
-				</geometry>
-				<material name="red">
-					<color rgba="0.8 0 0 1"/>
-				</material>
-			</visual>
 			<collision>
 				<geometry>
 					<cylinder length="${tread_width}" radius="${tread_radius}" />
