@@ -146,9 +146,7 @@ module.exports = function(grunt) {
 		    "angular/angular.min.js", "angular/angular.min.js.map",
 		    "angular-animate/angular-animate.min.js", "angular-animate/angular-animate.min.js.map",
 		    "angular-aria/angular-aria.min.js", "angular-aria/angular-aria.min.js.map",
-		    "angular-material/angular-material.min.js", "angular-material/angular-material.min.css",
-		    "eventemitter2/lib/eventemitter2.js",
-		    "roslib/build/roslib.min.js"
+		    "angular-material/angular-material.min.js", "angular-material/angular-material.min.css"
 		],
 		dest: "web/libs/"
 	    }
