@@ -9,25 +9,29 @@
 					iyy="${center_tread_iyy_com_cs}" iyz="${center_tread_iyz_com_cs}" izz="${center_tread_izz_com_cs}" />
 			</inertial>
 			<visual>
-				<origin xyz="0 0 0" rpy="${flipY*M_PI} 0 0" />
+				<origin xyz="0 0 0" rpy="0 0 0" />
 				<geometry>
-			                <box size = "${center_tread_inner_length} ${tread_width} ${tread_radius*2}"/>
+				  <mesh filename="package://walrus_description/meshes/${lr}_center_tread.stl"/>
 				</geometry>
-				<material name="blue">
-					<color rgba="0 0 0.8 1"/>
+				<material name="Grey">
+				  <color rgba=".2 .2 .2 1"/>
 				</material>
 			</visual>
 			<collision>
 				<geometry>
-			                <box size = "${center_tread_inner_length} ${tread_width} ${(tread_radius-tread_body_inset)*2}"/>
+			                <box size = "${center_tread_inner_length} ${tread_width} ${(tread_radius-tread_body_collision_inset)*2}"/>
 				</geometry>
 			</collision>
 		</link>
+		<gazebo reference="${tf_prefix}${lr}_center_tread">
+			<material>Gazebo/DarkGrey</material>
+			<turnGravityOff>false</turnGravityOff>
+		</gazebo>
 
 		<joint name="${tf_prefix}${lr}_center_tread_joint" type="fixed">
 			<parent link="${parent}"/>
 			<child link="${tf_prefix}${lr}_center_tread"/>
-			<origin xyz="0 ${translateY * (base_y_size/2+tread_width/2)} ${-base_z_to_pod_origin}" rpy="0 0 0" />
+			<origin xyz="0 ${translateY * (base_y_size/2+tread_width/2+center_tread_body_offset)} ${-base_z_to_pod_origin}" rpy="0 0 0" />
 		</joint>
 
 		<link name="${tf_prefix}${lr}_center_tread_front_cylinder">
@@ -37,14 +41,6 @@
 				<inertia ixx="${tread_cylinder_ixx_com_cs}" ixy="${tread_cylinder_ixy_com_cs}" ixz="${tread_cylinder_ixz_com_cs}"
 					 iyy="${tread_cylinder_iyy_com_cs}" iyz="${tread_cylinder_iyz_com_cs}" izz="${tread_cylinder_izz_com_cs}" />
 			</inertial>
-		<visual>
-				<geometry>
-					<cylinder length="${tread_width}" radius="${tread_radius}" />
-				</geometry>
-				<material name="red">
-					<color rgba="0.8 0 0 1"/>
-				</material>
-			</visual>
 			<collision>
 				<geometry>
 					<cylinder length="${tread_width}" radius="${tread_radius}" />
@@ -73,14 +69,6 @@
 				<inertia ixx="${tread_cylinder_ixx_com_cs}" ixy="${tread_cylinder_ixy_com_cs}" ixz="${tread_cylinder_ixz_com_cs}"
 					 iyy="${tread_cylinder_iyy_com_cs}" iyz="${tread_cylinder_iyz_com_cs}" izz="${tread_cylinder_izz_com_cs}" />
 			</inertial>
-			<visual>
-				<geometry>
-					<cylinder length="${tread_width}" radius="${tread_radius}" />
-				</geometry>
-				<material name="red">
-					<color rgba="0.8 0 0 1"/>
-				</material>
-			</visual>
 			<collision>
 				<geometry>
 					<cylinder length="${tread_width}" radius="${tread_radius}" />
@@ -109,7 +97,7 @@
 		    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
 		  </joint>
 		  <actuator name="${tf_prefix}${lr}_drive_actuator">
-		    <mechanicalReduction>${flipY * 12 * 2.5 * 60}</mechanicalReduction><!-- gearbox: 12, chain: 2.5, is in rpm: 60 -->
+		    <mechanicalReduction>${flipY * 12 * 2.5 * 60 / (M_PI * 2)}</mechanicalReduction><!-- gearbox: 12, chain: 2.5, is in rpm: 60 / 2pi,  -->
 		  </actuator>
 		</transmission>
   	</xacro:macro>

@@ -4,7 +4,7 @@
     <!-- PROPERTY LIST -->
     <!--All units in m-kg-s-radians unit system -->
     <property name="M_PI" value="3.1415926535897931" />
-    
+
     <property name="base_mass" value="30" />
     <!--This is the pose of the inertial reference frame, relative to the link reference frame. The origin of the inertial reference frame needs to be at the center of gravity. The axes of the inertial reference frame do not need to be aligned with the principal axes of the inertia.-->
     <property name="base_x_com" value="0"/>
@@ -18,16 +18,19 @@
     <property name="base_iyz_com_cs" value="0"/>
     <property name="base_izz_com_cs" value="1"/>
 
-    <property name="base_x_size" value="0.1375"/>
-    <property name="base_y_size" value="0.13"/>
-    <property name="base_z_size" value="0.031"/>
+    <property name="base_x_size" value="0.635"/>
+    <property name="base_y_size" value="0.2667"/>
+    <property name="base_z_size" value="0.181"/>
 
-    <property name="tread_radius" value="0.044"/>
-    <property name="tread_width" value="0.0381"/>
-    <property name="pod_inner_length" value="0.1041"/>
-    <property name="center_tread_inner_length" value="0.2794"/>
-    <property name="base_z_to_pod_origin" value="0.006" />
-    <property name="tread_body_inset" value="0.03" />
+    <property name="tread_radius" value="0.0765"/>
+    <property name="tread_pod_idler_radius" value="0.039875"/>
+    <property name="tread_width" value="0.05"/>
+    <property name="pod_inner_length" value="0.2647"/>
+    <property name="center_tread_inner_length" value="0.4826"/>
+    <property name="center_tread_body_offset" value="0.00199"/>
+    <property name="center_tread_pod_tread_offset" value="0.00159"/>
+    <property name="base_z_to_pod_origin" value="0.1302" />
+    <property name="tread_body_collision_inset" value="0.06" />
     <property name="tread_cylinder_mu1" value="1.0" />
     <property name="tread_cylinder_mu2" value="1.0" />
     <property name="tread_cylinder_slip1" value="0.0" />
@@ -105,21 +108,23 @@
 
 	<visual>
 	  <origin xyz="0 0 0" rpy="0 0 0" />
-	  <geometry>
-	    <box size = "${base_x_size} ${base_y_size} ${base_z_size}"/>
-	  </geometry>
-	  <material name="Black" />
+          <geometry>
+            <mesh filename="package://walrus_description/meshes/base.stl" />
+          </geometry>
+	  <material name="Red">
+	    <color rgba=".4 0 0 1"/>
+	  </material>
 	</visual>
 
 	<collision>
-	  <origin xyz="0 0 0" rpy="0 0 0" />
+	  <origin xyz="0 0 ${-base_z_size/2}" rpy="0 0 0" />
 	  <geometry>
 	    <box size = "${base_x_size} ${base_y_size} ${base_z_size}"/>
 	  </geometry>
 	</collision>
       </link>
       <gazebo reference="${tf_prefix}base_link">
-	<material>Gazebo/Green</material>
+	<material>Gazebo/Red</material>
 	<turnGravityOff>false</turnGravityOff>
       </gazebo>
 
@@ -144,18 +149,22 @@
       <walrus_center_tread lr="right" parent="${tf_prefix}base_link" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
 
       <!-- Pods -->
-      <walrus_pod fb="back" lr="left" parent="${tf_prefix}base_link" translateX="-1" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
+      <walrus_pod fb="back" lr="left" parent="${tf_prefix}base_link" translateX="-1" translateY="1" flipY="1" tf_prefix="${tf_prefix}"/>
       <walrus_pod fb="back" lr="right" parent="${tf_prefix}base_link" translateX="-1" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
-      <walrus_pod fb="front" lr="left" parent="${tf_prefix}base_link" translateX="1" translateY="1" flipY="-1" tf_prefix="${tf_prefix}"/>
+      <walrus_pod fb="front" lr="left" parent="${tf_prefix}base_link" translateX="1" translateY="1" flipY="1" tf_prefix="${tf_prefix}"/>
       <walrus_pod fb="front" lr="right" parent="${tf_prefix}base_link" translateX="1" translateY="-1" flipY="-1" tf_prefix="${tf_prefix}"/>
 
       <!-- Cameras -->
       <simple_camera parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}front_camera" camera_ns="${robot_ns}/front_camera" name="front_camera">
-	<origin xyz="0.08 0 0" rpy="0 0 0" />
+	<origin xyz="0.307 0.0185 -0.0519" rpy="0 0 0" />
       </simple_camera>
 
       <simple_camera parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}back_camera" camera_ns="${robot_ns}/back_camera" name="back_camera">
-	<origin xyz="-0.08 0 0" rpy="0 0 ${M_PI}" />
+	<origin xyz="-0.307 -0.0185 -0.0519" rpy="0 0 ${M_PI}" />
+      </simple_camera>
+
+      <simple_camera parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}bottom_camera" camera_ns="${robot_ns}/bottom_camera" name="bottom_camera">
+	<origin xyz="-0.196 0.01197 -0.166" rpy="0 0.49 0" />
       </simple_camera>
 
       <!-- Boom -->

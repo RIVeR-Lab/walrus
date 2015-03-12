@@ -39,10 +39,10 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
     cmd_vel_pub_.publish(twist_msg);
 
     if(joy_msg->buttons[button_pods_up_]) {
-      publishPodAngles(0.3);
+      publishPodAngles(0.6);
     }
     else if(joy_msg->buttons[button_pods_toes_]) {
-      publishPodAngles(-0.3);
+      publishPodAngles(-0.6);
     }
     else if(joy_msg->buttons[button_pods_flat_]) {
       publishPodAngles(0.0);
