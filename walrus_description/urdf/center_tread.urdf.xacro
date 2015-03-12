@@ -19,7 +19,7 @@
 			</visual>
 			<collision>
 				<geometry>
-			                <box size = "${center_tread_inner_length} ${tread_width} ${(tread_radius-tread_body_inset)*2}"/>
+			                <box size = "${center_tread_inner_length} ${tread_width} ${(tread_radius-tread_body_collision_inset)*2}"/>
 				</geometry>
 			</collision>
 		</link>
@@ -27,7 +27,7 @@
 		<joint name="${tf_prefix}${lr}_center_tread_joint" type="fixed">
 			<parent link="${parent}"/>
 			<child link="${tf_prefix}${lr}_center_tread"/>
-			<origin xyz="0 ${translateY * (base_y_size/2+tread_width/2)} ${-base_z_to_pod_origin}" rpy="0 0 0" />
+			<origin xyz="0 ${translateY * (base_y_size/2+tread_width/2+center_tread_body_offset)} ${-base_z_to_pod_origin}" rpy="0 0 0" />
 		</joint>
 
 		<link name="${tf_prefix}${lr}_center_tread_front_cylinder">
@@ -109,7 +109,7 @@
 		    <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
 		  </joint>
 		  <actuator name="${tf_prefix}${lr}_drive_actuator">
-		    <mechanicalReduction>${flipY * 12 * 2.5 * 60}</mechanicalReduction><!-- gearbox: 12, chain: 2.5, is in rpm: 60 -->
+		    <mechanicalReduction>${flipY * 12 * 2.5 * 60 / (M_PI * 2)}</mechanicalReduction><!-- gearbox: 12, chain: 2.5, is in rpm: 60 / 2pi,  -->
 		  </actuator>
 		</transmission>
   	</xacro:macro>

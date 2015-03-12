@@ -31,7 +31,7 @@
 		<joint name="${tf_prefix}base_joint" type="fixed">
 			<parent link="${parent}"/>
 			<child link="${tf_prefix}base"/>
-			<origin xyz="-0.04 0 0.03" rpy="0 0 0" />
+			<origin xyz="-0.23 0 0.03" rpy="0 0 0" />
 		</joint>
 
 		<!-- Deploy base -->
