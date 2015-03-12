@@ -8,10 +8,21 @@ body {
     background-color:#333;
 }
 
-md-tabs.md-sidepanel-tabs-theme md-tab {
-    color: #888888;
+.video-stream-button {
+    margin: 3px;
 }
 
 .main-video-shadow {
     box-shadow: -24px -24px 24px 0 rgba(0,0,0,0.3) inset;
+}
+
+md-bottom-sheet md-icon {
+    height: 36px !important;
+    width: 36px !important;
+}
+md-bottom-sheet.md-grid md-item .md-grid-item-content {
+    width: auto !important;
+}
+md-bottom-sheet.md-grid md-item .md-grid-text {
+    width: auto !important;
 }

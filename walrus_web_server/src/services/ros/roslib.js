@@ -77,6 +77,12 @@ angular.module("ros")
 			    topic.unsubscribe();
 			}
 		    };
+		},
+		time_now: function() {
+		    var currentTime = new Date();
+		    var secs = Math.floor(currentTime.getTime()/1000);
+		    var nsecs = Math.round(1000000000 * (currentTime.getTime() / 1000 - secs));
+		    return { secs: secs, nsecs: nsecs };
 		}
 	    };
 	}

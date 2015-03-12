@@ -7,29 +7,65 @@ rosModule
 	    this.pollRate = pollRate;
 	},
 	$get: function($rootScope, $interval) {
-	    var lastTimestamp = null;
-	    var lastData = null;
+	    var gamepad = {
+		config: {
+		    axes: {
+			inverted: [true, true, false, false]
+		    }
+		},
+		connected: false,
+		valid: false,
+		lastRawData: null,
+		lastValidData: null
+	    };
+
+	    var processRawJoystick = function() {
+		var processedData = angular.copy(gamepad.lastRawData);
+		processedData.axes = processedData.axes.map(function(value, index) {
+		    if(gamepad.config.axes.inverted[index]) {
+			return -value;
+		    }
+		    else {
+			return value;
+		    }
+		});
+
+		if(!gamepad.valid) {
+		    if(processedData.axes.every(function(axis){ return axis === 0; })) {
+			gamepad.valid = true;
+		    }
+		}
+		if(gamepad.valid) {
+		    gamepad.lastValidData = processedData;
+		}
+	    };
+
+	    var isDifferent = function(data) {
+		return gamepad.lastRawData === null || data.timestamp !== gamepad.lastRawData.timestamp;
+	    };
+
 	    $interval(function() {
 		var gamepadData = navigator.getGamepads()[0];
 		if(gamepadData) {
-		    if(lastTimestamp === null) {
-			$rootScope.$broadcast("gamepad-connected");
+		    if(!gamepad.connected) {
+			gamepad.connected = true;
+			gamepad.valid = false;
 		    }
-		    if(gamepadData.timestamp !== lastTimestamp) {
-			$rootScope.$broadcast("gamepad-data", gamepadData);
-			lastTimestamp = gamepadData.timestamp;
-			lastData = gamepadData;
+		    if(isDifferent(gamepadData)) {
+			gamepad.lastRawData = angular.copy(gamepadData);
+			processRawJoystick();
 		    }
 		}
-		else if(lastTimestamp !== null){
-		    $rootScope.$broadcast("gamepad-disconnected");
-		    lastData = null;
-		    lastTimestamp = null;
+		else if(gamepad.connected){
+		    gamepad.connected = false;
+		    gamepad.valid = false;
+		    gamepad.lastRawData = null;
+		    gamepad.lastValidData = null;
 		}
 	    }, this.pollRate);
+
 	    return {
-		isConnected: function() { return lastTimestamp !== null; },
-		getLastData: function() { return lastData; }
+		gamepad: gamepad
 	    };
 	}
     });

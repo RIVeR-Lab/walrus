@@ -16,8 +16,8 @@
   <script src="libs/angular-animate/angular-animate.min.js"></script>
   <script src="libs/angular-material/angular-material.min.js"></script>
 
-  <script type="text/javascript" src="libs/eventemitter2/lib/eventemitter2.js"></script>
-  <script type="text/javascript" src="libs/roslib/build/roslib.min.js"></script>
+  <script type="text/javascript" src="libs/eventemitter2.js"></script>
+  <script type="text/javascript" src="libs/roslib.js"></script>
   <script type="text/javascript" src="libs/three.js"></script>
   <script type="text/javascript" src="libs/STLLoader.js"></script>
   <script type="text/javascript" src="libs/ColladaLoader.js"></script>
@@ -37,11 +37,14 @@
       <ng-include style="flex:1;display:flex;" src="'/diagnostics.tpl.svg'"></ng-include>
       <md-button class="md-fab md-primary md-fab-bottom-right" ng-click="showOptions()">
         <md-icon md-svg-src="/img/gear.svg" style="width: 24px; height: 24px;"></md-icon>
+	<md-tooltip>
+	  Options
+	</md-tooltip>
       </md-button>
     </div>
   </div>
   <div style="flex:20;display:flex;flex-direction:column;" ng-controller="SidepanelCtrl">
-    <md-tabs md-selected="tabs.selectedIndex" style="flex:none;" md-theme="sidepanel-tabs">
+    <md-tabs md-selected="tabs.selectedIndex" style="flex:none;" class="md-primary">
       <md-tab>
         Model
       </md-tab>
@@ -54,7 +57,6 @@
       <ng-include src="'/sidepanel/autonomy_tab.tpl.html'" ng-show="tabs.selectedIndex==1"></ng-include>
     </div>
     <video-viewer style="flex:none;" stream="secondary_video_stream" available-streams="available_video_streams"></video-viewer>
-    <img src="img/joystick.svg" ng-show="settings.touch_joystick"/>
   </div>
 </body>
 </html>
