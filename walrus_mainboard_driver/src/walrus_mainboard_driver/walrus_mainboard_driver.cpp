@@ -8,14 +8,14 @@ namespace walrus_mainboard_driver
     MainBoardDriver::MainBoardDriver(hardware_interface::ActuatorStateInterface& asi,
                   hardware_interface::EffortActuatorInterface &aei,
                   ros::NodeHandle& nh, ros::NodeHandle& pnh)
-    : asi_(asi), aei_(aei), diagnostic_updater(nh, pnh), nh(nh), pnh(pnh)
+    : asi_(asi), aei_(aei), diagnostic_updater(nh, pnh), nh(nh), pnh(pnh), last_hs_feedback(0, 0), last_ls_data(0,0), hs_feedback_timeout(0.25), ls_data_timeout(3)
     {                
         //Load parameters    
         pnh.param("frontleft_pod_id", FL, 1);
         pnh.param("frontright_pod_id", FR, 2);
         pnh.param("backright_pod_id", BR, 3);
         pnh.param("backleft_pod_id", BL, 4);
-        pnh.param("frontleft_motor_temp_id", MOTOR_TEMP[FL-1], 1);
+        pnh.param("frontleft_motor_temp_id", MOTOR_TEMP[FL-1], 1);   
         pnh.param("frontright_motor_temp_id", MOTOR_TEMP[FR-1], 2);
         pnh.param("backright_motor_temp_id", MOTOR_TEMP[BR-1], 3);
         pnh.param("backleft_motor_temp_id", MOTOR_TEMP[BL-1], 4);
@@ -32,6 +32,7 @@ namespace walrus_mainboard_driver
         pnh.param("back_cam_led_id", BACK_CAM_LED, 3);
         pnh.param("backup_batt_voltage_id", BACKUP_BATT_VOLTAGE, 1);
         
+        pnh.param("pod_auto_enable", POD_AUTO_ENABLE, false);
         pnh.param("frontleft_pod_neutral_position", POD_POSITION_NEUTRAL[FL-1], 0.0);
         pnh.param("frontright_pod_neutral_position", POD_POSITION_NEUTRAL[FR-1], 0.0);
         pnh.param("backright_pod_neutral_position", POD_POSITION_NEUTRAL[BR-1], 0.0);
@@ -81,17 +82,14 @@ namespace walrus_mainboard_driver
         
         pnh.param("drive_motor_temp_high_above", DRIVE_MOTOR_TEMP_HIGH_ABOVE, -1.0);
         pnh.param("drive_motor_temp_critical_above", DRIVE_MOTOR_TEMP_CRITICAL_ABOVE, -1.0);
-        
-      
-        host_enabled = false;
-        main_board_status_level = diagnostic_msgs::DiagnosticStatus::ERROR;
-        main_board_status = "Not Connected";
+             
         main_board_connected = false;
         board_enabled = false;
         for (int l = 0; l < 4; l++)
+        {
+            batteries[l].present = false;
             pod_force_disable[l] = false;
-        
-        nh.createTimer(ros::Duration(1), &MainBoardDriver::heartbeat_callback, this);
+        }
         
         //Setup pod actuator interfaces
         hardware_interface::ActuatorStateHandle state_handleFL("walrus/front_left_pod_joint_actuator", &pod_position[FL-1], &pod_velocity[FL-1], &pod_effort[FL-1]);
@@ -138,9 +136,14 @@ namespace walrus_mainboard_driver
         //Setup publishers and subscribers to communicate with the embedded board
         hs_control = nh.advertise<walrus_firmware_msgs::MainBoardHighSpeedControl>("main_board/hs_control", 1000);
         to_board = nh.advertise<walrus_firmware_msgs::MainBoardControl>("main_board/PC_to_board_control", 1000);
-        hs_feedback = nh.subscribe("main_board/hs_feedback", 1000, &MainBoardDriver::hs_feedback_callback, this);
-        ls_data = nh.subscribe("main_board/ls_data", 1000, &MainBoardDriver::ls_data_callback, this);
+        heartbeat_timer = nh.createTimer(ros::Duration(1), &MainBoardDriver::heartbeat_callback, this);
+        front_led = nh.subscribe<std_msgs::Float64>("front_led", 1000, boost::bind(&MainBoardDriver::led_callback, this, _1, FRONT_CAM_LED-1));
+        back_led = nh.subscribe<std_msgs::Float64>("back_led", 1000, boost::bind(&MainBoardDriver::led_callback, this, _1, BACK_CAM_LED-1));
+        bottom_led = nh.subscribe<std_msgs::Float64>("bottom_led", 1000, boost::bind(&MainBoardDriver::led_callback, this, _1, BOTTOM_CAM_LED-1));
+        set_enable = nh.subscribe("set_enable", 1000, &MainBoardDriver::set_enable_callback, this);
         from_board = nh.subscribe("main_board/board_to_PC_control", 1000, &MainBoardDriver::from_board_callback, this);
+        ls_data = nh.subscribe("main_board/ls_data", 1000, &MainBoardDriver::ls_data_callback, this);    
+        hs_feedback = nh.subscribe("main_board/hs_feedback", 1000, &MainBoardDriver::hs_feedback_callback, this);   
         return true;
     }
     
@@ -178,7 +181,10 @@ namespace walrus_mainboard_driver
             //Send motor control message            
             for (int l = 0; l < 4; l++)
             {
-                pod_power[l] = (pod_effort_cmd[l]*OUTPUT_POWER_LIMIT) + OUTPUT_POWER_NEUTRAL;
+                if (pod_force_disable[l])
+                    pod_power[l] = OUTPUT_POWER_NEUTRAL;
+                else
+                    pod_power[l] = (pod_effort_cmd[l]*OUTPUT_POWER_LIMIT) + OUTPUT_POWER_NEUTRAL;
                 hs_control_msg.motor_power[l] = pod_power[l];
             }
         }
@@ -189,14 +195,40 @@ namespace walrus_mainboard_driver
     void MainBoardDriver::update_diagnostics()
     {
         diagnostic_updater.update();
-    }
+    } 
     
     //Subscription callbacks
+    void MainBoardDriver::led_callback(const std_msgs::Float64::ConstPtr& msg, int index)
+    {
+        walrus_firmware_msgs::MainBoardControl led_msg;
+        led_msg.type = walrus_firmware_msgs::MainBoardControl::REQ_BATT_INFO;
+        led_msg.index = index;
+        double intensity = msg->data;
+        if (intensity < 0)
+            intensity = 0;
+        else if (intensity > 1)
+            intensity = 1;
+        led_msg.value =  (int16_t)(intensity * 255);
+        led_msg.msg = "";
+        to_board.publish(led_msg);
+    }
+    void MainBoardDriver::set_enable_callback(const std_msgs::Bool& msg)
+    {
+        walrus_firmware_msgs::MainBoardControl enable_msg;
+        if (msg.data)
+            enable_msg.type = walrus_firmware_msgs::MainBoardControl::SET_ENABLE;
+        else
+            enable_msg.type = walrus_firmware_msgs::MainBoardControl::SET_DISABLE;
+        enable_msg.index = 0;
+        enable_msg.value = 0; 
+        enable_msg.msg = "";
+        to_board.publish(enable_msg);
+    }
     void MainBoardDriver::hs_feedback_callback(const walrus_firmware_msgs::MainBoardHighSpeedFeedback& msg)
     {
         boost::lock_guard<boost::mutex> lock(control_data_mutex);
         hs_feedback_msg = msg;
-        last_hs_msg = ros::Time::now();
+        last_hs_feedback = ros::Time::now();
     }
     void MainBoardDriver::ls_data_callback(const walrus_firmware_msgs::MainBoardLowSpeedData& msg)
     {
@@ -234,7 +266,7 @@ namespace walrus_mainboard_driver
         //Battery data
         for (int l = 0; l < 4; l++)
         {
-            if (msg.lcell_charge[l] > 0)
+            if (msg.batt_present & (1 << l))
             {
                 //if it wasn't present, ask it for mfr and name data
                 if (!batteries[l].present)
@@ -249,15 +281,15 @@ namespace walrus_mainboard_driver
                     info_req_msg.msg = "";
                     to_board.publish(info_req_msg);
                 }
-                batteries[l].present = true;
-                batteries[l].upper_voltage = msg.lcell_voltage[l] / 1000.0; //mV -> V
-                batteries[l].upper_current = msg.lcell_current[l] / 1000.0; //mA -> A
-                batteries[l].upper_charge = msg.lcell_charge[l] / 100.0; //hunderedths of a % -> %
-                batteries[l].upper_temp = msg.lcell_temp[l] / 100.0; //hunderedths of a deg C -> deg C
-                batteries[l].upper_avg_current = msg.lcell_avgcurr[l] / 1000.0; //mA -> A
+                batteries[l].present = true;  
+                batteries[l].lower_voltage = msg.lcell_voltage[l] / 1000.0; //mV -> V
+                batteries[l].lower_current = msg.lcell_current[l] / 1000.0; //mA -> A
+                batteries[l].lower_charge = msg.lcell_charge[l];
+                batteries[l].lower_temp = msg.lcell_temp[l] / 100.0; //hunderedths of a deg C -> deg C
+                batteries[l].lower_avg_current = msg.lcell_avgcurr[l] / 1000.0; //mA -> A
                 batteries[l].upper_voltage = msg.ucell_voltage[l] / 1000.0; //mV -> V
                 batteries[l].upper_current = msg.ucell_current[l] / 1000.0; //mA -> A
-                batteries[l].upper_charge = msg.ucell_charge[l] / 100.0; //hunderedths of a % -> %
+                batteries[l].upper_charge = msg.ucell_charge[l];
                 batteries[l].upper_temp = msg.ucell_temp[l] / 100.0; //hunderedths of a deg C -> deg C
                 batteries[l].upper_avg_current = msg.ucell_avgcurr[l] / 1000.0; //mA -> A
                 batteries[l].shutdown = (batteries[l].lower_voltage < 2 || batteries[l].upper_voltage < 2); 
@@ -279,7 +311,7 @@ namespace walrus_mainboard_driver
         main_avg_current /= count;
         main_charge /= count;
         
-        main_board_connected = true;
+        last_ls_data = ros::Time::now();
     }
     
     void MainBoardDriver::from_board_callback(const walrus_firmware_msgs::MainBoardControl& msg)
@@ -298,10 +330,33 @@ namespace walrus_mainboard_driver
                 batteries[msg.index].chemistry = msg.msg;
             break; 
             case walrus_firmware_msgs::MainBoardControl::STATUS:
-                main_board_status = msg.msg;
+                main_board_status = "Connected, " + msg.msg;
                 main_board_status_level = msg.value;
+                if (POD_AUTO_ENABLE && msg.msg == "Disabled")
+                {
+                    walrus_firmware_msgs::MainBoardControl status_req_msg;
+                    status_req_msg.type = walrus_firmware_msgs::MainBoardControl::REQ_STATUS;
+                    status_req_msg.index = 0;
+                    status_req_msg.value = 0; 
+                    status_req_msg.msg = "";
+                    to_board.publish(status_req_msg);
+                }
+            break;
+            case walrus_firmware_msgs::MainBoardControl::ERROR:
+                ROS_ERROR_STREAM(msg.msg);
+            break;
+            default:
+                ROS_ERROR("Received invalid control message.");
             break;
         }
+    }
+    
+    
+    string MainBoardDriver::formatDouble(double value, int precision)
+    {
+        stringstream ss;
+        ss << std::fixed << std::setprecision(precision) << value;
+        return ss.str();
     }
     
     //Diagnostics updaters
@@ -317,7 +372,7 @@ namespace walrus_mainboard_driver
         else
             stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Top plate temperature OK");
             
-        stat.add("Top Plate Temperature", main_board_connected ? boost::lexical_cast<string>(temp_sensors[TOP_PLATE_TEMP-1]) + "\xc2\xb0""C" : "No Data");
+        stat.add("Top Plate Temperature", main_board_connected ? formatDouble(temp_sensors[TOP_PLATE_TEMP-1],1) + "\xc2\xb0""C" : "No Data");
     }
     
     void MainBoardDriver::int_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
@@ -331,7 +386,7 @@ namespace walrus_mainboard_driver
         else
             stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Internal temperature OK");   
             
-        stat.add("Internal Temperature", main_board_connected ? boost::lexical_cast<string>(ambient_temp) + "\xc2\xb0""C" : "No Data");
+        stat.add("Internal Temperature", main_board_connected ? formatDouble(ambient_temp,1) + "\xc2\xb0""C" : "No Data");
     }
     
     void MainBoardDriver::humidity_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
@@ -345,7 +400,7 @@ namespace walrus_mainboard_driver
         else
             stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Internal humidity OK");   
     
-        stat.add("Internal Humidity", main_board_connected ? boost::lexical_cast<string>(humidity) + "%" : "No Data");
+        stat.add("Internal Humidity", main_board_connected ? formatDouble(humidity,1) + "%" : "No Data");
     }
     
     void MainBoardDriver::pressure_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
@@ -358,7 +413,7 @@ namespace walrus_mainboard_driver
             stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Internal pressure low");
         else
             stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Internal pressure OK");   
-        stat.add("Internal Pressure", main_board_connected ? boost::lexical_cast<string>(pressure) + " kPa" : "No Data");
+        stat.add("Internal Pressure", main_board_connected ? formatDouble(pressure,3) + " kPa" : "No Data");
     }
     
     void MainBoardDriver::water_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
@@ -398,7 +453,7 @@ namespace walrus_mainboard_driver
             if (POD_MOTOR_TEMP_CRITICAL_ABOVE > 0 && temp_sensors[MOTOR_TEMP[index]-1] > POD_MOTOR_TEMP_CRITICAL_ABOVE)
             {
                 error = true;
-                msg += "Motor temperature critical. ";
+                msg += "Motor temperature critical, motor disabled.";
                 pod_force_disable[index] = true;
             }
             else if (POD_MOTOR_TEMP_HIGH_ABOVE > 0 && temp_sensors[MOTOR_TEMP[index]-1] > POD_MOTOR_TEMP_HIGH_ABOVE)
@@ -406,13 +461,14 @@ namespace walrus_mainboard_driver
                 warning = true;
                 msg += "Motor temperature high. ";
             }
+            else
+                pod_force_disable[index] = false;
             
             //Check controller over temperature
             if (POD_CONTROLLER_TEMP_CRITICAL_ABOVE > 0 && temp_sensors[CONTROLLER_TEMP[index]-1] > POD_CONTROLLER_TEMP_CRITICAL_ABOVE)
             {
                 error = true;
-                msg += "Motor controller temperature critical. ";
-                pod_force_disable[index] = true;
+                msg += "Motor controller temperature critical. motor disabled.";
                 pod_force_disable[index] = true;
             }
             else if (POD_CONTROLLER_TEMP_HIGH_ABOVE > 0 && temp_sensors[CONTROLLER_TEMP[index]-1] > POD_CONTROLLER_TEMP_HIGH_ABOVE)
@@ -420,6 +476,8 @@ namespace walrus_mainboard_driver
                 warning = true;
                 msg += "Motor controller temperature high. ";
             }
+            else
+                pod_force_disable[index] = false;
             
             uint8_t level = diagnostic_msgs::DiagnosticStatus::OK;
             if (error)
@@ -429,16 +487,16 @@ namespace walrus_mainboard_driver
             else
                 msg = "Everything OK";
             
-            stat.summary(level, msg);
+            stat.summary(level, msg); 
         }
         else
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
         
-        stat.add("Velocity", main_board_connected ? boost::lexical_cast<string>(pod_velocity[index]) + " rpm" : "No Data");
-        stat.add("Position", main_board_connected ? boost::lexical_cast<string>((pod_position[index]*180/M_PI)) + "\xc2\xb0" : "No Data");
-        stat.add("Current", main_board_connected ? boost::lexical_cast<string>(pod_current[index]) + " A" : "No Data");
-        stat.add("Motor Temperature", main_board_connected ? boost::lexical_cast<string>(temp_sensors[MOTOR_TEMP[index]-1]) + "\xc2\xb0""C" : "No Data");
-        stat.add("Controller Temperature", main_board_connected ? boost::lexical_cast<string>(temp_sensors[CONTROLLER_TEMP[index]-1]) + "\xc2\xb0""C" : "No Data");
+        stat.add("Velocity", main_board_connected ? formatDouble(pod_velocity[index], 0) + " rpm" : "No Data");
+        stat.add("Position", main_board_connected ? formatDouble((pod_position[index]*180/M_PI), 2) + "\xc2\xb0" : "No Data");
+        stat.add("Current", main_board_connected ? formatDouble(pod_current[index], 3) + " A" : "No Data");
+        stat.add("Motor Temperature", main_board_connected ? formatDouble(temp_sensors[MOTOR_TEMP[index]-1], 1) + "\xc2\xb0""C" : "No Data");
+        stat.add("Controller Temperature", main_board_connected ? formatDouble(temp_sensors[CONTROLLER_TEMP[index]-1], 1) + "\xc2\xb0""C" : "No Data");
     }
     
     
@@ -446,15 +504,37 @@ namespace walrus_mainboard_driver
     {
         boost::lock_guard<boost::mutex> lock(sensor_data_mutex);
         
+        bool ls_data_good = false;
+        bool hs_feedback_good = false;
+        
+        if (ls_data_timeout < (ros::Time::now() - last_ls_data)) 
+            ls_data_good = true;
+        if (hs_feedback_timeout < (ros::Time::now() - last_hs_feedback))
+            hs_feedback_good = true;      
+        
+        if (!main_board_connected && ls_data_good && hs_feedback_good)
         {
-        boost::lock_guard<boost::mutex> lock(control_data_mutex);
-        double interval = (ros::Time::now() - last_hs_msg).toSec();
+            walrus_firmware_msgs::MainBoardControl status_req_msg;
+            status_req_msg.type = walrus_firmware_msgs::MainBoardControl::REQ_STATUS;
+            status_req_msg.index = 0;
+            status_req_msg.value = 0; 
+            status_req_msg.msg = "";
+            to_board.publish(status_req_msg);
+            main_board_connected = true;
+            main_board_status_level = diagnostic_msgs::DiagnosticStatus::WARN;
+            main_board_status = "Connected, Waiting for status";
         }
-            
+        else if (!ls_data_good || !hs_feedback_good)
+        {
+            main_board_connected = false;
+            main_board_status_level = diagnostic_msgs::DiagnosticStatus::ERROR;
+            main_board_status = "Not Connected";
+        }
+        
         stat.summary(main_board_status_level, main_board_status);
         
-        stat.add("Host output status", host_enabled ? "Enabled" : "Disabled");
-        stat.add("Board output status", board_enabled ? "Enabled" : "Disabled");
+        stat.add("Pod Motor Feedback", hs_feedback_good ? "OK" : "No Data");
+        stat.add("Other Sensor Feedback", ls_data_good ? "OK" : "No Data");
     }
     
     void MainBoardDriver::batt_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
@@ -474,7 +554,7 @@ namespace walrus_mainboard_driver
                     msg += "Voltage low. ";
                 }
                 //check charge
-                if (MAIN_BATT_CHARGE_LOW_BELOW > 0 && batteries[index].combined_charge < MAIN_BATT_CHARGE_LOW_BELOW)
+                if (MAIN_BATT_CHARGE_LOW_BELOW >   0 && batteries[index].combined_charge < MAIN_BATT_CHARGE_LOW_BELOW)
                 {
                     warning = true;
                     msg += "Charge low. ";
@@ -497,6 +577,8 @@ namespace walrus_mainboard_driver
                     level = diagnostic_msgs::DiagnosticStatus::WARN;
                 else
                     msg = "Everything OK";
+                
+                stat.summary(level, msg);
             }
             else
                 stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Not Present");
@@ -508,24 +590,24 @@ namespace walrus_mainboard_driver
         }
         
         stat.add("Present", pres ? "Yes" : "No");
-        stat.add("Charge", pres ? boost::lexical_cast<string>(batteries[index].combined_charge) + "%" : "No Data");
-        stat.add("Voltage", pres ? boost::lexical_cast<string>(batteries[index].combined_voltage) + " V" : "No Data");
-        stat.add("Current", pres ? boost::lexical_cast<string>(batteries[index].combined_current) + " A" : "No Data");
-        stat.add("Average Current", pres ? boost::lexical_cast<string>(batteries[index].combined_avg_current) + " A" : "No Data");
+        stat.add("Charge", pres ? formatDouble(batteries[index].combined_charge, 0) + "%" : "No Data");
+        stat.add("Voltage", pres ? formatDouble(batteries[index].combined_voltage, 3) + " V" : "No Data");
+        stat.add("Current", pres ? formatDouble(batteries[index].combined_current, 3) + " A" : "No Data");
+        stat.add("Average Current", pres ? formatDouble(batteries[index].combined_avg_current, 3) + " A" : "No Data");
         stat.add("Shutdown", pres ? (batteries[index].shutdown ? "Yes" : "No") : "No Data");
-        stat.add("Manufacturer", pres ? boost::lexical_cast<string>(batteries[index].mfr) : "No Data");
-        stat.add("Device Name", pres ? boost::lexical_cast<string>(batteries[index].dev_name) : "No Data");
-        stat.add("Battery Type", pres ? boost::lexical_cast<string>(batteries[index].chemistry) : "No Data");
-        stat.add("Lower Cell Voltage", pres ? boost::lexical_cast<string>(batteries[index].lower_voltage) + " V" : "No Data");
-        stat.add("Lower Cell Current", pres ? boost::lexical_cast<string>(batteries[index].lower_current) + " A" : "No Data");
-        stat.add("Lower Cell Average Current", pres ? boost::lexical_cast<string>(batteries[index].lower_avg_current) + " A" : "No Data");
-        stat.add("Lower Cell Charge", pres ? boost::lexical_cast<string>(batteries[index].lower_charge) + "%" : "No Data");
-        stat.add("Lower Cell Temperature", pres ? boost::lexical_cast<string>(batteries[index].lower_temp) + "\xc2\xb0""C" : "No Data");
-        stat.add("Upper Cell Voltage", pres ? boost::lexical_cast<string>(batteries[index].upper_voltage) + " V" : "No Data");
-        stat.add("Upper Cell Current", pres ? boost::lexical_cast<string>(batteries[index].upper_current) + " A" : "No Data");
-        stat.add("Upper Cell Average Current", pres ? boost::lexical_cast<string>(batteries[index].upper_avg_current) + " A" : "No Data");
-        stat.add("Upper Cell Charge", pres ? boost::lexical_cast<string>(batteries[index].upper_charge) + "%" : "No Data");
-        stat.add("Upper Cell Temperature", pres ? boost::lexical_cast<string>(batteries[index].upper_temp) + "\xc2\xb0""C" : "No Data");
+        stat.add("Manufacturer", pres ? batteries[index].mfr : "No Data");
+        stat.add("Device Name", pres ? batteries[index].dev_name : "No Data");
+        stat.add("Battery Type", pres ? batteries[index].chemistry : "No Data");
+        stat.add("Lower Cell Voltage", pres ? formatDouble(batteries[index].lower_voltage, 3) + " V" : "No Data");
+        stat.add("Lower Cell Current", pres ? formatDouble(batteries[index].lower_current, 3) + " A" : "No Data");
+        stat.add("Lower Cell Average Current", pres ? formatDouble(batteries[index].lower_avg_current, 3) + " A" : "No Data");
+        stat.add("Lower Cell Charge", pres ? formatDouble(batteries[index].lower_charge, 0) + "%" : "No Data");
+        stat.add("Lower Cell Temperature", pres ? formatDouble(batteries[index].lower_temp, 1) + "\xc2\xb0""C" : "No Data");
+        stat.add("Upper Cell Voltage", pres ? formatDouble(batteries[index].upper_voltage, 3) + " V" : "No Data");
+        stat.add("Upper Cell Current", pres ? formatDouble(batteries[index].upper_current, 3) + " A" : "No Data");
+        stat.add("Upper Cell Average Current", pres ? formatDouble(batteries[index].upper_avg_current, 3) + " A" : "No Data");
+        stat.add("Upper Cell Charge", pres ? formatDouble(batteries[index].upper_charge, 0) + "%" : "No Data");
+        stat.add("Upper Cell Temperature", pres ? formatDouble(batteries[index].upper_temp, 1) + "\xc2\xb0""C" : "No Data");
     }
     
     void MainBoardDriver::power_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
@@ -586,12 +668,12 @@ namespace walrus_mainboard_driver
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
         
         
-        stat.add("Main Battery Charge", main_board_connected ? boost::lexical_cast<string>(main_charge) + "%" : "No Data");
-        stat.add("Main Battery Voltage", main_board_connected ? boost::lexical_cast<string>(main_voltage) + " V" : "No Data");
-        stat.add("Main Battery Current", main_board_connected ? boost::lexical_cast<string>(main_current) + " A" : "No Data");
-        stat.add("Main Batter Average Current", main_board_connected ? boost::lexical_cast<string>(main_avg_current) + " A" : "No Data");
-        stat.add("Backup Battery Voltage", main_board_connected ? boost::lexical_cast<string>(backup_voltage) + " V" : "No Data");
-        stat.add("Vicor Temperature", main_board_connected ? boost::lexical_cast<string>(temp_sensors[VICOR_TEMP-1]) + "\xc2\xb0""C" : "No Data");
+        stat.add("Main Battery Charge", main_board_connected ? formatDouble(main_charge, 0) + "%" : "No Data");
+        stat.add("Main Battery Voltage", main_board_connected ? formatDouble(main_voltage, 3) + " V" : "No Data");
+        stat.add("Main Battery Current", main_board_connected ? formatDouble(main_current, 3) + " A" : "No Data");
+        stat.add("Main Batter Average Current", main_board_connected ? formatDouble(main_avg_current, 3) + " A" : "No Data");
+        stat.add("Backup Battery Voltage", main_board_connected ? formatDouble(backup_voltage, 3) + " V" : "No Data");
+        stat.add("Vicor Temperature", main_board_connected ? formatDouble(temp_sensors[VICOR_TEMP-1], 1) + "\xc2\xb0""C" : "No Data");
     }
     
     void MainBoardDriver::left_drive_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
@@ -608,7 +690,7 @@ namespace walrus_mainboard_driver
         else
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
             
-        stat.add("Temperature", main_board_connected ? boost::lexical_cast<string>(temp_sensors[LEFT_DRIVE_TEMP-1]) + "\xc2\xb0""C" : "No Data");
+        stat.add("Temperature", main_board_connected ? formatDouble(temp_sensors[LEFT_DRIVE_TEMP-1], 1) + "\xc2\xb0""C" : "No Data");
     }
     
     void MainBoardDriver::right_drive_temp_diagnsotic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
@@ -625,7 +707,7 @@ namespace walrus_mainboard_driver
         else
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
             
-        stat.add("Temperature", main_board_connected ? boost::lexical_cast<string>(temp_sensors[RIGHT_DRIVE_TEMP-1]) + "\xc2\xb0""C" : "No Data");
+        stat.add("Temperature", main_board_connected ? formatDouble(temp_sensors[RIGHT_DRIVE_TEMP-1], 1) + "\xc2\xb0""C" : "No Data");
     }
     
     void MainBoardDriver::heartbeat_callback(const ros::TimerEvent&)

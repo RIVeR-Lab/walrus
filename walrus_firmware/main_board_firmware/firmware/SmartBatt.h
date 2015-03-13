@@ -10,6 +10,7 @@ Author: Brian Eccles
 #include <Arduino.h>
 #include <avr/io.h>
 #include "i2c_buses.h"
+#include <string.h>
 
 class SmartBatt
 {
@@ -21,7 +22,7 @@ private:
     
     //Private bus functions
     int read_block(i2c_bus_t* bus, byte addr, byte command_code, byte* buf, int buf_size);
-    int read_word(i2c_bus_t* bus, byte addr, byte command_code);
+    int read_word(i2c_bus_t* bus, byte addr, byte command_code, int16_t* value);
 
 public:
     SmartBatt();
@@ -30,27 +31,27 @@ public:
     void begin(i2c_bus_t* i2c_bus);
     
     //Get the battery output voltage in mV
-    int getVoltage();
+    bool getVoltage(int16_t* value);
     //Get the battery output current in mA
-    int getCurrent();
+    bool getCurrent(int16_t* value);
     //Get the battery charge in hundredths of a percent (0.01%)
-    int getCharge();
+    bool getCharge(int16_t* value);
     //Get the battery temperature in hundredths of a degree C
-    int getTemp();
+    bool getTemp(int16_t* value);
     //Get manufacturer name
-    void getManufacturer(char* buf, int len);
+    bool getManufacturer(char* buf, int len);
     //Get device name
-    void getDeviceName(char* buf, int len);
+    bool getDeviceName(char* buf, int len);
     //Get device chemistry
-    void getChemistry(char* buf, int len);
+    bool getChemistry(char* buf, int len);
     //Get serial number
-    int getSerial();
+    bool getSerial(int16_t* value);
     //Get average current
-    int getAvgCurrent();
+    bool getAvgCurrent(int16_t* value);
     //Get remaining capacity
-    int getRemCap();
+    bool getRemCap(int16_t* value);
     //Get full capacity
-    int getFullCap();
+    bool getFullCap(int16_t* value);
 };
 
 #endif

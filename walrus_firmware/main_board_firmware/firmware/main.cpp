@@ -121,6 +121,7 @@ void recv_hs_control(const walrus_firmware_msgs::MainBoardHighSpeedControl& msg)
 void doLowSpeedOperations()
 {   
     uint8_t index;
+    int16_t value;
     //Don't bother doing anything if we're not connected
     if (nh.connected())
     {
@@ -177,40 +178,53 @@ void doLowSpeedOperations()
             case READ_BATT3_VOLTAGE: 
             case READ_BATT4_VOLTAGE:
                 index = report_state - READ_BATT1_VOLTAGE;
-                ls_data_msg.ucell_voltage[index] = upper[index].getVoltage();
-                ls_data_msg.lcell_voltage[index] = lower[index].getVoltage();
+                upper[index].getVoltage(&value);
+                ls_data_msg.ucell_voltage[index] = value;
+                lower[index].getVoltage(&value);
+                ls_data_msg.lcell_voltage[index] = value;
             break;
             case READ_BATT1_CURRENT:
             case READ_BATT2_CURRENT:
             case READ_BATT3_CURRENT: 
             case READ_BATT4_CURRENT:
                 index = report_state - READ_BATT1_CURRENT;
-                ls_data_msg.ucell_current[index] = upper[index].getCurrent();
-                ls_data_msg.lcell_current[index] = lower[index].getCurrent();
+                if (!upper[index].getCurrent(&value))
+                    ls_data_msg.batt_present |= (1 << index);
+                else
+                    ls_data_msg.batt_present &= ~(1 << index);
+                ls_data_msg.ucell_current[index] = value;
+                lower[index].getCurrent(&value);
+                ls_data_msg.lcell_current[index] = value;
             break;
             case READ_BATT1_AVGCURRENT:
             case READ_BATT2_AVGCURRENT:
             case READ_BATT3_AVGCURRENT:
             case READ_BATT4_AVGCURRENT:
                 index = report_state - READ_BATT1_AVGCURRENT;
-                ls_data_msg.ucell_avgcurr[index] = upper[index].getAvgCurrent();
-                ls_data_msg.lcell_avgcurr[index] = lower[index].getAvgCurrent();
+                upper[index].getAvgCurrent(&value);
+                ls_data_msg.ucell_avgcurr[index] = value; 
+                lower[index].getAvgCurrent(&value);
+                ls_data_msg.lcell_avgcurr[index] = value;
             break;    
             case READ_BATT1_TEMP:
             case READ_BATT2_TEMP:
             case READ_BATT3_TEMP:
             case READ_BATT4_TEMP:
                 index = report_state - READ_BATT1_TEMP;
-                ls_data_msg.ucell_temp[index] = upper[index].getTemp();
-                ls_data_msg.lcell_temp[index] = lower[index].getTemp();
+                upper[index].getTemp(&value);
+                ls_data_msg.ucell_temp[index] = value;
+                lower[index].getTemp(&value);
+                ls_data_msg.lcell_temp[index] = value;
             break;
             case READ_BATT1_CHARGE:
             case READ_BATT2_CHARGE:
             case READ_BATT3_CHARGE:
             case READ_BATT4_CHARGE:
                 index = report_state - READ_BATT1_CHARGE;
-                ls_data_msg.ucell_charge[index] = upper[index].getCharge();
-                ls_data_msg.lcell_charge[index] = lower[index].getCharge();
+                upper[index].getCharge(&value);
+                ls_data_msg.ucell_charge[index] = value;
+                lower[index].getCharge(&value);
+                ls_data_msg.lcell_charge[index] = value;
             break;
             case SEND_DATA:
                 ls_data.publish(&ls_data_msg);
@@ -260,15 +274,17 @@ void recv_control(const walrus_firmware_msgs::MainBoardControl& msg)
                 delayed_operation = true;
                 to_pc_data.index = msg.index;
                 to_pc_data.value = 0;
-                to_pc_data.msg = buff;
-                lower[msg.index].getManufacturer(buff, 30);
-                to_pc_data.type = MainBoardControl::BATT_MFR;   
+                lower[msg.index].getManufacturer(buff, sizeof(buff));
+                to_pc_data.type = MainBoardControl::BATT_MFR; 
+                to_pc_data.msg = buff;  
                 to_pc.publish(&to_pc_data);
-                lower[msg.index].getDeviceName(buff, 30);
+                lower[msg.index].getDeviceName(buff, sizeof(buff));
                 to_pc_data.type = MainBoardControl::BATT_NAME;
+                to_pc_data.msg = buff;
                 to_pc.publish(&to_pc_data);
-                lower[msg.index].getChemistry(buff, 30);
+                lower[msg.index].getChemistry(buff, sizeof(buff));
                 to_pc_data.type = MainBoardControl::BATT_CHEM;
+                to_pc_data.msg = buff;
                 to_pc.publish(&to_pc_data);
             }
             else
