@@ -18,14 +18,25 @@ angular.module("app").directive("podControlToolChannel", function() {
 	    $scope.max = 3.1415;
 	    $scope.enable = false;
 
+	    function state_callback(state) {
+		$scope.state = state;
+		if(!$scope.enable) {
+		    $scope.value = state.process_value;
+		}
+		$scope.actual = state.process_value;
+		$scope.absError = Math.abs(state.error) * 100 / Math.PI;
+		$scope.set_point = state.set_point;
+	    }
+
+	    var command_pub = roslib.advertise($scope.controllerNamespace+"/command", "std_msgs/Float64");
+	    var state_sub = roslib.subscribe($scope.controllerNamespace+"/state", "control_msgs/JointControllerState", state_callback);
+
 	    function update() {
 		if($scope.enable) {
-		    console.log($scope.value);
-		    publisher.publish({data: $scope.value});
+		    command_pub.publish({data: $scope.value});
 		}
 	    }
 
-	    var publisher = roslib.advertise($scope.controllerNamespace+"/command", "std_msgs/Float64");
 	    $scope.$watch("value", function(value) {
 		if(value < $scope.min) {
 		    $scope.value = $scope.min;
@@ -39,7 +50,8 @@ angular.module("app").directive("podControlToolChannel", function() {
 	    var timer = $interval(update, 250);
 
 	    $scope.$on("$destroy", function() {
-		publisher.shutdown();
+		state_sub.shutdown();
+		command_pub.shutdown();
 		$interval.cancel(timer);
 	    });
 	},
