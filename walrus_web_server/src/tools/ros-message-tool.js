@@ -1,5 +1,5 @@
 angular.module("app").controller("RosMessageToolCtrl",
-				 function( $scope, $routeParams, roslib ) {
+				 function( $scope, $routeParams, roslib, $q ) {
     $scope.messages = [];
     $scope.history = false;
     $scope.topic = "";
@@ -43,10 +43,29 @@ angular.module("app").controller("RosMessageToolCtrl",
 
     $scope.$watch("topic", function(newValue) {
 	updateSub();
+	roslib.callService("/rosapi/topic_type", "rosapi/TopicType", {topic: newValue})
+	    .then(function(result) {
+		if(result.type.length > 0) {
+		    $scope.type = result.type;
+		}
+	    });
     });
     $scope.$watch("type", function(newValue) {
 	updateSub();
     });
+
+    $scope.getMatches = function(searchText) {
+	var deferred = $q.defer();
+	roslib.callService("/rosapi/topics", "rosapi/Topics", {})
+	    .then(function(result) {
+		deferred.resolve(result.topics.filter(function(topic){
+		    return topic.indexOf(searchText) >= 0;
+		}));
+	    }, function(error) {
+		deferred.reject(error);
+	    });
+	return deferred.promise;
+    };
 
     $scope.$on("$destroy", function() {
 	if(sub) {

@@ -8,7 +8,7 @@ angular.module("ros")
 	setPackageUrl: function(url) {
 	    this.packageUrl = url;
 	},
-	$get: function($rootScope) {
+	$get: function($rootScope, $q) {
 	    var ros = new ROSLIB.Ros({
 		url : this.rosbridgeWsUrl
 	    });
@@ -77,6 +77,20 @@ angular.module("ros")
 			    topic.unsubscribe();
 			}
 		    };
+		},
+		callService: function(name, type, request) {
+		    var service = new ROSLIB.Service({
+			ros : ros,
+			name : name,
+			serviceType : type
+		    });
+		    var deferred = $q.defer();
+		    service.callService(request, function(result) {
+			deferred.resolve(result);
+		    }, function(error) {
+			deferred.reject(error);
+		    });
+		    return deferred.promise;
 		},
 		time_now: function() {
 		    var currentTime = new Date();

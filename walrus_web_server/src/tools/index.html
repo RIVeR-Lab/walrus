@@ -42,7 +42,7 @@
 	<md-list>
           <md-item ng-repeat="tool in group.tools">
             <md-item-content>
-              <md-button class="nav-button" href="{{tool.path}}">
+              <md-button class="nav-button" href="#{{tool.path}}" ng-class="{'md-accent': $location.path()=='{{tool.path}}'}">
 		{{tool.name}}
               </md-button>
             </md-item-content>

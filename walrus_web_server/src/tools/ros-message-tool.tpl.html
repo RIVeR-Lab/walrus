@@ -1,17 +1,14 @@
-<md-content layout="row">
-  <md-input-container flex>
-    <label>Topic</label>
-    <input ng-model="topic" ng-model-options="{ updateOn: 'blur' }">
-  </md-input-container>
-  <md-input-container flex="30">
-    <label>Type</label>
-    <input ng-model="type" ng-model-options="{ updateOn: 'blur' }">
+<span layout="row">
+  <md-autocomplete md-selected-item="topic" md-search-text="topicSearchText" md-items="match in getMatches(topicSearchText)" md-item-text="match" flex>
+    <span md-highlight-text="topicSearchText">{{match}}</span>
+  </md-autocomplete>
+  <md-input-container flex="25" md-no-float style="margin-left:20px;">
+    <input ng-model="type" ng-model-options="{ updateOn: 'blur' }" placeholder="Type">
   </md-input-container>
 
   <md-checkbox ng-model="history">History</md-checkbox>
-  <md-button ng-click="clear()" class="inline-form md-primary">Clear Log</md-button>
-</md-content>
-<div>State: {{state}}</div>
+  <md-button ng-click="clear()" class="md-primary">Clear Log</md-button>
+</span>
 <md-list>
   <md-item ng-repeat="message in messages">
     <md-item-content>

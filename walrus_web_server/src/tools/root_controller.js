@@ -9,8 +9,8 @@ angular.module("app").controller("RootCtrl",
 	},
 	{ name: "ROS",
 	  tools: [
-	      {name: "Message Tool", path: "#ros-message-tool"},
-	      {name: "ROS Log", path: "#ros-log-tool"}
+	      {name: "Message Tool", path: "/ros-message-tool"},
+	      {name: "ROS Log", path: "/ros-log-tool"}
 	  ]
 	}
     ];
