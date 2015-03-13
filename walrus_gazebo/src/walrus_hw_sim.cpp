@@ -169,7 +169,7 @@ public:
   void writeSim(ros::Time time, ros::Duration period) {
     for(int i = 0; i<effort_joints.size(); ++i){
       gazebo::physics::JointPtr joint = effort_joints[i];
-      joint->SetAngle(0, effort_cmds[i]);
+      joint->SetForce(0, effort_cmds[i]);
     }
     for(int i = 0; i<drive_joints.size(); ++i){
       for(int j = 0; j < drive_joints[i].size(); ++j){
@@ -185,7 +185,7 @@ public:
 
 std::vector<std::string> WalrusHWSim::POD_POSITIONS = boost::assign::list_of("front")("back");
 std::vector<std::string> WalrusHWSim::DRIVE_SIDES = boost::assign::list_of("left")("right");
-double WalrusHWSim::MAX_DRIVE_TORQUE = 100;
+double WalrusHWSim::MAX_DRIVE_TORQUE = 1000;
 
 }
 
