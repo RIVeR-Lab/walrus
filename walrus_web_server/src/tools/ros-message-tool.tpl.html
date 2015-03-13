@@ -1,0 +1,23 @@
+<md-content layout="row">
+  <md-input-container flex>
+    <label>Topic</label>
+    <input ng-model="topic" ng-model-options="{ updateOn: 'blur' }">
+  </md-input-container>
+  <md-input-container flex="30">
+    <label>Type</label>
+    <input ng-model="type" ng-model-options="{ updateOn: 'blur' }">
+  </md-input-container>
+
+  <md-checkbox ng-model="history">History</md-checkbox>
+  <md-button ng-click="clear()" class="inline-form md-primary">Clear Log</md-button>
+</md-content>
+<div>State: {{state}}</div>
+<md-list>
+  <md-item ng-repeat="message in messages">
+    <md-item-content>
+      <div class="md-tile-content">
+	{{message}}
+      </div>
+    </md-item-content>
+  </md-item>
+</md-list>

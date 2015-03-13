@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" ng-app="app">
+<head>
+  <meta charset="utf-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <title>WALRUS Rover Tools</title>
+
+  <link rel="stylesheet" href="/libs/angular-material/angular-material.min.css">
+  <link rel="stylesheet" href="/tools/app.min.css">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=RobotoDraft:400,500,700,400italic">
+
+  <script src="/libs/angular/angular.min.js"></script>
+  <script src="/libs/angular-route/angular-route.min.js"></script>
+  <script src="/libs/angular-aria/angular-aria.min.js"></script>
+  <script src="/libs/angular-animate/angular-animate.min.js"></script>
+  <script src="/libs/angular-material/angular-material.min.js"></script>
+
+  <script type="text/javascript" src="/libs/eventemitter2.js"></script>
+  <script type="text/javascript" src="/libs/roslib.js"></script>
+  <script type="text/javascript" src="/libs/three.js"></script>
+  <script type="text/javascript" src="/libs/STLLoader.js"></script>
+  <script type="text/javascript" src="/libs/ColladaLoader.js"></script>
+  <script type="text/javascript" src="/libs/ColladaLoader2.js"></script>
+  <script type="text/javascript" src="/libs/ros3d.js"></script>
+
+  <script src="/tools/app.min.js"></script>
+</head>
+
+<body layout="column" ng-controller="RootCtrl">
+  <md-toolbar layout="row">
+    <md-button ng-click="toggleSidenav()" hide-gt-lg>
+      MENU
+    </md-button>
+    <h1 class="md-toolbar-tools">WALRUS Robot Tools</h1>
+  </md-toolbar>
+  <div layout="row" flex>
+    <md-sidenav layout="column" class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-lg')">
+      <div ng-repeat="group in toolGroups">
+	<md-subheader class="md-primary">{{group.name}}</md-subheader>
+	<md-list>
+          <md-item ng-repeat="tool in group.tools">
+            <md-item-content>
+              <md-button class="nav-button" href="{{tool.path}}">
+		{{tool.name}}
+              </md-button>
+            </md-item-content>
+          </md-item>
+	</md-list>
+      </div>
+    </md-sidenav>
+    <md-content flex class="md-padding">
+      <div ng-view></div>
+    </md-content>
+    </div>
+  </div>
+</body>
+</html>

@@ -42,6 +42,11 @@ module.exports = function(grunt) {
 		files: {
 		    "web/web_interface.min.css": ["src/web_interface/**/*.css"]
 		}
+	    },
+	    tools: {
+		files: {
+		    "web/tools/app.min.css": ["src/tools/**/*.css"]
+		}
 	    }
 	},
 	ngAnnotate: {
@@ -96,6 +101,21 @@ module.exports = function(grunt) {
 		    "<%= ngtemplates.svg_templates.dest %>"
 		],
 		dest: "build/web_interface.js"
+	    },
+	    tools: {
+		src: [
+		    // make sure that the modules definitions are first
+		    "build/annotated/tools/app.annotated.js",
+		    "build/annotated/services/ros/ros.annotated.js",
+		    "build/annotated/services/gamepad_service.annotated.js",
+		    "build/annotated/services/**/*.js",
+		    "build/annotated/directives/**/*.js",
+		    "build/annotated/util/**/*.js",
+		    "build/annotated/tools/**/*.js",
+		    "<%= ngtemplates.html_templates.dest %>",
+		    "<%= ngtemplates.svg_templates.dest %>"
+		],
+		dest: "build/tools/app.js"
 	    }
 	},
 	uglify: {
@@ -111,6 +131,11 @@ module.exports = function(grunt) {
 		files: {
 		    "web/web_interface.min.js": ["<%= concat.web_interface.dest %>"]
 		}
+	    },
+	    tools: {
+		files: {
+		    "web/tools/app.min.js": ["<%= concat.tools.dest %>"]
+		}
 	    }
 	},
 	htmlmin: {
@@ -123,6 +148,14 @@ module.exports = function(grunt) {
 		    expand: true,
 		    cwd: "src/web_interface",
 		    src: "index.html",
+		    dest: "web/"
+		}]
+	    },
+	    tools: {
+		files: [{
+		    expand: true,
+		    cwd: "src",
+		    src: "tools/index.html",
 		    dest: "web/"
 		}]
 	    }
@@ -148,6 +181,7 @@ module.exports = function(grunt) {
 		cwd: "bower_components",
 		src: [
 		    "angular/angular.min.js", "angular/angular.min.js.map",
+		    "angular-route/angular-route.min.js", "angular-route/angular-route.min.js.map",
 		    "angular-animate/angular-animate.min.js", "angular-animate/angular-animate.min.js.map",
 		    "angular-aria/angular-aria.min.js", "angular-aria/angular-aria.min.js.map",
 		    "angular-material/angular-material.min.js", "angular-material/angular-material.min.css"

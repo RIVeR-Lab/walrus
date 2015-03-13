@@ -16,6 +16,7 @@ def main():
 
     application = web.Application([
         (r"/()", web.StaticFileHandler, {'path': os.path.join(web_dir, 'index.html')}),
+        (r"/tools/?()", web.StaticFileHandler, {'path': os.path.join(web_dir, 'tools', 'index.html')}),
         (r"/(.*)", web.StaticFileHandler, {"path": web_dir})
     ], debug=True)
     application.listen(rospy.get_param("~port", 8080))
