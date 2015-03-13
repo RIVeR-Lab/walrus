@@ -1,19 +1,7 @@
 angular.module("app").controller("RootCtrl",
-				 function( $scope, $mdSidenav, $location ) {
+				 function( $scope, $mdSidenav, $location, toolGroups ) {
     $scope.$location = $location;
-    $scope.toolGroups = [
-	{ name: "WALRUS",
-	  tools: [
-	      {name: "Pod Control"}
-	  ]
-	},
-	{ name: "ROS",
-	  tools: [
-	      {name: "Message Tool", path: "/ros-message-tool"},
-	      {name: "ROS Log", path: "/ros-log-tool"}
-	  ]
-	}
-    ];
+    $scope.toolGroups = toolGroups;
 
     $scope.toggleSidenav = function() {
 	$mdSidenav("left").toggle();

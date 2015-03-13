@@ -2,6 +2,29 @@ var app = angular.module("app", ["ros", "gamepad", "ngRoute", "ngMaterial", "htm
 angular.module("html_templates", []);
 angular.module("svg_templates", []);
 
+var toolGroups = [
+    { name: "WALRUS",
+      tools: [
+	  {name: "Pod Control", path: "/pod-control",
+	  templateUrl: "/tools/pod-control-tool.tpl.html",
+	  controller: "PodControlToolCtrl"}
+      ]
+    },
+    { name: "ROS",
+      tools: [
+	  {name: "Message Tool", path: "/ros-message-tool",
+	   templateUrl: "/tools/ros-message-tool.tpl.html",
+	   controller: "RosMessageToolCtrl"},
+	  {name: "ROS Log", path: "/ros-log-tool",
+	   templateUrl: "/tools/ros-log-tool.tpl.html",
+	   controller: "RosLogToolCtrl"}
+      ]
+    }
+];
+app.factory("toolGroups", function clientIdFactory() {
+    return toolGroups;
+});
+
 app.config(function(roslibProvider, gamepadServiceProvider, webrtcRosServiceProvider, $mdThemingProvider, $routeProvider){
     roslibProvider.setRosbridgeWsUrl("ws://"+location.hostname+":9003");
     roslibProvider.setPackageUrl("http://"+location.hostname+":9002/");
@@ -14,16 +37,15 @@ app.config(function(roslibProvider, gamepadServiceProvider, webrtcRosServiceProv
 	.primaryPalette("blue")
 	.accentPalette("pink");
 
-    $routeProvider
-	.when("/", {
+    $routeProvider.when("/", {
 	    template: "WALRUS Rover Tools"
-	})
-	.when("/ros-message-tool", {
-	    templateUrl: "/tools/ros-message-tool.tpl.html",
-	    controller: "RosMessageToolCtrl"
-	})
-	.when("/ros-log-tool", {
-	    templateUrl: "/tools/ros-log-tool.tpl.html",
-	    controller: "RosLogToolCtrl"
 	});
+    toolGroups.forEach(function(group){
+	group.tools.forEach(function(tool){
+	    $routeProvider.when(tool.path, {
+		templateUrl: tool.templateUrl,
+		controller: tool.controller
+	    });
+	});
+    });
 });
