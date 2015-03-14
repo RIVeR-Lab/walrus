@@ -43,6 +43,13 @@ target_link_libraries(walrus_base_hw_node
   walrus_base_robot
 )
 
+add_executable(walrus_base_epos_hw_node src/walrus_base_epos_hw_node.cpp)
+target_link_libraries(walrus_base_epos_hw_node
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  walrus_base_robot
+)
+
 
 #############
 ## Install ##

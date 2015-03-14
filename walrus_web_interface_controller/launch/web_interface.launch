@@ -1,10 +1,10 @@
 <launch>
   <node name="joystick_interface" pkg="walrus_joystick_controller" type="joystick_controller_node">
-    <remap from="cmd_vel" to="/drive_controller/cmd_vel" />
-    <remap from="left_pods_joint_controller/front/command" to="/left_pods_joint_controller/front/command" />
-    <remap from="right_pods_joint_controller/front/command" to="/right_pods_joint_controller/front/command" />
-    <remap from="left_pods_joint_controller/back/command" to="/left_pods_joint_controller/back/command" />
-    <remap from="right_pods_joint_controller/back/command" to="/right_pods_joint_controller/back/command" />
+    <remap from="cmd_vel" to="/base_epos/drive_controller/cmd_vel" />
+    <remap from="left_pods_joint_controller/front/command" to="/base/left_pods_joint_controller/front/command" />
+    <remap from="right_pods_joint_controller/front/command" to="/base/right_pods_joint_controller/front/command" />
+    <remap from="left_pods_joint_controller/back/command" to="/base/left_pods_joint_controller/back/command" />
+    <remap from="right_pods_joint_controller/back/command" to="/base/right_pods_joint_controller/back/command" />
 
     <param name="button_pods_up" value="3" />
     <param name="button_pods_toes" value="1" />

@@ -1,19 +1,24 @@
-# Publish joint states
-joint_state_controller:
-  type: joint_state_controller/JointStateController
-  publish_rate: 50
+base:
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50
 
-# Drive Controllers
-drive_controller:
-  type: walrus_drive_controller/WalrusDriveController
-  left_tread_joint: walrus/left_drive_joint
-  right_tread_joint: walrus/right_drive_joint
-  pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-  twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-  main_tread_separation: 0.3207
-  tread_driver_radius: 0.0765
-  main_tread_ground_contact_length: 0.4826
-  tread_width: 0.05
-  cmd_vel_timeout: 0.5
-  base_frame_id: walrus/base_footprint
-  odom_frame_id: walrus/odom
+base_epos:
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50
+
+  # Drive Controllers
+  drive_controller:
+    type: walrus_drive_controller/WalrusDriveController
+    left_tread_joint: walrus/left_drive_joint
+    right_tread_joint: walrus/right_drive_joint
+    pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+    twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+    main_tread_separation: 0.3207
+    tread_driver_radius: 0.0765
+    main_tread_ground_contact_length: 0.4826
+    tread_width: 0.05
+    cmd_vel_timeout: 0.5
+    base_frame_id: walrus/base_footprint
+    odom_frame_id: walrus/odom

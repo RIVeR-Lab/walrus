@@ -9,6 +9,8 @@
   <arg name="world_name" default="empty"/>
   <arg name="full_world_name" default="$(find walrus_gazebo)/worlds/$(arg world_name).world"/>
 
+  <remap from="base_epos/joint_states" to="joint_states" />
+  <remap from="base/joint_states" to="joint_states" />
   <!-- Launch gazebo -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="debug" value="$(arg debug)" />
