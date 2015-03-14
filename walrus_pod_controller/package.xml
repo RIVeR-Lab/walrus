@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<package>
+  <name>walrus_pod_controller</name>
+  <version>0.0.0</version>
+  <description>A controller for the WALRUS Robot pod system</description>
+
+  <maintainer email="mwills@wpi.edu">Mitchell Wills</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">http://robot.wpi.edu/walrus</url>
+  <url type="repository">https://github.com/RIVeR-Lab/walrus</url>
+
+  <author email="mwills@wpi.edu">Mitchell Wills</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>controller_interface</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>realtime_tools</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>urdf</build_depend>
+  <build_depend>control_toolbox</build_depend>
+  <build_depend>control_msgs</build_depend>
+  <build_depend>angles</build_depend>
+  <run_depend>controller_interface</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>realtime_tools</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>urdf</run_depend>
+  <run_depend>control_toolbox</run_depend>
+  <run_depend>control_msgs</run_depend>
+  <run_depend>angles</run_depend>
+
+
+  <export>
+    <controller_interface plugin="${prefix}/walrus_pod_controller_plugins.xml"/>
+  </export>
+</package>

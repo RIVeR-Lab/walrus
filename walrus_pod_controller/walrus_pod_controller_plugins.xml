@@ -1,0 +1,9 @@
+<library path="lib/libwalrus_pod_controller">
+
+  <class name="walrus_pod_controller/WalrusPodController" type="walrus_pod_controller::WalrusPodController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      The WalrusPodController implements pod control for the WALRUS Robot
+    </description>
+  </class>
+
+</library>

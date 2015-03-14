@@ -6,7 +6,7 @@
 
   <!-- Spawn controllers in Robot HW -->
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-	args="--shutdown-timeout=2.0 joint_state_controller front_left_pod_joint_controller back_left_pod_joint_controller front_right_pod_joint_controller back_right_pod_joint_controller drive_controller boom_deploy_controller boom_pan_controller boom_tilt_controller" />
+	args="--shutdown-timeout=2.0 joint_state_controller left_pods_joint_controller right_pods_joint_controller drive_controller boom_deploy_controller boom_pan_controller boom_tilt_controller" />
 
   <!-- Robot state publisher to publish tf from joint states -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true"/>
