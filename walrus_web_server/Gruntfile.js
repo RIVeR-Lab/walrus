@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 		singleGroups: false,
 
 		quotmark: "double",
-		maxparams: 5,
+		maxparams: 6,
 		maxdepth: 2,
 		maxstatements: 16,
 		maxcomplexity: 5
@@ -38,9 +38,14 @@ module.exports = function(grunt) {
 	    }
 	},
 	cssmin: {
-	    target: {
+	    web_interface: {
 		files: {
-		    "web/<%= pkg.name %>.min.css": ["src/**/*.css"]
+		    "web/web_interface.min.css": ["src/web_interface/**/*.css"]
+		}
+	    },
+	    tools: {
+		files: {
+		    "web/tools/app.min.css": ["src/tools/**/*.css"]
 		}
 	    }
 	},
@@ -63,7 +68,7 @@ module.exports = function(grunt) {
 	    html_templates: {
 		options: {
 		    prefix: "/",
-		    htmlmin:  "<%= htmlmin.app.options %>"
+		    htmlmin:  "<%= htmlmin.options %>"
 		},
 		cwd: "src",
 		src: "**/*.tpl.html",
@@ -82,16 +87,35 @@ module.exports = function(grunt) {
 	    options: {
 		separator: ";"
 	    },
-	    js: {
+	    web_interface: {
 		src: [
 		    // make sure that the modules definitions are first
-		    "build/annotated/app.annotated.js",
+		    "build/annotated/web_interface/app.annotated.js",
 		    "build/annotated/services/ros/ros.annotated.js",
-		    "build/annotated/**/*.js",
+		    "build/annotated/services/gamepad_service.annotated.js",
+		    "build/annotated/services/**/*.js",
+		    "build/annotated/directives/**/*.js",
+		    "build/annotated/util/**/*.js",
+		    "build/annotated/web_interface/**/*.js",
 		    "<%= ngtemplates.html_templates.dest %>",
 		    "<%= ngtemplates.svg_templates.dest %>"
 		],
-		dest: "build/<%= pkg.name %>.js"
+		dest: "build/web_interface.js"
+	    },
+	    tools: {
+		src: [
+		    // make sure that the modules definitions are first
+		    "build/annotated/tools/app.annotated.js",
+		    "build/annotated/services/ros/ros.annotated.js",
+		    "build/annotated/services/gamepad_service.annotated.js",
+		    "build/annotated/services/**/*.js",
+		    "build/annotated/directives/**/*.js",
+		    "build/annotated/util/**/*.js",
+		    "build/annotated/tools/**/*.js",
+		    "<%= ngtemplates.html_templates.dest %>",
+		    "<%= ngtemplates.svg_templates.dest %>"
+		],
+		dest: "build/tools/app.js"
 	    }
 	},
 	uglify: {
@@ -103,22 +127,35 @@ module.exports = function(grunt) {
 		sourceMapIncludeSources: true,
 		mangle: true
 	    },
-	    js: {
+	    web_interface: {
 		files: {
-		    "web/<%= pkg.name %>.min.js": ["<%= concat.js.dest %>"]
+		    "web/web_interface.min.js": ["<%= concat.web_interface.dest %>"]
+		}
+	    },
+	    tools: {
+		files: {
+		    "web/tools/app.min.js": ["<%= concat.tools.dest %>"]
 		}
 	    }
 	},
 	htmlmin: {
-	    app: {
-		options: {
-		    removeComments: true,
-		    collapseWhitespace: true
-		},
+	    options: {
+		removeComments: true,
+		collapseWhitespace: true
+	    },
+	    web_interface: {
 		files: [{
 		    expand: true,
-		    cwd: "src/",
+		    cwd: "src/web_interface",
 		    src: "index.html",
+		    dest: "web/"
+		}]
+	    },
+	    tools: {
+		files: [{
+		    expand: true,
+		    cwd: "src",
+		    src: "tools/index.html",
 		    dest: "web/"
 		}]
 	    }
@@ -144,6 +181,7 @@ module.exports = function(grunt) {
 		cwd: "bower_components",
 		src: [
 		    "angular/angular.min.js", "angular/angular.min.js.map",
+		    "angular-route/angular-route.min.js", "angular-route/angular-route.min.js.map",
 		    "angular-animate/angular-animate.min.js", "angular-animate/angular-animate.min.js.map",
 		    "angular-aria/angular-aria.min.js", "angular-aria/angular-aria.min.js.map",
 		    "angular-material/angular-material.min.js", "angular-material/angular-material.min.css"

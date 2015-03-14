@@ -1,0 +1,25 @@
+<md-card layout="column">
+  <md-card-content>
+    <h2>{{label}}:</h2>
+    <div layout="row">
+      <md-slider min="{{min}}" max="{{max}}" step="0.1" ng-model="value" flex ng-disabled="!enable"></md-slider>
+      <input type="number" min="{{min}}" max="{{max}}" ng-model="value" ng-disabled="!enable">
+      <md-button class="md-primary md-raised" ng-click="value=0" ng-disabled="!enable">Zero</md-button>
+      <md-checkbox ng-model="enable">Enable</md-checkbox>
+    </div>
+    <div layout="row">
+      <div flex>
+	Error:
+	<md-progress-linear class="md-warn" value="{{absError}}" md-mode="determinate" style="margin-top:10px;"></md-progress-linear>
+      </div>
+      <md-input-container flex="20">
+	<label>Actual</label>
+	<input ng-model="actual" disabled>
+      </md-input-container>
+      <md-input-container flex="20">
+	<label>Set Point</label>
+	<input ng-model="set_point" disabled>
+      </md-input-container>
+    </div>
+  </md-card-content>
+</md-card>

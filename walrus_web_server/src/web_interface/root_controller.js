@@ -1,5 +1,5 @@
 angular.module("app").controller("RootCtrl",
-					      function( $scope, roslib, gamepadService, $interval ) {
+					      function( $scope, roslib, gamepadService, $interval, $mdDialog ) {
     var joyPub = roslib.advertise("web_interface/joy", "sensor_msgs/Joy");
 
     var lastJoyData = null;
@@ -35,4 +35,27 @@ angular.module("app").controller("RootCtrl",
     ];
     $scope.primary_video_stream = $scope.available_video_streams[0];
     $scope.secondary_video_stream = $scope.available_video_streams[3];
+
+
+    var showStreamSelectorDialog = function(ev) {
+	return $mdDialog.show({
+	    targetEvent: ev,
+	    templateUrl: "/web_interface/dialogs/video_stream_selector.tpl.html",
+	    controller: "VideoStreamSelectorController",
+	    locals: { available_streams: $scope.available_video_streams }
+	});
+    };
+
+    $scope.showSecondaryStreamSelectorDialog = function(ev) {
+	console.log(ev);
+	showStreamSelectorDialog(ev).then(function(result) {
+	    $scope.secondary_video_stream = result;
+	});
+    };
+    $scope.showPrimaryStreamSelectorDialog = function(ev) {
+	console.log(ev);
+	showStreamSelectorDialog(ev).then(function(result) {
+	    $scope.primary_video_stream = result;
+	});
+    };
 });

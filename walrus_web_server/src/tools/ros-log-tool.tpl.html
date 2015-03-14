@@ -1,0 +1,19 @@
+<md-button ng-click="clear()" class="inline-form md-primary">Clear Log</md-button>
+<md-list>
+  <md-item ng-repeat="message in messages">
+    <md-item-content>
+      <div class="md-tile-left">
+	{{levels[message.level]}}
+      </div>
+      <div class="md-tile-content">
+	<h3>{{message.msg}}</h3>
+	<h4>Node: {{message.name}}</h4>
+	<p>
+	  File: {{message.file}} (function: {{message.function}}, line: {{message.line}})
+	  <br>
+	  Time: {{message.header.stamp}}
+	</p>
+      </div>
+    </md-item-content>
+  </md-item>
+</md-list>
