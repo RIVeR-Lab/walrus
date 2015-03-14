@@ -95,6 +95,7 @@ target_link_libraries(walrus_stair_detector_ros
   ${PCL_LIBRARIES}
   walrus_stair_detector
 )
+add_dependencies(walrus_stair_detector_ros ${PROJECT_NAME}_generate_messages_cpp)
 
 
 add_executable(walrus_stair_detector_node src/walrus_stair_detector_node.cpp)
