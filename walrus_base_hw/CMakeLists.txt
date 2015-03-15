@@ -55,7 +55,7 @@ target_link_libraries(walrus_base_epos_hw_node
 ## Install ##
 #############
 
-install(TARGETS walrus_base_robot walrus_base_hw_node
+install(TARGETS walrus_base_robot walrus_base_hw_node walrus_base_epos_hw_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
