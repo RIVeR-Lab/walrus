@@ -2,13 +2,23 @@ import subprocess
 from termcolor import colored
 import sys
 
-def sudo_call(cmd):
+def sudo_call(cmd, output=True):
     full_cmd = ['sudo'] + cmd
-    print 'Calling: ' + ' '.join(full_cmd)
-    subprocess.call(full_cmd)
+    if output:
+        print 'Calling: ' + ' '.join(full_cmd)
+    return subprocess.call(full_cmd)
+
+def sudo_call_output(cmd, output=True):
+    full_cmd = ['sudo'] + cmd
+    if output:
+        print 'Calling: ' + ' '.join(full_cmd)
+    return subprocess.check_output(full_cmd)
 
 def sudo_mv(src, dst):
     sudo_call(['mv', src, dst])
+
+def sudo_cp(src, dst):
+    sudo_call(['cp', src, dst])
 
 def sudo_symlink(src, name):
     sudo_call(['ln', '-s', src, name])
