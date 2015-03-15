@@ -4,7 +4,7 @@
 
   <!-- IMU -->
   <node name="orientus_node" pkg="orientus_driver" type="orientus_node" respawn="true" respawn_delay="5">
-    <param name="port" value="/dev/ttyUSB0"/>
+    <param name="port" value="/dev/walrus_imu"/>
   </node>
 
   <node pkg="multi_usb_cam" type="multi_usb_cam_node" name="multi_usb_cam_node" respawn="true" respawn_delay="5">
