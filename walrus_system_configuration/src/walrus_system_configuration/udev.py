@@ -28,7 +28,7 @@ def install():
         installed_udev_file = os.path.join(UDEV_RULES_DIR, name)
         if os.path.isfile(installed_udev_file):
             if os.path.realpath(installed_udev_file) != f:
-                error(name + ' already exists, but is not correct\n', 'red')
+                error(name + ' already exists, but is not correct')
                 if confirm('Backup old file and install ' + name):
                     sudo_mv(installed_udev_file, installed_udev_file+'~')
                     sudo_symlink(f, installed_udev_file)
