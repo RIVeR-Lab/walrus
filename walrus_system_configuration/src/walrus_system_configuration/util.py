@@ -114,8 +114,11 @@ def status_package(name):
         success(name+' is installed')
 
 def service_status(name):
-    status = sudo_call_output(['service', name, 'status'])
-    if 'start/running' in status:
+    try:
+        status = sudo_call_output(['service', name, 'status'])
+    except subprocess.CalledProcessError:
+        status = 'not running'
+    if 'start/running' in status or 'is running' in status:
         success(name+' is running')
     elif 'unrecognized service' in status:
         error(name+' is not installed')
