@@ -4,6 +4,8 @@
 #include <controller_manager/controller_manager.h>
 #include <vector>
 #include "walrus_base_hw/realtime_rate.h"
+#include <boost/assign/list_of.hpp>
+#include <controller_manager_msgs/SwitchController.h>
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "walrus_base_epos_hw_node");
@@ -29,7 +31,16 @@ int main(int argc, char** argv) {
   }
   ROS_INFO("Motors Initialized");
 
+  std::vector<std::string> controller_names = boost::assign::list_of
+    ("joint_state_controller")
+    ("drive_controller");
   controller_manager::ControllerManager cm(&robot, pnh);
+  BOOST_FOREACH(const std::string& name, controller_names) {
+    if(!cm.loadController(name))
+      ROS_ERROR_STREAM("Failed to load controller: " << name);
+  }
+  if(!cm.switchController(controller_names, std::vector<std::string>(), controller_manager_msgs::SwitchController::Request::BEST_EFFORT))
+    ROS_ERROR("Failed to activate controllers");
 
   walrus_base_hw::RealtimeRate rate(controller_rate);
   while (ros::ok()) {

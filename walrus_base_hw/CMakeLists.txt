@@ -3,6 +3,7 @@ project(walrus_base_hw)
 
 find_package(catkin REQUIRED COMPONENTS
   controller_manager
+  controller_manager_msgs
   hardware_interface
   roscpp
   transmission_interface
@@ -18,7 +19,7 @@ if(Boost_CHRONO_FOUND)
   add_definitions(-DHAVE_BOOST_CHRONO=1)
 endif()
 
-catkin_package()
+catkin_package(CATKIN_DEPENDS controller_manager_msgs)
 
 ###########
 ## Build ##
