@@ -3,3 +3,6 @@
     text-align: left;
     padding-left: 25px;
 }
+
+.flex-vcenter-row { align-items:center; }
+.flex-vcenter-row > *{ margin: 0 0 0 20px; }

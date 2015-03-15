@@ -10,11 +10,22 @@ find_package(catkin REQUIRED COMPONENTS
   control_toolbox
   control_msgs
   angles
+  message_generation
+)
+
+add_message_files(
+  FILES
+  PodCommand.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
 )
 
 catkin_package(
   LIBRARIES walrus_pod_controller
-  CATKIN_DEPENDS std_msgs controller_interface realtime_tools tf urdf control_toolbox control_msgs angles
+  CATKIN_DEPENDS std_msgs controller_interface realtime_tools tf urdf control_toolbox control_msgs angles message_runtime
 )
 
 ###########
@@ -33,6 +44,7 @@ add_library(walrus_pod_controller
 target_link_libraries(walrus_pod_controller
   ${catkin_LIBRARIES}
 )
+add_dependencies(walrus_pod_controller {PROJECT_NAME}_generate_messages_cpp)
 
 #############
 ## Install ##

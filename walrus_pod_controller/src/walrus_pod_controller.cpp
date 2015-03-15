@@ -11,6 +11,7 @@ namespace walrus_pod_controller{
 
 Pod::Pod(ros::NodeHandle nh)
   : nh_(nh), next_state_update_(0), controller_state_period_(0.5) {
+  last_command_.mode = walrus_pod_controller::PodCommand::DISABLED;
 }
 
 bool Pod::init(hardware_interface::EffortJointInterface* hw, urdf::Model urdf) {
@@ -32,17 +33,21 @@ bool Pod::init(hardware_interface::EffortJointInterface* hw, urdf::Model urdf) {
 
   controller_state_publisher_.reset(new realtime_tools::RealtimePublisher<control_msgs::JointControllerState>(nh_, "state", 1));
 
-  command_sub_ = nh_.subscribe<std_msgs::Float64>("command", 1, &Pod::setCommandCallback, this);
+  command_sub_ = nh_.subscribe<walrus_pod_controller::PodCommand>("command", 1, &Pod::setCommandCallback, this);
 }
 
-void Pod::setCommandCallback(const std_msgs::Float64ConstPtr& msg) {
-  command_buffer_.writeFromNonRT(msg->data);
+void Pod::setCommandCallback(const walrus_pod_controller::PodCommandConstPtr& msg) {
+  walrus_pod_controller::PodCommand command = *msg;
+  if(command.mode == walrus_pod_controller::PodCommand::POSITION) {
+    command.set_point = filters::clamp(command.set_point, -M_PI, M_PI);
+  }
+  command_buffer_.writeFromNonRT(command);
 }
 
 void Pod::starting(const ros::Time& time) {
-  command_buffer_.initRT(joint_.getPosition());
-
-  pid_controller_.reset();
+  walrus_pod_controller::PodCommand command;
+  command.mode = walrus_pod_controller::PodCommand::HOLD;
+  command_buffer_.initRT(command);
 }
 
 void Pod::stopping(const ros::Time& time) {
@@ -51,13 +56,38 @@ void Pod::stopping(const ros::Time& time) {
 
 void Pod::update(const ros::Time& time, const ros::Duration& period) {
   double current_position = joint_.getPosition();
-  double command_position = filters::clamp(*(command_buffer_.readFromRT()), -M_PI, M_PI);
+  walrus_pod_controller::PodCommand command = *(command_buffer_.readFromRT());
 
-  double error = angles::shortest_angular_distance(current_position, command_position);
+  if(command.mode == walrus_pod_controller::PodCommand::HOLD) {
+    command.mode = walrus_pod_controller::PodCommand::POSITION;
+    command.set_point = current_position;
+  }
 
-  double commanded_effort = pid_controller_.computeCommand(error, period);
+  double command_effort;
+  double command_position;
+  double error;
+  if(command.mode == walrus_pod_controller::PodCommand::POSITION) {
+    // switching to position mode
+    if(last_command_.mode != walrus_pod_controller::PodCommand::POSITION) {
+      pid_controller_.reset();
+    }
 
-  joint_.setCommand(commanded_effort);
+    command_position = command.set_point;
+    error = angles::shortest_angular_distance(current_position, command_position);
+    command_effort = pid_controller_.computeCommand(error, period);
+  }
+  else if(command.mode == walrus_pod_controller::PodCommand::EFFORT) {
+    command_position = std::numeric_limits<double>::quiet_NaN();
+    error = std::numeric_limits<double>::quiet_NaN();
+    command_effort = command.set_point;
+  }
+  else {
+    command_position = std::numeric_limits<double>::quiet_NaN();
+    error = std::numeric_limits<double>::quiet_NaN();
+    command_effort = 0.0;
+  }
+  joint_.setCommand(command_effort);
+  last_command_ = command;
 
   // publish state
   if (time > next_state_update_) {
@@ -68,7 +98,7 @@ void Pod::update(const ros::Time& time, const ros::Duration& period) {
       controller_state_publisher_->msg_.process_value_dot = joint_.getVelocity();
       controller_state_publisher_->msg_.error = error;
       controller_state_publisher_->msg_.time_step = period.toSec();
-      controller_state_publisher_->msg_.command = commanded_effort;
+      controller_state_publisher_->msg_.command = command_effort;
 
       double dummy;
       pid_controller_.getGains(controller_state_publisher_->msg_.p,

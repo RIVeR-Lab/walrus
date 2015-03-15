@@ -5,12 +5,13 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   sensor_msgs
+  walrus_pod_controller
 )
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES joystick_controller
-  CATKIN_DEPENDS roscpp geometry_msgs sensor_msgs
+  CATKIN_DEPENDS roscpp geometry_msgs sensor_msgs walrus_pod_controller
 )
 
 ###########

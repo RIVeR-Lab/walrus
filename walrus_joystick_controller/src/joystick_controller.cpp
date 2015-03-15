@@ -1,6 +1,6 @@
 #include "walrus_joystick_controller/joystick_controller.h"
 #include "geometry_msgs/Twist.h"
-#include "std_msgs/Float64.h"
+#include <walrus_pod_controller/PodCommand.h>
 
 namespace walrus_joystick_controller {
 
@@ -22,10 +22,10 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
 
   cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
-  back_left_pod_pub_ = nh.advertise<std_msgs::Float64>("left_pods_joint_controller/back/command", 1);
-  back_right_pod_pub_ = nh.advertise<std_msgs::Float64>("right_pods_joint_controller/back/command", 1);
-  front_left_pod_pub_ = nh.advertise<std_msgs::Float64>("left_pods_joint_controller/front/command", 1);
-  front_right_pod_pub_ = nh.advertise<std_msgs::Float64>("right_pods_joint_controller/front/command", 1);
+  back_left_pod_pub_ = nh.advertise<walrus_pod_controller::PodCommand>("left_pods_joint_controller/back/command", 1);
+  back_right_pod_pub_ = nh.advertise<walrus_pod_controller::PodCommand>("right_pods_joint_controller/back/command", 1);
+  front_left_pod_pub_ = nh.advertise<walrus_pod_controller::PodCommand>("left_pods_joint_controller/front/command", 1);
+  front_right_pod_pub_ = nh.advertise<walrus_pod_controller::PodCommand>("right_pods_joint_controller/front/command", 1);
 }
 
 void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
@@ -51,10 +51,12 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
 }
 
 void JoystickController::publishPodAngles(double angle) {
-  std_msgs::Float64 angle_msg;
-  angle_msg.data = angle;
-  std_msgs::Float64 negated_angle_msg;
-  negated_angle_msg.data = -angle;
+  walrus_pod_controller::PodCommand angle_msg;
+  angle_msg.set_point = angle;
+  angle_msg.mode = walrus_pod_controller::PodCommand::POSITION;
+  walrus_pod_controller::PodCommand negated_angle_msg;
+  negated_angle_msg.set_point = -angle;
+  negated_angle_msg.mode = walrus_pod_controller::PodCommand::POSITION;
 
   back_left_pod_pub_.publish(angle_msg);
   back_right_pod_pub_.publish(angle_msg);
