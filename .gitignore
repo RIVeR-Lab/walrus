@@ -7,4 +7,4 @@
 *.sym
 *.hex
 fuse.txt
-
+*.pyc
