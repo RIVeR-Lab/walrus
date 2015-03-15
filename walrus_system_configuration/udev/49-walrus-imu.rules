@@ -1,0 +1,1 @@
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{manufacturer}=="FTDI", ATTRS{serial}=="FTVV8F0M", SYMLINK+="walrus_imu"
