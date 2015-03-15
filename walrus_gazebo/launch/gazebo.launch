@@ -9,6 +9,8 @@
   <arg name="world_name" default="empty"/>
   <arg name="full_world_name" default="$(find walrus_gazebo)/worlds/$(arg world_name).world"/>
 
+  <remap from="base_epos/joint_states" to="joint_states" />
+  <remap from="base/joint_states" to="joint_states" />
   <!-- Launch gazebo -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="debug" value="$(arg debug)" />
@@ -19,6 +21,14 @@
     <arg name="verbose" value="$(arg verbose)"/>
     <arg name="world_name" value="$(arg full_world_name)"/>
   </include>
+
+  <!-- Spawn controllers -->
+  <node ns="base" name="walrus_base_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+	args="--shutdown-timeout=2.0 joint_state_controller left_pods_joint_controller right_pods_joint_controller boom_deploy_controller boom_pan_controller boom_tilt_controller" />
+
+  <node ns="base_epos" name="walrus_base_epos_controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+	args="--shutdown-timeout=2.0 joint_state_controller drive_controller" />
+
 
   <!-- Spawn the robot model -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"

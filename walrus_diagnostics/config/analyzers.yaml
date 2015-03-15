@@ -4,17 +4,17 @@ analyzers:
     type: diagnostic_aggregator/GenericAnalyzer
     path: General
     expected: [
-        'walrus_base_hw: Top Plate Temperature',
-        'walrus_base_hw: Internal Temperature',
-        'walrus_base_hw: Internal Humidity',
-        'walrus_base_hw: Internal Pressure',
-        'walrus_base_hw: Water Sensor 1',
-        'walrus_base_hw: Water Sensor 2',
-        'walrus_base_hw: Water Sensor 3',
-        'walrus_base_hw: Water Sensor 4',
-        'walrus_base_hw: Water Sensor 5',
-        'walrus_base_hw: Water Sensor 6']
-    remove_prefix: 'walrus_base_hw: '
+        'base: Top Plate Temperature',
+        'base: Internal Temperature',
+        'base: Internal Humidity',
+        'base: Internal Pressure',
+        'base: Water Sensor 1',
+        'base: Water Sensor 2',
+        'base: Water Sensor 3',
+        'base: Water Sensor 4',
+        'base: Water Sensor 5',
+        'base: Water Sensor 6']
+    remove_prefix: 'base: '
   computers:
     type: diagnostic_aggregator/AnalyzerGroup
     path: Computers
@@ -35,8 +35,8 @@ analyzers:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Embedded Boards
     expected: [
-        'walrus_base_hw: Main Control Board' ]
-    remove_prefix: 'walrus_base_hw: '
+        'base: Main Control Board' ]
+    remove_prefix: 'base: '
   imu:
     type: diagnostic_aggregator/GenericAnalyzer
     path: IMU
@@ -49,33 +49,33 @@ analyzers:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Left Drive
             expected: [
-                'walrus_base_hw: Left Drive Motor Temperature' ]
-            remove_prefix: 'walrus_base_hw: '
+                'base: Left Drive Motor Temperature' ]
+            remove_prefix: 'base: '
         right_drive:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Right Drive
             expected: [
-                'walrus_base_hw: Right Drive Motor Temperature']
-            remove_prefix: 'walrus_base_hw: '
+                'base: Right Drive Motor Temperature']
+            remove_prefix: 'base: '
   pods:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Pods
     expected: [
-        'walrus_base_hw: Front Left Pod',
-        'walrus_base_hw: Front Right Pod',
-        'walrus_base_hw: Back Right Pod',
-        'walrus_base_hw: Back Left Pod']
-    remove_prefix: 'walrus_base_hw: '
+        'base: Front Left Pod',
+        'base: Front Right Pod',
+        'base: Back Right Pod',
+        'base: Back Left Pod']
+    remove_prefix: 'base: '
   power:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Power
     expected: [
-        'walrus_base_hw: Power Systems',
-        'walrus_base_hw: Battery 1',
-        'walrus_base_hw: Battery 2',
-        'walrus_base_hw: Battery 3',
-        'walrus_base_hw: Battery 4']
-    remove_prefix: 'walrus_base_hw: '
+        'base: Power Systems',
+        'base: Battery 1',
+        'base: Battery 2',
+        'base: Battery 3',
+        'base: Battery 4']
+    remove_prefix: 'base: '
   networking:
     type: diagnostic_aggregator/AnalyzerGroup
     path: Networking

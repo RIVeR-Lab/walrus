@@ -1,31 +1,32 @@
-# Pod Controller
-front_left_pod_joint_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/front_left_pod_joint
-  pid: {p : 10.0, i : 0.0, d : 0.0}
-back_left_pod_joint_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/back_left_pod_joint
-  pid: {p : 10.0, i : 0.0, d : 0.0}
-front_right_pod_joint_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/front_right_pod_joint
-  pid: {p : 10.0, i : 0.0, d : 0.0}
-back_right_pod_joint_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/back_right_pod_joint
-  pid: {p : 10.0, i : 0.0, d : 0.0}
+base:
+  # Pod Controller
+  left_pods_joint_controller:
+    type: walrus_pod_controller/WalrusPodController
+    front:
+      joint: walrus/front_left_pod_joint
+      pid: {p : 10.0, i : 0.0, d : 0.0}
+    back:
+      joint: walrus/back_left_pod_joint
+      pid: {p : 10.0, i : 0.0, d : 0.0}
+  right_pods_joint_controller:
+    type: walrus_pod_controller/WalrusPodController
+    front:
+      joint: walrus/front_right_pod_joint
+      pid: {p : 10.0, i : 0.0, d : 0.0}
+    back:
+      joint: walrus/back_right_pod_joint
+      pid: {p : 10.0, i : 0.0, d : 0.0}
 
-#Boom
-boom_deploy_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/boom/deploy_joint
-  pid: {p : 0.0, i : 0.0, d : 0.0}
-boom_pan_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/boom/pan_joint
-  pid: {p : 0.0, i : 0.0, d : 0.0}
-boom_tilt_controller:
-  type: effort_controllers/JointPositionController
-  joint: walrus/boom/tilt_joint
-  pid: {p : 0.0, i : 0.0, d : 0.0}
+  #Boom
+  boom_deploy_controller:
+    type: effort_controllers/JointPositionController
+    joint: walrus/boom/deploy_joint
+    pid: {p : 0.0, i : 0.0, d : 0.0}
+  boom_pan_controller:
+    type: effort_controllers/JointPositionController
+    joint: walrus/boom/pan_joint
+    pid: {p : 0.0, i : 0.0, d : 0.0}
+  boom_tilt_controller:
+    type: effort_controllers/JointPositionController
+    joint: walrus/boom/tilt_joint
+    pid: {p : 0.0, i : 0.0, d : 0.0}

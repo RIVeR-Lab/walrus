@@ -1,16 +1,14 @@
 #include "walrus_base_hw/walrus_base_robot.h"
+#include "walrus_base_hw/util.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/assign/list_of.hpp>
 
 namespace walrus_base_hw {
 
 WalrusBaseRobot::WalrusBaseRobot(ros::NodeHandle nh, ros::NodeHandle pnh)
   : nh_(nh), pnh_(pnh),
     mainboard_(as_interface_, ae_interface_, nh, pnh),
-    boomboard_(as_interface_, ae_interface_, nh, pnh){
-  std::vector<std::string> epos_names;
-  epos_names.push_back("left_drive_actuator");
-  epos_names.push_back("right_drive_actuator");
-  epos_manager_.reset(new epos_hardware::EposManager(as_interface_, av_interface_, ap_interface_, nh, pnh, epos_names));
+    boomboard_(as_interface_, ae_interface_, nh, pnh) {
 }
 
 bool WalrusBaseRobot::init() {
@@ -30,22 +28,18 @@ bool WalrusBaseRobot::init() {
     return false;
   }
 
-  if(!epos_manager_->init()) {
-    ROS_ERROR("Failed to initialize EPOS");
-  }
-
   if (!mainboard_.init()) {
     ROS_ERROR("Failed to initialize Main Board");
+    return false;
   }
 
   if (!boomboard_.init()) {
     ROS_ERROR("Failed to initialize Boom Board");
+    return false;
   }
 
   // Register ros_control interfaces
   registerInterface(&as_interface_);
-  registerInterface(&av_interface_);
-  registerInterface(&ap_interface_);
   registerInterface(&ae_interface_);
 
 
@@ -58,8 +52,16 @@ bool WalrusBaseRobot::init() {
     ros::Duration(0.2).sleep();
   }
 
-  // Load transmissions from the robot description
-  if (!transmission_loader_->load(urdf_string)) { return false; }
+  // Load transmissions
+  std::vector<std::string> actuator_names = boost::assign::list_of
+    ("walrus/front_left_pod_joint_actuator")
+    ("walrus/front_right_pod_joint_actuator")
+    ("walrus/back_left_pod_joint_actuator")
+    ("walrus/back_right_pod_joint_actuator")
+    ("walrus/boom/deploy_joint_actuator")
+    ("walrus/boom/pan_joint_actuator")
+    ("walrus/boom/tilt_joint_actuator");
+  if (!loadTransmissions(urdf_string, actuator_names, transmission_loader_.get())) { return false; }
 
   return true;
 }
@@ -67,10 +69,8 @@ bool WalrusBaseRobot::init() {
 // Write controller output to actuators
 void WalrusBaseRobot::write(ros::Duration dt){
   robot_transmissions_.get<JointToActuatorEffortInterface>()->propagate();
-  robot_transmissions_.get<JointToActuatorVelocityInterface>()->propagate();
 
   // Write actuator commands
-  epos_manager_->write();
   mainboard_.write(dt);
   boomboard_.write(dt);
 
@@ -79,7 +79,6 @@ void WalrusBaseRobot::write(ros::Duration dt){
 // Read robot state
 void WalrusBaseRobot::read(ros::Duration dt){
   // Read actuator commands
-  epos_manager_->read();
   mainboard_.read(dt);
   boomboard_.read(dt);
 
@@ -87,7 +86,6 @@ void WalrusBaseRobot::read(ros::Duration dt){
 }
 
 void WalrusBaseRobot::update_diagnostics(){
-  epos_manager_->update_diagnostics();
   mainboard_.update_diagnostics();
   boomboard_.update_diagnostics();
 }

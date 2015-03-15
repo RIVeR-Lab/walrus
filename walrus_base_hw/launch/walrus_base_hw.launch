@@ -1,11 +1,16 @@
 <!-- Launch file for starting the base robot hardware -->
 <launch>
   <node pkg="rosserial_python" type="message_info_service.py" name="rosserial_message_info" respawn="true" respawn_delay="5" />
-  <node name="walrus_base_hw" pkg="walrus_base_hw" type="walrus_base_hw_node" respawn="true" respawn_delay="5">
+  <node name="base" pkg="walrus_base_hw" type="walrus_base_hw_node" respawn="true" respawn_delay="5">
+    <remap from="base/joint_states" to="joint_states" />
+    <param name="controller_rate" value="50.0" type="double" />
+    <rosparam command="load" file="$(find walrus_mainboard_driver)/config/mainboard_param.yaml" />
+  </node>
+  <node name="base_epos" pkg="walrus_base_hw" type="walrus_base_epos_hw_node" respawn="true" respawn_delay="5">
+    <remap from="base_epos/joint_states" to="joint_states" />
     <param name="controller_rate" value="10.0" type="double" />
     <rosparam command="load" file="$(find walrus_base_hw)/config/epos_motors.yaml" />
     <rosparam command="load" file="$(find walrus_base_hw)/config/drive_epos_motor.yaml" param="left_drive_actuator"/>
     <rosparam command="load" file="$(find walrus_base_hw)/config/drive_epos_motor.yaml" param="right_drive_actuator"/>
-    <rosparam command="load" file="$(find walrus_mainboard_driver)/config/mainboard_param.yaml" />
   </node>
 </launch>

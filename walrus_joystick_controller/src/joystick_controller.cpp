@@ -22,10 +22,10 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
 
   cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
-  back_left_pod_pub_ = nh.advertise<std_msgs::Float64>("back_left_pod_joint_controller/command", 1);
-  back_right_pod_pub_ = nh.advertise<std_msgs::Float64>("back_right_pod_joint_controller/command", 1);
-  front_left_pod_pub_ = nh.advertise<std_msgs::Float64>("front_left_pod_joint_controller/command", 1);
-  front_right_pod_pub_ = nh.advertise<std_msgs::Float64>("front_right_pod_joint_controller/command", 1);
+  back_left_pod_pub_ = nh.advertise<std_msgs::Float64>("left_pods_joint_controller/back/command", 1);
+  back_right_pod_pub_ = nh.advertise<std_msgs::Float64>("right_pods_joint_controller/back/command", 1);
+  front_left_pod_pub_ = nh.advertise<std_msgs::Float64>("left_pods_joint_controller/front/command", 1);
+  front_right_pod_pub_ = nh.advertise<std_msgs::Float64>("right_pods_joint_controller/front/command", 1);
 }
 
 void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)

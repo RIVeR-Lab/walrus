@@ -30,6 +30,13 @@ target_link_libraries(walrus_hw_sim
   ${catkin_LIBRARIES}
   ${GAZEBO_LIBRARIES}
 )
+add_library(walrus_epos_hw_sim
+  src/walrus_epos_hw_sim.cpp
+)
+target_link_libraries(walrus_epos_hw_sim
+  ${catkin_LIBRARIES}
+  ${GAZEBO_LIBRARIES}
+)
 
 #############
 ## Install ##
@@ -42,7 +49,7 @@ install(TARGETS walrus_hw_sim
 )
 
 install(FILES
-  walrus_hw_sim_plugins.xml
+  walrus_hw_sim_plugins.xml walrus_epos_hw_sim_plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 

@@ -34,15 +34,12 @@ class WalrusBaseRobot : public RobotHW
  private:
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
-  
+
   ActuatorStateInterface as_interface_;
-  VelocityActuatorInterface av_interface_;
-  PositionActuatorInterface ap_interface_;
   EffortActuatorInterface ae_interface_;
 
   RobotTransmissions robot_transmissions_;
   boost::scoped_ptr<TransmissionInterfaceLoader> transmission_loader_;
-  boost::shared_ptr<epos_hardware::EposManager> epos_manager_;
   walrus_mainboard_driver::MainBoardDriver mainboard_;
   walrus_boomboard_driver::BoomBoardDriver boomboard_;
 
