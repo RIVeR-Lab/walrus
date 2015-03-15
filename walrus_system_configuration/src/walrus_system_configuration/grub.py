@@ -19,7 +19,7 @@ def install():
     if bootfail_set():
         success("Bootfail parameter is set in grub config")
     else:
-        warn("Cannot install boot fail parameter, you must add GRUB_" + GRUB_BOOTFAIL_PARAMETER + " to " + GRUB_CONFIG_FILE)
+        warn("Cannot install boot fail parameter, you must add " + GRUB_BOOTFAIL_PARAMETER + " to " + GRUB_CONFIG_FILE)
 
 def status():
     if bootfail_set():
