@@ -201,7 +201,7 @@ namespace walrus_mainboard_driver
     void MainBoardDriver::led_callback(const std_msgs::Float64::ConstPtr& msg, int index)
     {
         walrus_firmware_msgs::MainBoardControl led_msg;
-        led_msg.type = walrus_firmware_msgs::MainBoardControl::REQ_BATT_INFO;
+        led_msg.type = walrus_firmware_msgs::MainBoardControl::SET_LED;
         led_msg.index = index;
         double intensity = msg->data;
         if (intensity < 0)
@@ -332,14 +332,14 @@ namespace walrus_mainboard_driver
             case walrus_firmware_msgs::MainBoardControl::STATUS:
                 main_board_status = "Connected, " + msg.msg;
                 main_board_status_level = msg.value;
-                if (POD_AUTO_ENABLE && msg.msg == "Disabled")
+                if (POD_AUTO_ENABLE && msg.msg.compare("Disabled") == 0)
                 {
                     walrus_firmware_msgs::MainBoardControl status_req_msg;
                     status_req_msg.type = walrus_firmware_msgs::MainBoardControl::REQ_STATUS;
                     status_req_msg.index = 0;
                     status_req_msg.value = 0; 
                     status_req_msg.msg = "";
-                    to_board.publish(status_req_msg);
+                    to_board.publish(status_req_msg);   
                 }
             break;
             case walrus_firmware_msgs::MainBoardControl::ERROR:
@@ -507,9 +507,9 @@ namespace walrus_mainboard_driver
         bool ls_data_good = false;
         bool hs_feedback_good = false;
         
-        if (ls_data_timeout < (ros::Time::now() - last_ls_data)) 
+        if (ls_data_timeout > (ros::Time::now() - last_ls_data)) 
             ls_data_good = true;
-        if (hs_feedback_timeout < (ros::Time::now() - last_hs_feedback))
+        if (hs_feedback_timeout > (ros::Time::now() - last_hs_feedback))
             hs_feedback_good = true;      
         
         if (!main_board_connected && ls_data_good && hs_feedback_good)
