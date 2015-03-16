@@ -44,7 +44,7 @@ add_library(walrus_pod_controller
 target_link_libraries(walrus_pod_controller
   ${catkin_LIBRARIES}
 )
-add_dependencies(walrus_pod_controller {PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(walrus_pod_controller ${PROJECT_NAME}_generate_messages_cpp)
 
 #############
 ## Install ##
