@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   urdf
   message_generation
+  std_msgs
 )
 
 add_message_files(
@@ -23,7 +24,7 @@ generate_messages(
 
 catkin_package(
   LIBRARIES walrus_drive_controller
-  CATKIN_DEPENDS nav_msgs controller_interface realtime_tools tf urdf message_runtime
+  CATKIN_DEPENDS nav_msgs controller_interface realtime_tools tf urdf message_runtime std_msgs
 )
 
 ###########
