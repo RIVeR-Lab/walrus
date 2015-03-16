@@ -138,12 +138,12 @@ void doLowSpeedOperations()
                 ls_data_msg.pressure = pressure_sense.readPressure();
             break;
             case READ_WATER:
-                ls_data_msg.water_sense = digitalRead(P_WATER_1) | 
+                ls_data_msg.water_sense = ~(digitalRead(P_WATER_1) | 
                                         (digitalRead(P_WATER_2) << 1) | 
                                         (digitalRead(P_WATER_3) << 2) | 
                                         (digitalRead(P_WATER_4) << 3) | 
                                         (digitalRead(P_WATER_5) << 4) |
-                                        (digitalRead(P_WATER_6) << 5);
+                                        (digitalRead(P_WATER_6) << 5));
             break;
             case READ_EXTTEMP_1:
             case READ_EXTTEMP_2:

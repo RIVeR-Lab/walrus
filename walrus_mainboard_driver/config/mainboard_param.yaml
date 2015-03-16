@@ -32,12 +32,12 @@ pod_output_torque_per_amp: 29.184
 pod_output_power_neutral: 1500
 pod_output_power_limit: 100
 
-water_sense_1_position: 'Water Sensor 1'
-water_sense_2_position: 'Water Sensor 2'
-water_sense_3_position: 'Water Sensor 3'
-water_sense_4_position: 'Water Sensor 4'
-water_sense_5_position: 'Water Sensor 5'
-water_sense_6_position: 'Water Sensor 6'
+water_sense_1_position: 'Back Left Water Sensor'
+water_sense_2_position: 'Front Left Water Sensor'
+water_sense_3_position: 'Front Right Water Sensor'
+water_sense_4_position: 'Left Battery Bulkhead Water Sensor'
+water_sense_5_position: 'Right Battery Bulkhead Water Sensor'
+water_sense_6_position: 'Back Right Water Sensor'
 
 top_plate_temp_high_above: 75.0
 top_plate_temp_error_above: 100.0
