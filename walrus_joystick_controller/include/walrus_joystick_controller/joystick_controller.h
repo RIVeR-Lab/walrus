@@ -15,15 +15,15 @@ class JoystickController {
   ros::Subscriber joy_sub_;
   ros::Subscriber enabled_sub_;
 
-  ros::Publisher cmd_vel_pub_;
+  ros::Publisher tank_drive_pub_;
 
   ros::Publisher back_left_pod_pub_;
   ros::Publisher back_right_pod_pub_;
   ros::Publisher front_left_pod_pub_;
   ros::Publisher front_right_pod_pub_;
 
-  int axis_linear_;
-  int axis_angular_;
+  int axis_tank_left_;
+  int axis_tank_right_;
 
   int button_front_pods_up_;
   int button_front_pods_down_;
@@ -31,7 +31,6 @@ class JoystickController {
   int button_back_pods_down_;
 
   double scale_linear_;
-  double scale_angular_;
 
   bool enabled_;
 

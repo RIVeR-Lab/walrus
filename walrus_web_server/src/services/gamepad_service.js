@@ -10,7 +10,7 @@ rosModule
 	    var gamepad = {
 		config: {
 		    axes: {
-			inverted: [true, true, false, false]
+			inverted: [true, true, true, true]
 		    }
 		},
 		connected: false,
