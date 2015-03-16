@@ -6,9 +6,12 @@
     <remap from="left_pods_joint_controller/back/command" to="/base/left_pods_joint_controller/back/command" />
     <remap from="right_pods_joint_controller/back/command" to="/base/right_pods_joint_controller/back/command" />
 
-    <param name="button_pods_up" value="3" />
-    <param name="button_pods_toes" value="1" />
-    <param name="button_pods_flat" value="2" />
+    <param name="button_front_pods_up" value="4" />
+    <param name="button_front_pods_down" value="6" />
+    <param name="button_back_pods_up" value="5" />
+    <param name="button_back_pods_down" value="7" />
+
+    <param name="enable_by_default" value="1" />
   </node>
   <include file="$(find walrus_web_server)/launch/server.launch" />
 </launch>

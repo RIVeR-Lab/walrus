@@ -26,6 +26,7 @@ class WalrusHWSim : public gazebo_ros_control::RobotHWSim
 private:
   static std::vector<std::string> POD_POSITIONS;
   static std::vector<std::string> DRIVE_SIDES;
+  static double EFFORT_MULTIPLIER;
 
   std::vector<gazebo::physics::JointPtr> effort_joints;
   std::vector<double> effort_cmds;
@@ -83,7 +84,7 @@ public:
       gazebo::physics::JointPtr joint = effort_joints[i];
       effort_states[i].pos += angles::shortest_angular_distance(effort_states[i].pos, joint->GetAngle(0).Radian());
       effort_states[i].vel = joint->GetVelocity(0);
-      effort_states[i].eff = joint->GetForce((unsigned int)(0));
+      effort_states[i].eff = joint->GetForce((unsigned int)(0)) / EFFORT_MULTIPLIER;
     }
   }
 
@@ -91,7 +92,7 @@ public:
   void writeSim(ros::Time time, ros::Duration period) {
     for(int i = 0; i<effort_joints.size(); ++i){
       gazebo::physics::JointPtr joint = effort_joints[i];
-      joint->SetForce(0, effort_cmds[i]);
+      joint->SetForce(0, effort_cmds[i] * EFFORT_MULTIPLIER);
     }
   }
 
@@ -100,6 +101,7 @@ public:
 
 std::vector<std::string> WalrusHWSim::POD_POSITIONS = boost::assign::list_of("front")("back");
 std::vector<std::string> WalrusHWSim::DRIVE_SIDES = boost::assign::list_of("left")("right");
+double WalrusHWSim::EFFORT_MULTIPLIER = 10.0;
 
 }
 

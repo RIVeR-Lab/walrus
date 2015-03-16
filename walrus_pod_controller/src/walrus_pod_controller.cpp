@@ -38,15 +38,12 @@ bool Pod::init(hardware_interface::EffortJointInterface* hw, urdf::Model urdf) {
 
 void Pod::setCommandCallback(const walrus_pod_controller::PodCommandConstPtr& msg) {
   walrus_pod_controller::PodCommand command = *msg;
-  if(command.mode == walrus_pod_controller::PodCommand::POSITION) {
-    command.set_point = filters::clamp(command.set_point, -M_PI, M_PI);
-  }
   command_buffer_.writeFromNonRT(command);
 }
 
 void Pod::starting(const ros::Time& time) {
   walrus_pod_controller::PodCommand command;
-  command.mode = walrus_pod_controller::PodCommand::HOLD;
+  command.mode = walrus_pod_controller::PodCommand::HOLD_POSITION;
   command_buffer_.initRT(command);
 }
 
@@ -58,21 +55,28 @@ void Pod::update(const ros::Time& time, const ros::Duration& period) {
   double current_position = joint_.getPosition();
   walrus_pod_controller::PodCommand command = *(command_buffer_.readFromRT());
 
-  if(command.mode == walrus_pod_controller::PodCommand::HOLD) {
-    command.mode = walrus_pod_controller::PodCommand::POSITION;
-    command.set_point = current_position;
-  }
-
   double command_effort;
   double command_position;
   double error;
-  if(command.mode == walrus_pod_controller::PodCommand::POSITION) {
-    // switching to position mode
-    if(last_command_.mode != walrus_pod_controller::PodCommand::POSITION) {
+  if(command.mode == walrus_pod_controller::PodCommand::POSITION ||
+     command.mode == walrus_pod_controller::PodCommand::HOLD_POSITION) {
+    // switching to position mode so reset the pid controller
+    if(last_command_.mode != walrus_pod_controller::PodCommand::POSITION &&
+       last_command_.mode != walrus_pod_controller::PodCommand::HOLD_POSITION) {
       pid_controller_.reset();
     }
 
-    command_position = command.set_point;
+    if(command.mode == walrus_pod_controller::PodCommand::HOLD_POSITION) {
+      // Hold the position that was held last time
+      if(last_command_.mode == walrus_pod_controller::PodCommand::HOLD_POSITION) {
+	command.set_point = last_command_.set_point;
+      }
+      else {
+	command.set_point = current_position;
+      }
+    }
+
+    command_position = filters::clamp(command.set_point, -M_PI, M_PI);
     error = angles::shortest_angular_distance(current_position, command_position);
     command_effort = pid_controller_.computeCommand(error, period);
   }

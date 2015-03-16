@@ -25,16 +25,20 @@ class JoystickController {
   int axis_linear_;
   int axis_angular_;
 
-  int button_pods_up_;
-  int button_pods_toes_;
-  int button_pods_flat_;
+  int button_front_pods_up_;
+  int button_front_pods_down_;
+  int button_back_pods_up_;
+  int button_back_pods_down_;
 
   double scale_linear_;
   double scale_angular_;
 
   bool enabled_;
 
-  void publishPodAngles(double angle);
+  void publishFrontPodEffort(double effort);
+  void publishBackPodEffort(double effort);
+  void publishFrontPodHold();
+  void publishBackPodHold();
 };
 
 }

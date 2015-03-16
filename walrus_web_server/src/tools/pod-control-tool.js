@@ -12,7 +12,7 @@ angular.module("app").directive("podControlToolChannel", function() {
 	DISABLED: 0,
 	POSITION: 1,
 	EFFORT: 2,
-	HOLD: 3
+	HOLD_POSITION: 3
     };
     return {
 	scope: {
@@ -58,7 +58,7 @@ angular.module("app").directive("podControlToolChannel", function() {
 		    }
 		}
 		else {
-		    command_pub.publish({mode: PodCommand.HOLD});
+		    command_pub.publish({mode: PodCommand.HOLD_POSITION});
 		}
 	    }
 
@@ -71,8 +71,8 @@ angular.module("app").directive("podControlToolChannel", function() {
 		}
 		else {
 		    $scope.value = 0.0;
-		    $scope.min = -10.0;
-		    $scope.max = 10.0;
+		    $scope.min = -1.0;
+		    $scope.max = 1.0;
 		}
 		update();
 	    });

@@ -7,15 +7,18 @@ namespace walrus_joystick_controller {
 
 JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
+  pnh.param<bool>("enable_by_default", enabled_, 1);
+
   pnh.param<int>("axis_linear", axis_linear_, 1);
   pnh.param<double>("scale_linear", scale_linear_, 0.5);
 
   pnh.param<int>("axis_angular", axis_angular_, 0);
   pnh.param<double>("scale_angular", scale_angular_, 1.0);
 
-  pnh.param<int>("button_pods_up", button_pods_up_, 0);
-  pnh.param<int>("button_pods_toes", button_pods_toes_, 1);
-  pnh.param<int>("button_pods_flat", button_pods_flat_, 2);
+  pnh.param<int>("button_front_pods_up", button_front_pods_up_, 0);
+  pnh.param<int>("button_front_pods_down", button_front_pods_down_, 1);
+  pnh.param<int>("button_back_pods_up", button_back_pods_up_, 0);
+  pnh.param<int>("button_back_pods_down", button_back_pods_down_, 1);
 
   joy_sub_ = nh.subscribe<sensor_msgs::Joy>("joy", 1, &JoystickController::joyCallback, this);
   enabled_sub_ = nh.subscribe<std_msgs::Bool>("enabled", 1, &JoystickController::enabledCallback, this);
@@ -38,31 +41,57 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
     twist_msg.angular.z = joy_msg->axes[axis_angular_] * scale_angular_;
     cmd_vel_pub_.publish(twist_msg);
 
-    if(joy_msg->buttons[button_pods_up_]) {
-      publishPodAngles(0.6);
+    if(joy_msg->buttons[button_front_pods_up_]) {
+      publishFrontPodEffort(-1.0);
     }
-    else if(joy_msg->buttons[button_pods_toes_]) {
-      publishPodAngles(-0.6);
+    else if(joy_msg->buttons[button_front_pods_down_]) {
+      publishFrontPodEffort(1.0);
     }
-    else if(joy_msg->buttons[button_pods_flat_]) {
-      publishPodAngles(0.0);
+    else {
+      publishFrontPodHold();
+    }
+
+    if(joy_msg->buttons[button_back_pods_up_]) {
+      publishBackPodEffort(1.0);
+    }
+    else if(joy_msg->buttons[button_back_pods_down_]) {
+      publishBackPodEffort(-1.0);
+    }
+    else {
+      publishBackPodHold();
     }
   }
 }
 
-void JoystickController::publishPodAngles(double angle) {
-  walrus_pod_controller::PodCommand angle_msg;
-  angle_msg.set_point = angle;
-  angle_msg.mode = walrus_pod_controller::PodCommand::POSITION;
-  walrus_pod_controller::PodCommand negated_angle_msg;
-  negated_angle_msg.set_point = -angle;
-  negated_angle_msg.mode = walrus_pod_controller::PodCommand::POSITION;
+void JoystickController::publishFrontPodEffort(double effort) {
+  walrus_pod_controller::PodCommand effort_msg;
+  effort_msg.set_point = effort;
+  effort_msg.mode = walrus_pod_controller::PodCommand::EFFORT;
 
-  back_left_pod_pub_.publish(angle_msg);
-  back_right_pod_pub_.publish(angle_msg);
+  front_left_pod_pub_.publish(effort_msg);
+  front_right_pod_pub_.publish(effort_msg);
+}
+void JoystickController::publishBackPodEffort(double effort) {
+  walrus_pod_controller::PodCommand effort_msg;
+  effort_msg.set_point = effort;
+  effort_msg.mode = walrus_pod_controller::PodCommand::EFFORT;
 
-  front_left_pod_pub_.publish(negated_angle_msg);
-  front_right_pod_pub_.publish(negated_angle_msg);
+  back_left_pod_pub_.publish(effort_msg);
+  back_right_pod_pub_.publish(effort_msg);
+}
+void JoystickController::publishBackPodHold() {
+  walrus_pod_controller::PodCommand effort_msg;
+  effort_msg.mode = walrus_pod_controller::PodCommand::HOLD_POSITION;
+
+  back_left_pod_pub_.publish(effort_msg);
+  back_right_pod_pub_.publish(effort_msg);
+}
+void JoystickController::publishFrontPodHold() {
+  walrus_pod_controller::PodCommand effort_msg;
+  effort_msg.mode = walrus_pod_controller::PodCommand::HOLD_POSITION;
+
+  front_left_pod_pub_.publish(effort_msg);
+  front_right_pod_pub_.publish(effort_msg);
 }
 
 
@@ -75,6 +104,13 @@ void JoystickController::enabledCallback(const std_msgs::Bool::ConstPtr& bool_ms
     // Publish zero twist
     geometry_msgs::Twist twist_msg;
     cmd_vel_pub_.publish(twist_msg);
+
+    walrus_pod_controller::PodCommand hold_msg;
+    hold_msg.mode = walrus_pod_controller::PodCommand::HOLD_POSITION;
+    back_left_pod_pub_.publish(hold_msg);
+    back_right_pod_pub_.publish(hold_msg);
+    front_left_pod_pub_.publish(hold_msg);
+    front_right_pod_pub_.publish(hold_msg);
   }
 }
 
