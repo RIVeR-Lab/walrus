@@ -16,7 +16,7 @@ static double euclideanOfVectors(const urdf::Vector3& vec1, const urdf::Vector3&
 namespace walrus_drive_controller{
 
 WalrusDriveController::WalrusDriveController()
-  : cmd_vel_timeout_(0.5)
+  : command_timeout_(0.5)
 
   , main_tread_separation_(1.0)
   , main_tread_ground_contact_length_(1.0)
@@ -62,9 +62,9 @@ bool WalrusDriveController::init(hardware_interface::VelocityJointInterface* hw,
 
 
   // Rates and timeouts
-  controller_nh.param("cmd_vel_timeout", cmd_vel_timeout_, cmd_vel_timeout_);
+  controller_nh.param("command_timeout", command_timeout_, command_timeout_);
   ROS_INFO_STREAM_NAMED(name_, "Velocity commands will be considered old if they are older than "
-                        << cmd_vel_timeout_ << "s.");
+                        << command_timeout_ << "s.");
   double publish_rate;
   controller_nh.param("publish_rate", publish_rate, 50.0);
   ROS_INFO_STREAM_NAMED(name_, "Controller state will be published at "
@@ -102,6 +102,7 @@ bool WalrusDriveController::init(hardware_interface::VelocityJointInterface* hw,
 
 
   cmd_vel_sub_ = controller_nh.subscribe("cmd_vel", 1, &WalrusDriveController::cmdVelCallback, this);
+  tank_drive_sub_ = controller_nh.subscribe("tank_drive", 1, &WalrusDriveController::tankCallback, this);
 
   return true;
 }
@@ -147,31 +148,45 @@ void WalrusDriveController::update(const ros::Time& time, const ros::Duration& p
 
   // MOVE ROBOT
   // Retreive current velocity command and time step:
-  geometry_msgs::TwistStamped curr_cmd_stamped = *(cmd_vel_buffer_.readFromRT());
-  geometry_msgs::Twist curr_cmd = curr_cmd_stamped.twist;
-  const double dt = (time - curr_cmd_stamped.header.stamp).toSec();
+  geometry_msgs::TwistStamped cmd_vel_stamped = *(cmd_vel_buffer_.readFromRT());
+  walrus_drive_controller::TankDriveCommandStamped tank_drive_stamped = *(tank_drive_buffer_.readFromRT());
 
-  // Brake if cmd_vel has timeout:
-  if (dt > cmd_vel_timeout_)
-  {
-    curr_cmd.linear.x = 0.0;
-    curr_cmd.angular.z = 0.0;
+  // twist command in newer
+  if(cmd_vel_stamped.header.stamp > tank_drive_stamped.header.stamp) {
+    geometry_msgs::Twist curr_cmd = cmd_vel_stamped.twist;
+    const double dt = (time - cmd_vel_stamped.header.stamp).toSec();
+
+    // Brake if cmd_vel has timeout:
+    if (dt > command_timeout_) {
+      brake();
+    }
+    else {
+      // Limit velocities and accelerations:
+      const double cmd_dt(period.toSec());
+      limiter_lin_.limit(curr_cmd.linear.x, odometry_.getLinear(), cmd_dt);
+      limiter_ang_.limit(curr_cmd.angular.z, odometry_.getAngular(), cmd_dt);
+
+      const double vel_left  = (curr_cmd.linear.x - curr_cmd.angular.z * main_tread_separation_ / 2.0) / tread_driver_radius_;
+      const double vel_right = (curr_cmd.linear.x + curr_cmd.angular.z * main_tread_separation_ / 2.0) / tread_driver_radius_;
+
+      left_tread_joint_.setCommand(vel_left);
+      right_tread_joint_.setCommand(vel_right);
+    }
+  }
+  else {
+    walrus_drive_controller::TankDriveCommand curr_cmd = tank_drive_stamped.command;
+    const double dt = (time - tank_drive_stamped.header.stamp).toSec();
+
+    if (dt > command_timeout_) {
+      brake();
+    }
+    else {
+      left_tread_joint_.setCommand(curr_cmd.left_speed/tread_driver_radius_);
+      right_tread_joint_.setCommand(curr_cmd.right_speed/tread_driver_radius_);
+    }
   }
 
-  // Limit velocities and accelerations:
-  const double cmd_dt(period.toSec());
-  limiter_lin_.limit(curr_cmd.linear.x, last_cmd_vel_.linear.x, cmd_dt);
-  limiter_ang_.limit(curr_cmd.angular.z, last_cmd_vel_.angular.z, cmd_dt);
-  last_cmd_vel_ = curr_cmd;
 
-  const double ws = main_tread_separation_;
-  const double wr = tread_driver_radius_;
-
-  const double vel_left  = (curr_cmd.linear.x - curr_cmd.angular.z * ws / 2.0)/wr;
-  const double vel_right = (curr_cmd.linear.x + curr_cmd.angular.z * ws / 2.0)/wr;
-
-  left_tread_joint_.setCommand(vel_left);
-  right_tread_joint_.setCommand(vel_right);
 }
 
 void WalrusDriveController::starting(const ros::Time& time)
@@ -182,6 +197,16 @@ void WalrusDriveController::starting(const ros::Time& time)
   last_state_publish_time_ = time;
 
   odometry_.init(time);
+  geometry_msgs::TwistStamped twist;
+  twist.header.stamp = ros::Time(0);
+  twist.twist.linear.x = 0;
+  twist.twist.angular.z = 0;
+  cmd_vel_buffer_.initRT(twist);
+  walrus_drive_controller::TankDriveCommandStamped tank_drive;
+  tank_drive.header.stamp = ros::Time(0);
+  tank_drive.command.left_speed = 0;
+  tank_drive.command.right_speed = 0;
+  tank_drive_buffer_.initRT(tank_drive);
 }
 
 void WalrusDriveController::stopping(const ros::Time& time)
@@ -202,7 +227,21 @@ void WalrusDriveController::cmdVelCallback(const geometry_msgs::Twist& command)
     geometry_msgs::TwistStamped command_stamped;
     command_stamped.header.stamp = ros::Time::now();
     command_stamped.twist = command;
-    cmd_vel_buffer_.writeFromNonRT (command_stamped);
+    cmd_vel_buffer_.writeFromNonRT(command_stamped);
+  }
+  else
+  {
+    ROS_ERROR_NAMED(name_, "Can't accept new commands. Controller is not running.");
+  }
+}
+void WalrusDriveController::tankCallback(const walrus_drive_controller::TankDriveCommand& command)
+{
+  if(isRunning())
+  {
+    walrus_drive_controller::TankDriveCommandStamped command_stamped;
+    command_stamped.header.stamp = ros::Time::now();
+    command_stamped.command = command;
+    tank_drive_buffer_.writeFromNonRT(command_stamped);
   }
   else
   {
