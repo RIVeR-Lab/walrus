@@ -19,12 +19,15 @@
   <build_depend>realtime_tools</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>urdf</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>std_msgs</build_depend>
   <run_depend>controller_interface</run_depend>
   <run_depend>nav_msgs</run_depend>
   <run_depend>realtime_tools</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>urdf</run_depend>
-
+  <run_depend>message_runtime</run_depend>
+  <run_depend>std_msgs</run_depend>
 
   <export>
     <controller_interface plugin="${prefix}/walrus_drive_controller_plugins.xml"/>

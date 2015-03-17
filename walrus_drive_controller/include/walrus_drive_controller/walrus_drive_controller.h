@@ -4,6 +4,7 @@
 
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/TwistStamped.h>
+#include <walrus_drive_controller/TankDriveCommandStamped.h>
 #include <tf/tfMessage.h>
 
 #include <realtime_tools/realtime_buffer.h>
@@ -37,7 +38,7 @@ class WalrusDriveController
   // parameters
   ros::Duration publish_period_;
   ros::Time last_state_publish_time_;
-  double cmd_vel_timeout_;
+  double command_timeout_;
 
   double main_tread_separation_;
   double main_tread_ground_contact_length_;
@@ -59,7 +60,9 @@ class WalrusDriveController
   boost::shared_ptr<realtime_tools::RealtimePublisher<tf::tfMessage> > tf_odom_pub_;
 
   realtime_tools::RealtimeBuffer<geometry_msgs::TwistStamped> cmd_vel_buffer_;
+  realtime_tools::RealtimeBuffer<walrus_drive_controller::TankDriveCommandStamped> tank_drive_buffer_;
   ros::Subscriber cmd_vel_sub_;
+  ros::Subscriber tank_drive_sub_;
 
 
 
@@ -72,6 +75,7 @@ class WalrusDriveController
   void brake();
 
   void cmdVelCallback(const geometry_msgs::Twist& command);
+  void tankCallback(const walrus_drive_controller::TankDriveCommand& command);
 
   void setOdomPubFields(ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
 

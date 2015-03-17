@@ -7,6 +7,13 @@ angular.module("app").controller("PodControlToolCtrl",
 });
 
 angular.module("app").directive("podControlToolChannel", function() {
+    // constants in walrus_pod_controller/PodCommand
+    var PodCommand = {
+	DISABLED: 0,
+	POSITION: 1,
+	EFFORT: 2,
+	HOLD_POSITION: 3
+    };
     return {
 	scope: {
 	    value: "=value",
@@ -14,36 +21,62 @@ angular.module("app").directive("podControlToolChannel", function() {
 	    controllerNamespace: "@controllerNamespace"
 	},
 	controller: function($scope, roslib, $interval) {
+	    $scope.mode = "position";
 	    $scope.min = -3.1415;
 	    $scope.max = 3.1415;
 	    $scope.enable = false;
+	    $scope.process_value = 0.0;
+	    $scope.Math = Math;
 
 	    function state_callback(state) {
 		$scope.state = state;
 		if(!$scope.enable) {
 		    $scope.value = state.process_value;
 		}
+		$scope.process_value = state.process_value;
 		$scope.actual = state.process_value;
-		$scope.absError = Math.abs(state.error) * 100 / Math.PI;
+		$scope.command = state.command;
 		$scope.set_point = state.set_point;
 	    }
 
-	    var command_pub = roslib.advertise($scope.controllerNamespace+"/command", "std_msgs/Float64");
+	    var command_pub = roslib.advertise($scope.controllerNamespace+"/command", "walrus_pod_controller/PodCommand");
 	    var state_sub = roslib.subscribe($scope.controllerNamespace+"/state", "control_msgs/JointControllerState", state_callback);
 
 	    function update() {
+		if($scope.value < $scope.min) {
+		    $scope.value = $scope.min;
+		}
+		if($scope.value > $scope.max) {
+		    $scope.value = $scope.max;
+		}
 		if($scope.enable) {
-		    command_pub.publish({data: $scope.value});
+		    if($scope.mode === "position") {
+			command_pub.publish({set_point: $scope.value, mode: PodCommand.POSITION});
+		    }
+		    else {
+			command_pub.publish({set_point: $scope.value, mode: PodCommand.EFFORT});
+		    }
+		}
+		else {
+		    command_pub.publish({mode: PodCommand.HOLD_POSITION});
 		}
 	    }
 
+	    $scope.$watch("mode", function(mode) {
+		console.log(mode);
+		if(mode === "position") {
+		    $scope.min = -3.1415;
+		    $scope.max = 3.1415;
+		    $scope.value = $scope.process_value;
+		}
+		else {
+		    $scope.value = 0.0;
+		    $scope.min = -1.0;
+		    $scope.max = 1.0;
+		}
+		update();
+	    });
 	    $scope.$watch("value", function(value) {
-		if(value < $scope.min) {
-		    $scope.value = $scope.min;
-		}
-		if(value > $scope.max) {
-		    $scope.value = $scope.max;
-		}
 		update();
 	    });
 

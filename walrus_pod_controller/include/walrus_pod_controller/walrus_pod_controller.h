@@ -12,7 +12,7 @@
 #include <control_msgs/JointControllerState.h>
 #include <boost/scoped_ptr.hpp>
 #include <urdf/model.h>
-#include <std_msgs/Float64.h>
+#include <walrus_pod_controller/PodCommand.h>
 
 namespace walrus_pod_controller{
 
@@ -25,13 +25,13 @@ public:
   void stopping(const ros::Time& time);
 
 private:
-  void setCommandCallback(const std_msgs::Float64ConstPtr& msg);
+  void setCommandCallback(const walrus_pod_controller::PodCommandConstPtr& msg);
 
 private:
   ros::NodeHandle nh_;
   hardware_interface::JointHandle joint_;
   boost::shared_ptr<const urdf::Joint> joint_urdf_;
-  realtime_tools::RealtimeBuffer<double> command_buffer_;
+  realtime_tools::RealtimeBuffer<walrus_pod_controller::PodCommand> command_buffer_;
   control_toolbox::Pid pid_controller_;
   boost::scoped_ptr<
     realtime_tools::RealtimePublisher<
@@ -40,6 +40,7 @@ private:
   ros::Subscriber command_sub_;
   ros::Time next_state_update_;
   ros::Duration controller_state_period_;
+  walrus_pod_controller::PodCommand last_command_;
 };
 
 class WalrusPodController

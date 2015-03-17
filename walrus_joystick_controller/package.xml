@@ -17,9 +17,13 @@
   <build_depend>geometry_msgs</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
+  <build_depend>walrus_pod_controller</build_depend>
+  <build_depend>walrus_drive_controller</build_depend>
   <run_depend>geometry_msgs</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>sensor_msgs</run_depend>
+  <run_depend>walrus_pod_controller</run_depend>
+  <run_depend>walrus_drive_controller</run_depend>
 
   <export>
   </export>
