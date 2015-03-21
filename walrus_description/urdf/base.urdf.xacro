@@ -72,7 +72,6 @@
     <xacro:include filename="$(find walrus_description)/urdf/simple_transform.urdf.xacro" />
     <xacro:include filename="$(find walrus_description)/urdf/pod.urdf.xacro" />
     <xacro:include filename="$(find walrus_description)/urdf/center_tread.urdf.xacro" />
-    <xacro:include filename="$(find walrus_description)/urdf/boom.urdf.xacro" />
     <xacro:include filename="$(find walrus_description)/urdf/simple_camera.urdf.xacro" />
 
     <xacro:macro name="walrus" params="tf_prefix robot_ns">
@@ -166,10 +165,5 @@
       <simple_camera parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}bottom_camera" camera_ns="${robot_ns}/bottom_camera" name="bottom_camera">
 	<origin xyz="-0.196 0.01197 -0.166" rpy="0 0.49 0" />
       </simple_camera>
-
-      <!-- Boom -->
-      <walrus_boom parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}boom/" robot_ns="${robot_ns}/boom"/>
-
     </xacro:macro>
-
 </robot>
