@@ -3,7 +3,6 @@
   <!-- Load controller configurations -->
   <rosparam file="$(find walrus_control)/config/walrus_control.yaml" command="load" />
   <rosparam file="$(find walrus_control)/config/walrus_control_$(arg type).yaml" command="load" />
-  <rosparam file="$(find walrus_control)/config/walrus_control.yaml" command="load" />
 
   <!-- Robot state publisher to publish tf from joint states -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true"/>
