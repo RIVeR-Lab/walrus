@@ -14,19 +14,26 @@
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <robotNamespace>${robot_ns}/base_epos</robotNamespace>
-      <robotSimType>walrus_gazebo/WalrusEposHWSim</robotSimType>
+      <robotSimType>walrus_gazebo/WalrusBaseEposHWSim</robotSimType>
     </plugin>
   </gazebo>
 
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
       <robotNamespace>${robot_ns}/base</robotNamespace>
-      <robotSimType>walrus_gazebo/WalrusHWSim</robotSimType>
+      <robotSimType>walrus_gazebo/WalrusBaseHWSim</robotSimType>
     </plugin>
   </gazebo>
 
   <xacro:if value="$(arg have_boom)">
     <xacro:walrus_boom parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}boom/" robot_ns="${robot_ns}/boom"/>
+
+    <gazebo>
+      <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+	<robotNamespace>${robot_ns}/boom</robotNamespace>
+	<robotSimType>walrus_gazebo/WalrusBoomHWSim</robotSimType>
+      </plugin>
+    </gazebo>
   </xacro:if>
 
 </robot>
