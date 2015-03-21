@@ -18,7 +18,7 @@ int main( int argc, char** argv ) {
 
 
   std::string port;
-  pnh.param<std::string>("port", port, "/dev/walrus_main_board");
+  pnh.param<std::string>("port", port, "/dev/walrus_boom_board");
   int baud;
   pnh.param("baud", baud, 57600);
 

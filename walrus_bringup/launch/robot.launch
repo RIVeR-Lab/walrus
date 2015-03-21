@@ -4,6 +4,11 @@
 
   <include file="$(find walrus_base_hw)/launch/walrus_base_hw.launch" />
 
+  <node name="boom" pkg="walrus_boomboard_driver" type="walrus_boomboard_node" respawn="true" respawn_delay="5" if="$(arg have_boom)">
+    <remap from="boom/joint_states" to="joint_states" />
+    <param name="controller_rate" value="50.0" type="double" />
+  </node>
+
   <!-- IMU -->
   <node name="orientus_node" pkg="orientus_driver" type="orientus_node" respawn="true" respawn_delay="5">
     <param name="port" value="/dev/walrus_imu"/>
