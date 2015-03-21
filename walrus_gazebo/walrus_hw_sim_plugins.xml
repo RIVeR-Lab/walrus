@@ -1,7 +1,25 @@
 <library path="lib/libwalrus_hw_sim">
   <class
-    name="walrus_gazebo/WalrusHWSim"
-    type="walrus_gazebo::WalrusHWSim"
+    name="walrus_gazebo/WalrusBaseHWSim"
+    type="walrus_gazebo::WalrusBaseHWSim"
+    base_class_type="gazebo_ros_control::RobotHWSim">
+    <description>
+      A robot simulation interface for the WALRUS robot
+    </description>
+  </class>
+
+  <class
+    name="walrus_gazebo/WalrusBaseEposHWSim"
+    type="walrus_gazebo::WalrusBaseEposHWSim"
+    base_class_type="gazebo_ros_control::RobotHWSim">
+    <description>
+      A robot simulation interface for the WALRUS robot
+    </description>
+  </class>
+
+  <class
+    name="walrus_gazebo/WalrusBoomHWSim"
+    type="walrus_gazebo::WalrusBoomHWSim"
     base_class_type="gazebo_ros_control::RobotHWSim">
     <description>
       A robot simulation interface for the WALRUS robot

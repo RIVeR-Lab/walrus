@@ -21,7 +21,7 @@ typedef struct {
 } JointState;
 
 
-class WalrusEposHWSim : public gazebo_ros_control::RobotHWSim
+class WalrusBaseEposHWSim : public gazebo_ros_control::RobotHWSim
 {
 private:
   static std::vector<std::string> POD_POSITIONS;
@@ -136,10 +136,10 @@ public:
 };
 
 
-std::vector<std::string> WalrusEposHWSim::POD_POSITIONS = boost::assign::list_of("front")("back");
-std::vector<std::string> WalrusEposHWSim::DRIVE_SIDES = boost::assign::list_of("left")("right");
-double WalrusEposHWSim::MAX_DRIVE_TORQUE = 1000;
+std::vector<std::string> WalrusBaseEposHWSim::POD_POSITIONS = boost::assign::list_of("front")("back");
+std::vector<std::string> WalrusBaseEposHWSim::DRIVE_SIDES = boost::assign::list_of("left")("right");
+double WalrusBaseEposHWSim::MAX_DRIVE_TORQUE = 1000;
 
 }
 
-PLUGINLIB_EXPORT_CLASS(walrus_gazebo::WalrusEposHWSim, gazebo_ros_control::RobotHWSim)
+PLUGINLIB_EXPORT_CLASS(walrus_gazebo::WalrusBaseEposHWSim, gazebo_ros_control::RobotHWSim)

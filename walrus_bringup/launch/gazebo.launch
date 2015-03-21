@@ -1,5 +1,7 @@
 <!-- Bringup file for launching the robot simulator -->
 <launch>
+  <arg name="have_boom" default="true"/>
+
   <!-- Gazebo parameters -->
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>
@@ -21,6 +23,7 @@
   </include>
 
   <include file="$(find walrus_bringup)/launch/includes/common.launch.xml">
+    <arg name="have_boom" default="$(arg have_boom)" />
     <arg name="type" value="gazebo"/>
   </include>
 

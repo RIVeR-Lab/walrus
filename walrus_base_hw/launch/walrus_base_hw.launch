@@ -6,6 +6,10 @@
     <param name="controller_rate" value="50.0" type="double" />
     <rosparam command="load" file="$(find walrus_mainboard_driver)/config/mainboard_param.yaml" />
   </node>
+  <node name="boom" pkg="walrus_boomboard_driver" type="walrus_boomboard_node" respawn="true" respawn_delay="5">
+    <remap from="boom/joint_states" to="joint_states" />
+    <param name="controller_rate" value="50.0" type="double" />
+  </node>
   <node name="base_epos" pkg="walrus_base_hw" type="epos_hw_node" respawn="true" respawn_delay="5">
     <remap from="base_epos/joint_states" to="joint_states" />
     <param name="controller_rate" value="10.0" type="double" />
