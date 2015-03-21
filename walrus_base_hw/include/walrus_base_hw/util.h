@@ -4,11 +4,13 @@
 #include <transmission_interface/transmission_info.h>
 #include <transmission_interface/transmission_interface_loader.h>
 #include <transmission_interface/transmission_parser.h>
+#include <controller_manager_msgs/SwitchController.h>
+#include <controller_manager/controller_manager.h>
 
 namespace walrus_base_hw {
 
-bool loadTransmissions(const std::string& urdf_string,
-		       const std::vector<std::string> actuator_names,
+bool loadTransmissionsFromUrdf(const std::string& urdf_string,
+		       const std::vector<std::string>& actuator_names,
 		       transmission_interface::TransmissionInterfaceLoader* transmission_loader) {
   transmission_interface::TransmissionParser parser;
   std::vector<transmission_interface::TransmissionInfo> infos;
@@ -40,6 +42,23 @@ bool loadTransmissions(const std::string& urdf_string,
     }
   }
   return true;
+}
+
+static void switch_controllers(controller_manager::ControllerManager* cm, std::vector<std::string> controller_names) {
+  BOOST_FOREACH(const std::string& name, controller_names) {
+    ROS_INFO_STREAM("Loading " << name);
+    if(!cm->loadController(name))
+      ROS_ERROR_STREAM("Failed to load controller: " << name);
+  }
+
+  if(!cm->switchController(controller_names, std::vector<std::string>(), controller_manager_msgs::SwitchController::Request::BEST_EFFORT))
+    ROS_ERROR("Failed to activate controllers");
+}
+
+ros::Timer createControllerLoadTimer(ros::NodeHandle& pnh, controller_manager::ControllerManager* cm) {
+  std::vector<std::string> controller_names;
+  pnh.getParam("controllers", controller_names);
+  return pnh.createTimer(ros::Duration(0), boost::bind(switch_controllers, cm, controller_names), true);
 }
 
 }

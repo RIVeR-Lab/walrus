@@ -1,9 +1,14 @@
 <!-- Launch everything common between simulation and the real robot -->
 <launch>
   <arg name="type" />
-  <include file="$(find walrus_description)/launch/description.launch" />
+  <arg name="have_boom" />
+  <include file="$(find walrus_description)/launch/description.launch">
+    <arg name="have_boom" default="$(arg have_boom)" />
+  </include>
+
   <include file="$(find walrus_control)/launch/walrus_control.launch">
     <arg name="type" value="$(arg type)"/>
+    <arg name="have_boom" default="$(arg have_boom)" />
   </include>
   <include file="$(find walrus_diagnostics)/launch/diagnostics.launch" />
   <include file="$(find walrus_interface_controller)/launch/interfaces.launch" />

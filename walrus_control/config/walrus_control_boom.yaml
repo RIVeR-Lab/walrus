@@ -1,0 +1,2 @@
+boom:
+  controllers: ['joint_state_controller', 'deploy_controller', 'pan_controller', 'tilt_controller']

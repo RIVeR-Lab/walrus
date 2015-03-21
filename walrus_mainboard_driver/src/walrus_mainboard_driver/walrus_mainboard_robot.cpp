@@ -1,15 +1,14 @@
-#include "walrus_mainboard_driver/walrus_mainboard_driver.h"
+#include "walrus_mainboard_driver/walrus_mainboard_robot.h"
+#include <boost/assign/list_of.hpp>
 
 using namespace std;
 
 namespace walrus_mainboard_driver
 {
-        
-    MainBoardDriver::MainBoardDriver(hardware_interface::ActuatorStateInterface& asi,
-                  hardware_interface::EffortActuatorInterface &aei,
-                  ros::NodeHandle& nh, ros::NodeHandle& pnh)
-    : asi_(asi), aei_(aei), diagnostic_updater(nh, pnh), nh(nh), pnh(pnh), last_hs_feedback(0, 0), last_ls_data(0,0), hs_feedback_timeout(0.25), ls_data_timeout(3), led_scale(1000)
-    {                
+
+    MainBoardRobot::MainBoardRobot(ros::NodeHandle& nh, ros::NodeHandle& pnh)
+    : WalrusRobotBase(nh, pnh), diagnostic_updater(nh, pnh), last_hs_feedback(0, 0), last_ls_data(0,0), hs_feedback_timeout(0.25), ls_data_timeout(3), led_scale(1000)
+    {
         //Load parameters    
         pnh.param("frontleft_pod_id", FL, 1);
         pnh.param("frontright_pod_id", FR, 2);
@@ -98,61 +97,70 @@ namespace walrus_mainboard_driver
         
         //Setup pod actuator interfaces
         hardware_interface::ActuatorStateHandle state_handleFL("walrus/front_left_pod_joint_actuator", &pod_position[FL-1], &pod_velocity[FL-1], &pod_effort[FL-1]);
-        asi.registerHandle(state_handleFL);
+        asi_.registerHandle(state_handleFL);
         hardware_interface::ActuatorStateHandle state_handleFR("walrus/front_right_pod_joint_actuator", &pod_position[FR-1], &pod_velocity[FR-1], &pod_effort[FR-1]);
-        asi.registerHandle(state_handleFR);
+        asi_.registerHandle(state_handleFR);
         hardware_interface::ActuatorStateHandle state_handleBR("walrus/back_right_pod_joint_actuator", &pod_position[BR-1], &pod_velocity[BR-1], &pod_effort[BR-1]);
-        asi.registerHandle(state_handleBR);
+        asi_.registerHandle(state_handleBR);
         hardware_interface::ActuatorStateHandle state_handleBL("walrus/back_left_pod_joint_actuator", &pod_position[BL-1], &pod_velocity[BL-1], &pod_effort[BL-1]);
-        asi.registerHandle(state_handleBL);        
+        asi_.registerHandle(state_handleBL);        
         hardware_interface::ActuatorHandle effort_handleFL(state_handleFL, &pod_effort_cmd[FL-1]);
-        aei.registerHandle(effort_handleFL);
+        aei_.registerHandle(effort_handleFL);
         hardware_interface::ActuatorHandle effort_handleFR(state_handleFR, &pod_effort_cmd[FR-1]);
-        aei.registerHandle(effort_handleFR);
+        aei_.registerHandle(effort_handleFR);
         hardware_interface::ActuatorHandle effort_handleBR(state_handleBR, &pod_effort_cmd[BR-1]);
-        aei.registerHandle(effort_handleBR);
+        aei_.registerHandle(effort_handleBR);
         hardware_interface::ActuatorHandle effort_handleBL(state_handleBL, &pod_effort_cmd[BL-1]);
-        aei.registerHandle(effort_handleBL);
+        aei_.registerHandle(effort_handleBL);
         
         //Add diagnostics updaters
         diagnostic_updater.setHardwareID("Walrus Main Board");
-        diagnostic_updater.add("Top Plate Temperature", this, &MainBoardDriver::tp_temp_diagnostic_callback);
-        diagnostic_updater.add("Internal Temperature", this, &MainBoardDriver::int_temp_diagnostic_callback);
-        diagnostic_updater.add("Internal Humidity", this, &MainBoardDriver::humidity_diagnostic_callback);
-        diagnostic_updater.add("Internal Pressure", this, &MainBoardDriver::pressure_diagnostic_callback);
+        diagnostic_updater.add("Top Plate Temperature", this, &MainBoardRobot::tp_temp_diagnostic_callback);
+        diagnostic_updater.add("Internal Temperature", this, &MainBoardRobot::int_temp_diagnostic_callback);
+        diagnostic_updater.add("Internal Humidity", this, &MainBoardRobot::humidity_diagnostic_callback);
+        diagnostic_updater.add("Internal Pressure", this, &MainBoardRobot::pressure_diagnostic_callback);
         for (int l = 0; l < 6; l++)
-            diagnostic_updater.add(WATER_SENSE_POSITION[l], boost::bind(&MainBoardDriver::water_diagnostic_callback, this, _1, l));
-        diagnostic_updater.add("Front Left Pod", boost::bind(&MainBoardDriver::pod_diagnostic_callback, this, _1, FL-1));
-        diagnostic_updater.add("Front Right Pod", boost::bind(&MainBoardDriver::pod_diagnostic_callback, this, _1, FR-1));
-        diagnostic_updater.add("Back Right Pod", boost::bind(&MainBoardDriver::pod_diagnostic_callback, this, _1, BR-1));
-        diagnostic_updater.add("Back Left Pod", boost::bind(&MainBoardDriver::pod_diagnostic_callback, this, _1, BL-1));
-        diagnostic_updater.add("Main Control Board", this, &MainBoardDriver::mainboard_diagnostic_callback);
-        diagnostic_updater.add("Battery 1", boost::bind(&MainBoardDriver::batt_diagnostic_callback, this, _1, 0));
-        diagnostic_updater.add("Battery 2", boost::bind(&MainBoardDriver::batt_diagnostic_callback, this, _1, 1));
-        diagnostic_updater.add("Battery 3", boost::bind(&MainBoardDriver::batt_diagnostic_callback, this, _1, 2));
-        diagnostic_updater.add("Battery 4", boost::bind(&MainBoardDriver::batt_diagnostic_callback, this, _1, 3));
-        diagnostic_updater.add("Power Systems", this, &MainBoardDriver::power_diagnostic_callback);
-        diagnostic_updater.add("Left Drive Motor Temperature", this, &MainBoardDriver::left_drive_temp_diagnostic_callback);
-        diagnostic_updater.add("Right Drive Motor Temperature", this, &MainBoardDriver::right_drive_temp_diagnsotic_callback);
+            diagnostic_updater.add(WATER_SENSE_POSITION[l], boost::bind(&MainBoardRobot::water_diagnostic_callback, this, _1, l));
+        diagnostic_updater.add("Front Left Pod", boost::bind(&MainBoardRobot::pod_diagnostic_callback, this, _1, FL-1));
+        diagnostic_updater.add("Front Right Pod", boost::bind(&MainBoardRobot::pod_diagnostic_callback, this, _1, FR-1));
+        diagnostic_updater.add("Back Right Pod", boost::bind(&MainBoardRobot::pod_diagnostic_callback, this, _1, BR-1));
+        diagnostic_updater.add("Back Left Pod", boost::bind(&MainBoardRobot::pod_diagnostic_callback, this, _1, BL-1));
+        diagnostic_updater.add("Main Control Board", this, &MainBoardRobot::mainboard_diagnostic_callback);
+        diagnostic_updater.add("Battery 1", boost::bind(&MainBoardRobot::batt_diagnostic_callback, this, _1, 0));
+        diagnostic_updater.add("Battery 2", boost::bind(&MainBoardRobot::batt_diagnostic_callback, this, _1, 1));
+        diagnostic_updater.add("Battery 3", boost::bind(&MainBoardRobot::batt_diagnostic_callback, this, _1, 2));
+        diagnostic_updater.add("Battery 4", boost::bind(&MainBoardRobot::batt_diagnostic_callback, this, _1, 3));
+        diagnostic_updater.add("Power Systems", this, &MainBoardRobot::power_diagnostic_callback);
+        diagnostic_updater.add("Left Drive Motor Temperature", this, &MainBoardRobot::left_drive_temp_diagnostic_callback);
+        diagnostic_updater.add("Right Drive Motor Temperature", this, &MainBoardRobot::right_drive_temp_diagnsotic_callback);
     }
     
-    bool MainBoardDriver::init()
+    bool MainBoardRobot::init()
     {        
         //Setup publishers and subscribers to communicate with the embedded board
-        hs_control = nh.advertise<walrus_firmware_msgs::MainBoardHighSpeedControl>("main_board/hs_control", 1000);
-        to_board = nh.advertise<walrus_firmware_msgs::MainBoardControl>("main_board/PC_to_board_control", 1000);
-        heartbeat_timer = nh.createTimer(ros::Duration(1), &MainBoardDriver::heartbeat_callback, this);
-        front_led = nh.subscribe<std_msgs::Float64>("front_led", 1000, boost::bind(&MainBoardDriver::led_callback, this, _1, FRONT_CAM_LED-1));
-        back_led = nh.subscribe<std_msgs::Float64>("back_led", 1000, boost::bind(&MainBoardDriver::led_callback, this, _1, BACK_CAM_LED-1));
-        bottom_led = nh.subscribe<std_msgs::Float64>("bottom_led", 1000, boost::bind(&MainBoardDriver::led_callback, this, _1, BOTTOM_CAM_LED-1));
-        set_enable = nh.subscribe("set_enable", 1000, &MainBoardDriver::set_enable_callback, this);
-        from_board = nh.subscribe("main_board/board_to_PC_control", 1000, &MainBoardDriver::from_board_callback, this);
-        ls_data = nh.subscribe("main_board/ls_data", 1000, &MainBoardDriver::ls_data_callback, this);    
-        hs_feedback = nh.subscribe("main_board/hs_feedback", 1000, &MainBoardDriver::hs_feedback_callback, this);   
-        return true;
+        hs_control = nh_.advertise<walrus_firmware_msgs::MainBoardHighSpeedControl>("main_board/hs_control", 1000);
+        to_board = nh_.advertise<walrus_firmware_msgs::MainBoardControl>("main_board/PC_to_board_control", 1000);
+        heartbeat_timer = nh_.createTimer(ros::Duration(1), &MainBoardRobot::heartbeat_callback, this);
+        front_led = nh_.subscribe<std_msgs::Float64>("front_led", 1000, boost::bind(&MainBoardRobot::led_callback, this, _1, FRONT_CAM_LED-1));
+        back_led = nh_.subscribe<std_msgs::Float64>("back_led", 1000, boost::bind(&MainBoardRobot::led_callback, this, _1, BACK_CAM_LED-1));
+        bottom_led = nh_.subscribe<std_msgs::Float64>("bottom_led", 1000, boost::bind(&MainBoardRobot::led_callback, this, _1, BOTTOM_CAM_LED-1));
+        set_enable = nh_.subscribe("set_enable", 1000, &MainBoardRobot::set_enable_callback, this);
+        from_board = nh_.subscribe("main_board/board_to_PC_control", 1000, &MainBoardRobot::from_board_callback, this);
+        ls_data = nh_.subscribe("main_board/ls_data", 1000, &MainBoardRobot::ls_data_callback, this);    
+        hs_feedback = nh_.subscribe("main_board/hs_feedback", 1000, &MainBoardRobot::hs_feedback_callback, this);   
+
+	registerInterface(&asi_);
+	registerInterface(&aei_);
+
+	std::vector<std::string> actuator_names = boost::assign::list_of
+	  ("walrus/front_left_pod_joint_actuator")
+	  ("walrus/front_right_pod_joint_actuator")
+	  ("walrus/back_left_pod_joint_actuator")
+	  ("walrus/back_right_pod_joint_actuator");
+	return loadTransmissions(actuator_names);
     }
-    
-    void MainBoardDriver::read(ros::Duration dt)
+
+    void MainBoardRobot::read(ros::Duration dt)
     {       
         boost::lock_guard<boost::mutex> lock(control_data_mutex);
        
@@ -179,10 +187,12 @@ namespace walrus_mainboard_driver
             pod_current[l] = (hs_feedback_msg.motor_current[l] / 1000.0); //mA -> A
             pod_effort[l] = pod_effort[l] * OUTPUT_TORQUE_PER_AMP;
         }        
+	robot_transmissions_.get<transmission_interface::ActuatorToJointStateInterface>()->propagate();
     }
     
-    void MainBoardDriver::write(ros::Duration dt)
+    void MainBoardRobot::write(ros::Duration dt)
     {            
+        robot_transmissions_.get<transmission_interface::JointToActuatorEffortInterface>()->propagate();
         walrus_firmware_msgs::MainBoardHighSpeedControl hs_control_msg;    
         {
             boost::lock_guard<boost::mutex> lock(control_data_mutex);
@@ -204,13 +214,13 @@ pod_effort_cmd[l] = -1;
         hs_control.publish(hs_control_msg);        
     }
     
-    void MainBoardDriver::update_diagnostics()
+    void MainBoardRobot::update_diagnostics()
     {
         diagnostic_updater.update();
     } 
     
     //Subscription callbacks
-    void MainBoardDriver::led_callback(const std_msgs::Float64::ConstPtr& msg, int index)
+    void MainBoardRobot::led_callback(const std_msgs::Float64::ConstPtr& msg, int index)
     {
         walrus_firmware_msgs::MainBoardControl led_msg;
         led_msg.type = walrus_firmware_msgs::MainBoardControl::SET_LED;
@@ -224,7 +234,7 @@ pod_effort_cmd[l] = -1;
         led_msg.msg = "";
         to_board.publish(led_msg);
     }
-    void MainBoardDriver::set_enable_callback(const std_msgs::Bool& msg)
+    void MainBoardRobot::set_enable_callback(const std_msgs::Bool& msg)
     {
         walrus_firmware_msgs::MainBoardControl enable_msg;
         if (msg.data)
@@ -236,13 +246,13 @@ pod_effort_cmd[l] = -1;
         enable_msg.msg = "";
         to_board.publish(enable_msg);
     }
-    void MainBoardDriver::hs_feedback_callback(const walrus_firmware_msgs::MainBoardHighSpeedFeedback& msg)
+    void MainBoardRobot::hs_feedback_callback(const walrus_firmware_msgs::MainBoardHighSpeedFeedback& msg)
     {
         boost::lock_guard<boost::mutex> lock(control_data_mutex);
         hs_feedback_msg = msg;
         last_hs_feedback = ros::Time::now();
     }
-    void MainBoardDriver::ls_data_callback(const walrus_firmware_msgs::MainBoardLowSpeedData& msg)
+    void MainBoardRobot::ls_data_callback(const walrus_firmware_msgs::MainBoardLowSpeedData& msg)
     {
         boost::lock_guard<boost::mutex> lock(sensor_data_mutex);
         
@@ -324,7 +334,7 @@ pod_effort_cmd[l] = -1;
         last_ls_data = ros::Time::now();
     }
     
-    void MainBoardDriver::from_board_callback(const walrus_firmware_msgs::MainBoardControl& msg)
+    void MainBoardRobot::from_board_callback(const walrus_firmware_msgs::MainBoardControl& msg)
     {
         boost::lock_guard<boost::mutex> lock(sensor_data_mutex);
         
@@ -362,7 +372,7 @@ pod_effort_cmd[l] = -1;
     }
     
     
-    string MainBoardDriver::formatDouble(double value, int precision)
+    string MainBoardRobot::formatDouble(double value, int precision)
     {
         stringstream ss;
         ss << std::fixed << std::setprecision(precision) << value;
@@ -371,7 +381,7 @@ pod_effort_cmd[l] = -1;
     
     //Diagnostics updaters
     
-    void MainBoardDriver::tp_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+    void MainBoardRobot::tp_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
     {
          if (!main_board_connected)
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
@@ -385,7 +395,7 @@ pod_effort_cmd[l] = -1;
         stat.add("Top Plate Temperature", main_board_connected ? formatDouble(temp_sensors[TOP_PLATE_TEMP-1],1) + "\xc2\xb0""C" : "No Data");
     }
     
-    void MainBoardDriver::int_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+    void MainBoardRobot::int_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
     {
         if (!main_board_connected)
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
@@ -399,7 +409,7 @@ pod_effort_cmd[l] = -1;
         stat.add("Internal Temperature", main_board_connected ? formatDouble(ambient_temp,1) + "\xc2\xb0""C" : "No Data");
     }
     
-    void MainBoardDriver::humidity_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+    void MainBoardRobot::humidity_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
     {
         if (!main_board_connected)
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
@@ -413,7 +423,7 @@ pod_effort_cmd[l] = -1;
         stat.add("Internal Humidity", main_board_connected ? formatDouble(humidity,1) + "%" : "No Data");
     }
     
-    void MainBoardDriver::pressure_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+    void MainBoardRobot::pressure_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
     {
         if (!main_board_connected)
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
@@ -426,7 +436,7 @@ pod_effort_cmd[l] = -1;
         stat.add("Internal Pressure", main_board_connected ? formatDouble(pressure,3) + " kPa" : "No Data");
     }
     
-    void MainBoardDriver::water_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
+    void MainBoardRobot::water_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
     {
         if (!main_board_connected)
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
@@ -436,7 +446,7 @@ pod_effort_cmd[l] = -1;
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Leak Detected");
     }
     
-    void MainBoardDriver::pod_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
+    void MainBoardRobot::pod_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
     {
         boost::lock_guard<boost::mutex> lock(sensor_data_mutex);
     
@@ -510,7 +520,7 @@ pod_effort_cmd[l] = -1;
     }
     
     
-    void MainBoardDriver::mainboard_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+    void MainBoardRobot::mainboard_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
     {
         boost::lock_guard<boost::mutex> lock(sensor_data_mutex);
         
@@ -547,7 +557,7 @@ pod_effort_cmd[l] = -1;
         stat.add("Other Sensor Feedback", ls_data_good ? "OK" : "No Data");
     }
     
-    void MainBoardDriver::batt_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
+    void MainBoardRobot::batt_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
     {
         bool pres = batteries[index].present;
         bool warning = false;
@@ -620,7 +630,7 @@ pod_effort_cmd[l] = -1;
         stat.add("Upper Cell Temperature", pres ? formatDouble(batteries[index].upper_temp, 1) + "\xc2\xb0""C" : "No Data");
     }
     
-    void MainBoardDriver::power_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+    void MainBoardRobot::power_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
     {
         bool warning = false;
         bool error = false;
@@ -686,7 +696,7 @@ pod_effort_cmd[l] = -1;
         stat.add("Vicor Temperature", main_board_connected ? formatDouble(temp_sensors[VICOR_TEMP-1], 1) + "\xc2\xb0""C" : "No Data");
     }
     
-    void MainBoardDriver::left_drive_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+    void MainBoardRobot::left_drive_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
     {        
         if (main_board_connected)
         {    
@@ -703,7 +713,7 @@ pod_effort_cmd[l] = -1;
         stat.add("Temperature", main_board_connected ? formatDouble(temp_sensors[LEFT_DRIVE_TEMP-1], 1) + "\xc2\xb0""C" : "No Data");
     }
     
-    void MainBoardDriver::right_drive_temp_diagnsotic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
+    void MainBoardRobot::right_drive_temp_diagnsotic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
     {
         if (main_board_connected)
         {
@@ -720,7 +730,7 @@ pod_effort_cmd[l] = -1;
         stat.add("Temperature", main_board_connected ? formatDouble(temp_sensors[RIGHT_DRIVE_TEMP-1], 1) + "\xc2\xb0""C" : "No Data");
     }
     
-    void MainBoardDriver::heartbeat_callback(const ros::TimerEvent&)
+    void MainBoardRobot::heartbeat_callback(const ros::TimerEvent&)
     {
         walrus_firmware_msgs::MainBoardControl msg;
         msg.type = walrus_firmware_msgs::MainBoardControl::KEEP_ALIVE;
