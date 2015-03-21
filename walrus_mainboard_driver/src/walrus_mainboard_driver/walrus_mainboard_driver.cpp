@@ -336,7 +336,7 @@ namespace walrus_mainboard_driver
                 if (POD_AUTO_ENABLE && msg.msg.compare("Disabled") == 0)
                 {
                     walrus_firmware_msgs::MainBoardControl status_req_msg;
-                    status_req_msg.type = walrus_firmware_msgs::MainBoardControl::REQ_STATUS;
+                    status_req_msg.type = walrus_firmware_msgs::MainBoardControl::SET_ENABLE;
                     status_req_msg.index = 0;
                     status_req_msg.value = 0; 
                     status_req_msg.msg = "";

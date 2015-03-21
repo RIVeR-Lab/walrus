@@ -1,6 +1,9 @@
 <!-- Launch file for starting the base robot hardware -->
 <launch>
-  <node pkg="rosserial_python" type="message_info_service.py" name="rosserial_message_info" respawn="true" respawn_delay="5" />
+  <!--node pkg="rosserial_python" type="message_info_service.py" name="rosserial_message_info" respawn="true" respawn_delay="5" /!-->
+  <include file="$(find rosserial_server)/launch/serial.launch">
+    <arg name="port" value="/dev/walrus_main_board"/>
+  </include>
   <node name="base" pkg="walrus_base_hw" type="walrus_base_hw_node" respawn="true" respawn_delay="5">
     <remap from="base/joint_states" to="joint_states" />
     <param name="controller_rate" value="50.0" type="double" />

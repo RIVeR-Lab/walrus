@@ -19,7 +19,7 @@ bottom_cam_led_id: 2
 back_cam_led_id: 3
 backup_batt_voltage_id: 2
 
-pod_auto_enable: true
+pod_auto_enable: false
 frontleft_pod_neutral_position: 0.0
 frontright_pod_neutral_position: 0.0
 backright_pod_neutral_position: 0.0

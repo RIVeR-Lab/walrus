@@ -46,8 +46,8 @@ int main( int argc, char** argv ) {
 
   boost::asio::io_service io_service;
   // Destructor is private...
-  new rosserial_server::SerialSession(io_service, mainboard_port, mainboard_baud);
-  new rosserial_server::SerialSession(io_service, boomboard_port, boomboard_baud);
+  //new rosserial_server::SerialSession(io_service, mainboard_port, mainboard_baud);
+  //new rosserial_server::SerialSession(io_service, boomboard_port, boomboard_baud);
 
   boost::thread(boost::bind(&boost::asio::io_service::run, &io_service));
 
