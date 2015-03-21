@@ -164,6 +164,7 @@ namespace walrus_mainboard_driver
             double MAIN_BATT_VOLTAGE_LOW_BELOW;
             double MAIN_BATT_CHARGE_LOW_BELOW;
             double MAIN_BATT_TEMP_HIGH_ABOVE;
+            double BACKUP_BATT_VOLTS_PER_COUNT;
             //For power systems
             double VICOR_TEMP_HIGH_ABOVE;
             double VICOR_TEMP_CRITICAL_ABOVE;

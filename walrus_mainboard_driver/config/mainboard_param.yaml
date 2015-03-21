@@ -17,7 +17,7 @@ left_drive_motor_temp_id: 4
 front_cam_led_id: 1
 bottom_cam_led_id: 2 
 back_cam_led_id: 3
-backup_batt_voltage_id: 1
+backup_batt_voltage_id: 2
 
 pod_auto_enable: true
 frontleft_pod_neutral_position: 0.0
@@ -60,6 +60,7 @@ feedback_timeout: 250
 main_batt_voltage_low_below: 24
 main_batt_charge_low_below: 10
 main_batt_temp_high_above: 75
+backup_batt_volts_per_count: 0.0043
 
 vicor_temp_high_above: 75
 vicor_temp_error_above: 100

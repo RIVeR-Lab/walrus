@@ -90,8 +90,8 @@ Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x2
 #define P_EXT_LED_3 16 //PC6
 
 //Tension Potentiometer Channels
-#define CHAN_POT1 0
-#define CHAN_POT2 1
+#define CHAN_POT1 1
+#define CHAN_POT2 0
 
 //I2C Slave addresses
 #define ADDR_TEMP_HUMID 0x40

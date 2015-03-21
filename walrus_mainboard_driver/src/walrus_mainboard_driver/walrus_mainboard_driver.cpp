@@ -73,6 +73,7 @@ namespace walrus_mainboard_driver
         pnh.param("main_batt_voltage_low_below", MAIN_BATT_VOLTAGE_LOW_BELOW, -1.0);
         pnh.param("main_batt_charge_low_below", MAIN_BATT_CHARGE_LOW_BELOW, -1.0);
         pnh.param("main_batt_temp_high_above", MAIN_BATT_TEMP_HIGH_ABOVE, -1.0);
+        pnh.param("backup_batt_volts_per_count", BACKUP_BATT_VOLTS_PER_COUNT, 0.001);
         
         pnh.param("vicor_temp_high_above", VICOR_TEMP_HIGH_ABOVE, -1.0);
         pnh.param("vicor_temp_critical_above", VICOR_TEMP_CRITICAL_ABOVE, -1.0);
@@ -256,7 +257,7 @@ namespace walrus_mainboard_driver
         water[5] = msg.water_sense & 32;
         
         //Backup battery
-        backup_voltage = msg.tension[BACKUP_BATT_VOLTAGE];
+        backup_voltage = msg.tension[BACKUP_BATT_VOLTAGE-1]*BACKUP_BATT_VOLTS_PER_COUNT;
         
         int count = 0;
         main_voltage = 0;

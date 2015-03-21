@@ -339,6 +339,7 @@ void setup()
     pinMode(P_EXT_LED_1, OUTPUT);
     pinMode(P_EXT_LED_2, OUTPUT);
     pinMode(P_EXT_LED_3, OUTPUT);
+    pinMode(P_LED_STATUS, OUTPUT);
     pinMode(P_CONTACTOR, OUTPUT);
     
     //Setup external ADC
