@@ -8,6 +8,24 @@
 #include <boost/assign/list_of.hpp>
 #include <controller_manager_msgs/SwitchController.h>
 
+void switch_controllers(controller_manager::ControllerManager* cm) {
+  std::vector<std::string> controller_names = boost::assign::list_of
+    ("joint_state_controller")
+    ("left_pods_joint_controller")
+    ("right_pods_joint_controller")
+    ("boom_deploy_controller")
+    ("boom_pan_controller")
+    ("boom_tilt_controller");
+  BOOST_FOREACH(const std::string& name, controller_names) {
+    ROS_INFO_STREAM("Loading " << name);
+    if(!cm->loadController(name))
+      ROS_ERROR_STREAM("Failed to load controller: " << name);
+  }
+
+  if(!cm->switchController(controller_names, std::vector<std::string>(), controller_manager_msgs::SwitchController::Request::BEST_EFFORT))
+    ROS_ERROR("Failed to activate controllers");
+}
+
 int main( int argc, char** argv ) {
   ros::init(argc, argv, "walrus_base_hw");
   ros::NodeHandle nh;
@@ -44,20 +62,9 @@ int main( int argc, char** argv ) {
     return 1;
   }
 
-  std::vector<std::string> controller_names = boost::assign::list_of
-    ("joint_state_controller")
-    ("left_pods_joint_controller")
-    ("right_pods_joint_controller")
-    ("boom_deploy_controller")
-    ("boom_pan_controller")
-    ("boom_tilt_controller");
   controller_manager::ControllerManager cm(&robot, pnh);
-  BOOST_FOREACH(const std::string& name, controller_names) {
-    if(!cm.loadController(name))
-      ROS_ERROR_STREAM("Failed to load controller: " << name);
-  }
-  if(!cm.switchController(controller_names, std::vector<std::string>(), controller_manager_msgs::SwitchController::Request::BEST_EFFORT))
-    ROS_ERROR("Failed to activate controllers");
+  // need to activate controllers async so that the control loop will run concurrently
+  ros::Timer startControllerTimer = nh.createTimer(ros::Duration(0), boost::bind(switch_controllers, &cm), true);
 
   walrus_base_hw::RealtimeRate rate(controller_rate);
   while (ros::ok()) {

@@ -36,7 +36,6 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
     walrus_drive_controller::TankDriveCommand tank_drive_msg;
     tank_drive_msg.left_speed = joy_msg->axes[axis_tank_left_]* scale_linear_;
     tank_drive_msg.right_speed = joy_msg->axes[axis_tank_right_]* scale_linear_;
-    ROS_ERROR("%f, %f", tank_drive_msg.left_speed, tank_drive_msg.right_speed);
     tank_drive_pub_.publish(tank_drive_msg);
 
     if(joy_msg->buttons[button_front_pods_up_]) {
