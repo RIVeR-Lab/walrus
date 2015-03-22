@@ -8,7 +8,7 @@ namespace walrus_mainboard_driver
     MainBoardDriver::MainBoardDriver(hardware_interface::ActuatorStateInterface& asi,
                   hardware_interface::EffortActuatorInterface &aei,
                   ros::NodeHandle& nh, ros::NodeHandle& pnh)
-    : asi_(asi), aei_(aei), diagnostic_updater(nh, pnh), nh(nh), pnh(pnh), last_hs_feedback(0, 0), last_ls_data(0,0), hs_feedback_timeout(0.25), ls_data_timeout(3)
+    : asi_(asi), aei_(aei), diagnostic_updater(nh, pnh), nh(nh), pnh(pnh), last_hs_feedback(0, 0), last_ls_data(0,0), hs_feedback_timeout(0.25), ls_data_timeout(3), led_scale(1000)
     {                
         //Load parameters    
         pnh.param("frontleft_pod_id", FL, 1);
@@ -155,11 +155,11 @@ namespace walrus_mainboard_driver
         for (int l = 0; l < 4; l++)
         {
             double position, delta;
-            position = (hs_feedback_msg.pod_position[l]/1023.0)*2*M_PI; //Convert raw ADC value (0-1023) to angle (0-2pi)
+            position = ((hs_feedback_msg.pod_position[l]/1023.0)*2*M_PI)-M_PI; //Convert raw ADC value (0-1023) to angle (0-2pi)
             if (POD_REV[l])
-                position = (2*M_PI) - position;
+                position = 0.0 - position;
             position -= POD_POSITION_NEUTRAL[l];
-            if (position < 0)
+            if (position < -M_PI)
                 position += 2*M_PI;
             delta = position - pod_position[l];
             if (delta > M_PI) //Decrease angle across 0
@@ -209,7 +209,7 @@ namespace walrus_mainboard_driver
             intensity = 0;
         else if (intensity > 1)
             intensity = 1;
-        led_msg.value =  (int16_t)(intensity * 255);
+        led_msg.value =  (int16_t)(intensity * led_scale);
         led_msg.msg = "";
         to_board.publish(led_msg);
     }
@@ -308,8 +308,6 @@ namespace walrus_mainboard_driver
                 batteries[l].present = false;
         }
         main_voltage /= count;
-        main_current /= count;
-        main_avg_current /= count;
         main_charge /= count;
         
         last_ls_data = ros::Time::now();
@@ -431,8 +429,8 @@ namespace walrus_mainboard_driver
     {
         boost::lock_guard<boost::mutex> lock(sensor_data_mutex);
     
-        bool warning;
-        bool error;
+        bool warning = false;
+        bool error = false;
         string msg = "";   
       
         if (main_board_connected)
@@ -541,7 +539,7 @@ namespace walrus_mainboard_driver
     void MainBoardDriver::batt_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
     {
         bool pres = batteries[index].present;
-        bool warning;
+        bool warning = false;
         string msg = "";   
         
         if (main_board_connected)
@@ -613,8 +611,8 @@ namespace walrus_mainboard_driver
     
     void MainBoardDriver::power_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
     {
-        bool warning;
-        bool error;
+        bool warning = false;
+        bool error = false;
         string msg = "";   
         
         if (main_board_connected)
@@ -672,7 +670,7 @@ namespace walrus_mainboard_driver
         stat.add("Main Battery Charge", main_board_connected ? formatDouble(main_charge, 0) + "%" : "No Data");
         stat.add("Main Battery Voltage", main_board_connected ? formatDouble(main_voltage, 3) + " V" : "No Data");
         stat.add("Main Battery Current", main_board_connected ? formatDouble(main_current, 3) + " A" : "No Data");
-        stat.add("Main Batter Average Current", main_board_connected ? formatDouble(main_avg_current, 3) + " A" : "No Data");
+        stat.add("Main Battery Average Current", main_board_connected ? formatDouble(main_avg_current, 3) + " A" : "No Data");
         stat.add("Backup Battery Voltage", main_board_connected ? formatDouble(backup_voltage, 3) + " V" : "No Data");
         stat.add("Vicor Temperature", main_board_connected ? formatDouble(temp_sensors[VICOR_TEMP-1], 1) + "\xc2\xb0""C" : "No Data");
     }

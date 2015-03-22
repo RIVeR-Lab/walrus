@@ -117,7 +117,8 @@ namespace walrus_mainboard_driver
             ros::Time last_hs_feedback;
             ros::Time last_ls_data;
             bool main_board_connected;
-            bool host_enabled, board_enabled;            
+            bool host_enabled, board_enabled;      
+            const int led_scale;      
             
             //Constants obtained from parameters
             

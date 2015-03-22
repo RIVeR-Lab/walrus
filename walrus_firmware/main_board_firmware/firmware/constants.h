@@ -10,14 +10,13 @@
 
 //Status structure
 typedef struct Status {
-    char* str;
+    const char* str;
     int16_t code;
     uint16_t blink_code;
 } Status;
 
 //Defined statuses
 Status STATUS_ENABLED = {"Enabled", STATE_OK, /*10_1010_1010*/0x2AA}; 
-Status STATUS_NO_HS_DATA = {"No motor data", STATE_ERROR, /*10_1010_1000*/0x2A8};
 Status STATUS_DISABLED = {"Disabled", STATE_OK, /*11_1110_0000*/0x3E0};
 Status STATUS_NO_CONTROL_DATA = {"No data", STATE_WARN, /*10_1010_0000*/0x2A0};
 Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x280};
@@ -25,16 +24,30 @@ Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x2
 //Status LED (pin sources LED current)
 #define P_LED_STATUS 12
 
-//Motor control pins (servo PWM)
-#define P_MOTOR_1 25
-#define P_MOTOR_2 27
-#define P_MOTOR_3 24
-#define P_MOTOR_4 26
+//SERVO MODE
+//Motor control pins (for servo PWM)
+#define P_MOTOR_1 25 //MCU Pin: PB5; MCU Output Compare: OCR1A; Silkscreen: Pod Motor Control - 1 / J28; Schematic: POD_MOTOR2
+#define P_MOTOR_2 16 //MCU Pin: PC6; MCU Output Compare: OCR3A; Silkscreen: LED Board Control - 6 / J32; Schematic: LED3
+#define P_MOTOR_3 27 //MCU Pin: PB7; MCU Output Compare: OCR1C; Silkscreen: Pod Motor Control - 2 / J31; Schematic: POD_MOTOR4
+#define P_MOTOR_4 26 //MCU Pin: PB6; MCU Output Compare: OCR1B; Silkscreen: Pod Motor Control - 4 / J30; Schematic: POD_MOTOR3
+//External LED pins (for analogWrite)
+#define P_EXT_LED_1 14 //MCU Pin: PC4; MCU Output Compare: OCR3C; Silkscreen: LED Board Control - 4 / J26; Schematic: LED1
+#define P_EXT_LED_2 15 //MCU Pin: PC5; MCU Output Compare: OCR3B; Silkscreen: LED Board Control - 5 / J29; Schematic: LED2
+#define P_EXT_LED_3 24 //MCU Pin: PB4; MCU Output Compare: OCR2A; Silkscreen: Pod Motor Control - 3 / J27; Schematic: POD_MOTOR1
 
-//Motor control registers when using timer1 for PWM
+//TIMER MODE
+//16 bit timer top value
+#define TIMER_TOP 10000
+//Motor control output compare registers
 #define REG_MOTOR_1 OCR1A
+#define REG_MOTOR_2 OCR3A
+#define REG_MOTOR_3 OCR1C
 #define REG_MOTOR_4 OCR1B
-#define REG_MOTOR_2 OCR1C
+//LED output compare registers
+#define SET_LED1(value) OCR3C = value*10
+#define SET_LED2(value) OCR3B = value*10
+#define SET_LED3(value) OCR2A = value/4
+
 
 //Current sensor pins (analog)
 #define P_CURRENT_1 4
@@ -84,11 +97,6 @@ Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x2
 #define P_BATT4LWR_SDA 8 //PE0
 #define P_BATT4LWR_SCL 9 //PE1
 
-//External LED pins
-#define P_EXT_LED_1 14 //PC4
-#define P_EXT_LED_2 15 //PC5
-#define P_EXT_LED_3 16 //PC6
-
 //Tension Potentiometer Channels
 #define CHAN_POT1 1
 #define CHAN_POT2 0
@@ -110,9 +118,10 @@ Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x2
 #define T_CONVERT 0x44
 #define READ_SCRATCH 0xBE
 
-//Equations
+//Current Sensing
+#define CURRENT_AVERAGE_SAMPLES 10
 #define CURRENT_ADC_MAX 1023 
-#define ADC_TO_mA(adcVal) ((73300*adcVal/CURRENT_ADC_MAX) - 36700) //See Pololu part #2453
+#define ADC_TO_mA(adcVal) (int16_t)((73300*(long)adcVal/CURRENT_ADC_MAX) - 36700) //See Pololu part #2453
 
 //Temperature sensor addresses
 #define TEMP_1_ADDR {0x10, 0x9D, 0x92, 0xE2, 0x02, 0x08, 0x00, 0x43}
@@ -130,7 +139,7 @@ Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x2
 #define LOOP_TOO_LONG_ERROR "Main loop took longer than 20 ms."
 #define SLOW_REQUEST_ERROR "Cannot complete request when enabled."
 #define INVALID_REQUEST_ERROR "Received invalid control message type."
-#define NO_MOTOR_DATA_ERROR "Enabled, but receiving no motor data."
+#define NO_MOTOR_DATA_ERROR "Received no motor data when enabled, disabling..."
 
 //Data report states for low speed data aquisition state machine
 enum LowSpeedOpState { READ_TEMPHUMID, 
