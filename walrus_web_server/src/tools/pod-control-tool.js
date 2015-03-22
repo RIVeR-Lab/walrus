@@ -58,7 +58,7 @@ angular.module("app").directive("podControlToolChannel", function() {
 		    }
 		}
 		else {
-		    command_pub.publish({mode: PodCommand.HOLD_POSITION});
+		    command_pub.publish({mode: PodCommand.HOLD_POSITION, set_point: 0}); // setpoint is ignored, but needed cause serialization raises error otherwise
 		}
 	    }
 
