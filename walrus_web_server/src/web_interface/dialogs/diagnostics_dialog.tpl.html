@@ -1,17 +1,20 @@
 <md-dialog>
   <md-content>
     <h1>Diagnostics</h1>
-    <div>Time: {{diagnostics.header.stamp.secs + diagnostics.header.stamp.nsecs/1000000}}</div>
-    <ul style="list-style-type: none;">
-      <li ng-repeat="status in diagnostics.status track by status.name" ng-init="expanded=false" ng-click="expanded=!expanded" style="cursor:pointer;">
-	<span ng-style="{'color': statusLevelToColor(status.level)}">{{statusLevelToSymbol(status.level)}}</span> <span style="font-weight:bold;">{{status.name}}</span> ({{status.message}})
-	<ul ng-show="expanded">
-	  <li ng-repeat="value in status.values">
-	    {{value.key}} = {{value.value}}
-	  </li>
-	</ul>
-      </li>
-    </ul>
+    <div ng-show="diagnostics">
+      <h3>Time: {{diagnostics.header.stamp.secs + diagnostics.header.stamp.nsecs/1000000}}</h3>
+      <ul style="list-style-type: none;">
+	<li ng-repeat="status in diagnostics.status track by status.name" ng-init="expanded=false" ng-click="expanded=!expanded" style="cursor:pointer;">
+	  <span ng-style="{'color': statusLevelToColor(status.level)}">{{statusLevelToSymbol(status.level)}}</span> <span style="font-weight:bold;">{{status.name}}</span> ({{status.message}})
+	  <ul ng-show="expanded">
+	    <li ng-repeat="value in status.values">
+	      {{value.key}} = {{value.value}}
+	    </li>
+	  </ul>
+	</li>
+      </ul>
+    </div>
+    <h2 ng-hide="diagnostics">Waiting for diagnostics message</h2>
   </md-content>
 
   <div class="md-actions">
