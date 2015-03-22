@@ -61,6 +61,9 @@
       <ng-include src="'/web_interface/sidepanel/autonomy_tab.tpl.html'" ng-show="tabs.selectedIndex==2"></ng-include>
     </div>
     <video-viewer style="flex:none;" stream="secondary_video_stream" ng-click="showSecondaryStreamSelectorDialog($event)"></video-viewer>
+    <md-content>
+      <md-checkbox ng-model="controller_state.high_speed_mode" disabled>High Speed</md-checkbox>
+    </md-content>
   </div>
 </body>
 </html>

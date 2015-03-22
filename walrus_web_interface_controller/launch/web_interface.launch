@@ -9,12 +9,15 @@
     <param name="axis_tank_left" value="1" />
     <param name="axis_tank_right" value="3" />
 
-    <param name="scale_linear" value="0.5" />
+    <param name="high_speed_max" value="2.0" />
+    <param name="low_speed_max" value="0.5" />
 
     <param name="button_front_pods_up" value="4" />
     <param name="button_front_pods_down" value="6" />
     <param name="button_back_pods_up" value="5" />
     <param name="button_back_pods_down" value="7" />
+
+    <param name="button_toggle_speed" value="8" />
 
     <param name="enable_by_default" value="true" />
   </node>

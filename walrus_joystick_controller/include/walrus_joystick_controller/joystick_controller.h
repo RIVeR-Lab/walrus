@@ -9,7 +9,7 @@ class JoystickController {
   JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh);
 
  private:
-  void updateState();
+  void updateState(bool force_publish=false);
   void joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg);
   void enableCallback(const std_msgs::Bool::ConstPtr& bool_msg);
 
@@ -34,7 +34,11 @@ class JoystickController {
   int button_back_pods_up_;
   int button_back_pods_down_;
 
-  double scale_linear_;
+  int button_toggle_speed_;
+  bool previous_button_toggle_speed_state_;
+
+  double high_speed_max_;
+  double low_speed_max_;
 
   bool enabled_;
   bool high_speed_mode_;

@@ -24,6 +24,13 @@ angular.module("app").controller("RootCtrl",
     });
     $interval(publish_joy_data, 250); // republish joystick data every quarter second
 
+
+    var joyControllerStateCallback = function(state) {
+	$scope.controller_state = state;
+    };
+    var joyControllerStateSub = roslib.subscribe("web_interface/joystick_controller/state", "walrus_joystick_controller/JoystickControllerState", joyControllerStateCallback);
+
+
     $scope.settings = {
     };
     $scope.available_video_streams = [
