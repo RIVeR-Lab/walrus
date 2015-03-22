@@ -31,6 +31,14 @@ angular.module("app").controller("DiagnosticsCtrl",
 	var cpu_temp = diagnostics.value("/Computers/Primary Computer/Sensors/coretemp-isa-0000 Physical id 0", "Temperature", temp_regex);
 	$scope.diagnostics.cpu_temp.value = cpu_temp;
 	$scope.diagnostics.cpu_temp.state = diagnostics.state("/Computers/Primary Computer/Sensors/coretemp-isa-0000 Physical id 0");
+
+	for(var i = 0; i < 4; ++i) {
+	    var battery_path = "/Power/Battery " + (i + 1);
+	    $scope.diagnostics.batteries[i].connected = diagnostics.value(battery_path, "Present") === "Yes";
+	    $scope.diagnostics.batteries[i].state = diagnostics.state(battery_path);
+	    var charge_percent = diagnostics.value(battery_path, "Charge", percent_regex);
+	    $scope.diagnostics.batteries[i].value = charge_percent / 100;
+	}
     });
 
 
@@ -39,10 +47,10 @@ angular.module("app").controller("DiagnosticsCtrl",
 	memory: {value: 1.0, state: diagnosticsService.STALE},
 	cpu_temp: {value: 0.0, state: diagnosticsService.STALE},
 	batteries: [
-	    {value: 0.0, connected: false, state: diagnosticsService.ERROR},
-	    {value: 0.2, connected: true, state: diagnosticsService.WARN},
-	    {value: 0.5, connected: true, state: diagnosticsService.OK},
-	    {value: 0.8, connected: true, state: diagnosticsService.STALE}
+	    {value: 0.0, connected: false, state: diagnosticsService.STALE},
+	    {value: 0.0, connected: false, state: diagnosticsService.STALE},
+	    {value: 0.0, connected: false, state: diagnosticsService.STALE},
+	    {value: 0.0, connected: false, state: diagnosticsService.STALE}
 	],
 	drive: [
 	    {value: 0.1, state: diagnosticsService.STALE},
