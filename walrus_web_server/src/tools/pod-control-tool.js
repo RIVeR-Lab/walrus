@@ -62,6 +62,10 @@ angular.module("app").directive("podControlToolChannel", function() {
 		}
 	    }
 
+	    $scope.zeroValue = function() {
+		$scope.value = 0;
+	    };
+
 	    $scope.$watch("mode", function(mode) {
 		console.log(mode);
 		if(mode === "position") {

@@ -11,7 +11,7 @@
     <div layout="row" class="flex-vcenter-row">
       <md-slider min="{{min}}" max="{{max}}" step="0.1" ng-model="value" flex ng-disabled="!enable"></md-slider>
       <input type="number" min="{{min}}" max="{{max}}" ng-model="value" ng-disabled="!enable">
-      <md-button class="md-primary md-raised" ng-click="value=0" ng-disabled="!enable" ng-if="mode=='effort'">Zero</md-button>
+      <md-button class="md-primary md-raised" ng-click="zeroValue()" ng-disabled="!enable" ng-if="mode=='effort'">Zero</md-button>
     </div>
 
     <div layout="row" class="flex-vcenter-row">
