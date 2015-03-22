@@ -1,0 +1,4 @@
+# Since the cameras don't seem to have any kind of differentiating information we use the port they are plugged into to figure out which is which
+SUBSYSTEM=="video4linux", ATTRS{idVendor}=="045e", ATTRS{idProduct}=="075d", ATTRS{manufacturer}=="Microsoft", ATTRS{devpath}=="2.4.2", MODE="0666", SYMLINK+="front_camera"
+SUBSYSTEM=="video4linux", ATTRS{idVendor}=="045e", ATTRS{idProduct}=="075d", ATTRS{manufacturer}=="Microsoft", ATTRS{devpath}=="2.4.1", MODE="0666", SYMLINK+="bottom_camera"
+SUBSYSTEM=="video4linux", ATTRS{idVendor}=="045e", ATTRS{idProduct}=="075d", ATTRS{manufacturer}=="Microsoft", ATTRS{devpath}=="2.4.3", MODE="0666", SYMLINK+="back_camera"
