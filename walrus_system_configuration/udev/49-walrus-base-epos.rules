@@ -1,0 +1,2 @@
+# simply use this to give the epos a name as we can't actually open the epos using the path
+SUBSYSTEM=="usb|usb_device", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="a8b0", ATTRS{serial}=="662080004917", MODE="666", SYMLINK+="base_epos"
