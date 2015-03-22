@@ -30,7 +30,7 @@ angular.module("app").directive("podControlToolChannel", function() {
 
 	    function state_callback(state) {
 		$scope.state = state;
-		if(!$scope.enable) {
+		if(!$scope.enable && $scope.mode === "position") {
 		    $scope.value = state.process_value;
 		}
 		$scope.process_value = state.process_value;
@@ -73,7 +73,7 @@ angular.module("app").directive("podControlToolChannel", function() {
 		    $scope.max = 3.1415;
 		    $scope.value = $scope.process_value;
 		}
-		else {
+		else { // velocity
 		    $scope.value = 0.0;
 		    $scope.min = -1.0;
 		    $scope.max = 1.0;
