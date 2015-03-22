@@ -1,4 +1,5 @@
 #include "walrus_joystick_controller/joystick_controller.h"
+#include "walrus_joystick_controller/JoystickControllerState.h"
 #include <walrus_pod_controller/PodCommand.h>
 #include <walrus_drive_controller/TankDriveCommand.h>
 
@@ -7,6 +8,12 @@ namespace walrus_joystick_controller {
 
 JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh)
 {
+  state_publish_delay_ = ros::Duration(1.0);
+  last_state_publish_ = ros::Time(0);
+
+  joystick_available_timeout_ = ros::Duration(2.0);
+  last_joy_message_ = ros::Time(0);
+
   pnh.param<bool>("enable_by_default", enabled_, false);
 
   pnh.param<int>("axis_tank_left", axis_tank_left_, 1);
@@ -18,19 +25,36 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
   pnh.param<int>("button_back_pods_up", button_back_pods_up_, 0);
   pnh.param<int>("button_back_pods_down", button_back_pods_down_, 1);
 
-  joy_sub_ = nh.subscribe<sensor_msgs::Joy>("joy", 1, &JoystickController::joyCallback, this);
-  enabled_sub_ = nh.subscribe<std_msgs::Bool>("enabled", 1, &JoystickController::enabledCallback, this);
-
   tank_drive_pub_ = nh.advertise<walrus_drive_controller::TankDriveCommand>("tank_drive", 1);
 
   back_left_pod_pub_ = nh.advertise<walrus_pod_controller::PodCommand>("left_pods_joint_controller/back/command", 1);
   back_right_pod_pub_ = nh.advertise<walrus_pod_controller::PodCommand>("right_pods_joint_controller/back/command", 1);
   front_left_pod_pub_ = nh.advertise<walrus_pod_controller::PodCommand>("left_pods_joint_controller/front/command", 1);
   front_right_pod_pub_ = nh.advertise<walrus_pod_controller::PodCommand>("right_pods_joint_controller/front/command", 1);
+
+  state_pub_ = pnh.advertise<walrus_joystick_controller::JoystickControllerState>("state", 1);
+  state_pub_timer_ = nh.createTimer(ros::Duration(1.0), boost::bind(&JoystickController::updateState, this));
+
+  joy_sub_ = nh.subscribe<sensor_msgs::Joy>("joy", 1, &JoystickController::joyCallback, this);
+  enable_sub_ = nh.subscribe<std_msgs::Bool>("enable", 1, &JoystickController::enableCallback, this);
+}
+
+void JoystickController::updateState() {
+  bool available = last_joy_message_ + joystick_available_timeout_ > ros::Time::now();
+  if(last_state_publish_ + state_publish_delay_ < ros::Time::now() || !available) {
+    walrus_joystick_controller::JoystickControllerState state;
+    state.enabled = enabled_;
+    state.high_speed_mode = high_speed_mode_;
+    state.available = available;
+    state_pub_.publish(state);
+    last_state_publish_ = ros::Time::now();
+  }
 }
 
 void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
 {
+  last_joy_message_ = ros::Time::now();
+  updateState();
   if(enabled_)
   {
     walrus_drive_controller::TankDriveCommand tank_drive_msg;
@@ -92,7 +116,7 @@ void JoystickController::publishFrontPodHold() {
 }
 
 
-void JoystickController::enabledCallback(const std_msgs::Bool::ConstPtr& bool_msg)
+void JoystickController::enableCallback(const std_msgs::Bool::ConstPtr& bool_msg)
 {
   enabled_ = bool_msg->data;
 
@@ -109,6 +133,7 @@ void JoystickController::enabledCallback(const std_msgs::Bool::ConstPtr& bool_ms
     front_left_pod_pub_.publish(hold_msg);
     front_right_pod_pub_.publish(hold_msg);
   }
+  updateState();
 }
 
 }

@@ -9,11 +9,9 @@ class JoystickController {
   JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh);
 
  private:
+  void updateState();
   void joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg);
-  void enabledCallback(const std_msgs::Bool::ConstPtr& bool_msg);
-
-  ros::Subscriber joy_sub_;
-  ros::Subscriber enabled_sub_;
+  void enableCallback(const std_msgs::Bool::ConstPtr& bool_msg);
 
   ros::Publisher tank_drive_pub_;
 
@@ -21,6 +19,12 @@ class JoystickController {
   ros::Publisher back_right_pod_pub_;
   ros::Publisher front_left_pod_pub_;
   ros::Publisher front_right_pod_pub_;
+
+  ros::Publisher state_pub_;
+  ros::Timer state_pub_timer_;
+
+  ros::Subscriber joy_sub_;
+  ros::Subscriber enable_sub_;
 
   int axis_tank_left_;
   int axis_tank_right_;
@@ -33,11 +37,18 @@ class JoystickController {
   double scale_linear_;
 
   bool enabled_;
+  bool high_speed_mode_;
 
   void publishFrontPodEffort(double effort);
   void publishBackPodEffort(double effort);
   void publishFrontPodHold();
   void publishBackPodHold();
+
+  ros::Duration state_publish_delay_;
+  ros::Time last_state_publish_;
+
+  ros::Duration joystick_available_timeout_;
+  ros::Time last_joy_message_;
 };
 
 }
