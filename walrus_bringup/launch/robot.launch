@@ -10,8 +10,8 @@
   <node pkg="multi_usb_cam" type="multi_usb_cam_node" name="multi_usb_cam_node" respawn="true" respawn_delay="5">
     <rosparam>
       cameras:
-        - {name: '/dev/front_camera, topic: 'front_camera/image_raw', frame_id: 'front_camera'}
-        - {name: '/dev/back_camera, topic: 'back_camera/image_raw', frame_id: 'back_camera'}
+        - {name: '/dev/front_camera', topic: 'front_camera/image_raw', frame_id: 'front_camera'}
+        - {name: '/dev/back_camera', topic: 'back_camera/image_raw', frame_id: 'back_camera'}
         - {name: '/dev/bottom_camera', topic: 'bottom_camera/image_raw', frame_id: 'bottom_camera'}
       configs: # Each level of configuration is for number of cameras running concurrently (first is for one camera, second is for two, etc)
         - {width: 1280, height: 720, fps: 30}
