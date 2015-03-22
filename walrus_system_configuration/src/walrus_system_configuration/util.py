@@ -14,6 +14,9 @@ def sudo_call_output(cmd):
     print 'Calling: ' + ' '.join(full_cmd)
     return subprocess.check_output(full_cmd)
 
+def sudo_rm(f):
+    sudo_call(['rm', f])
+
 def sudo_mv(src, dst):
     sudo_call(['mv', src, dst])
 
@@ -93,12 +96,27 @@ def status_catkin_file(package, path, dest, name):
     else:
         error('Could not locate '+name+' file')
 
+def install_delete_file(f, name):
+    if os.path.isfile(f):
+        error(name+' file exists')
+        if confirm('Delete?'):
+            sudo_rm(f)
+        success(name+' file does not exist')
+
+def status_delete_file(f, name):
+    if os.path.isfile(f):
+        error(name+' file exists')
+    else:
+        success(name+' file does not exist')
+
+
 
 
 
 def is_package_installed(name):
+    devnull = open(os.devnull, 'w')
     command = ['dpkg-query', '-Wf\'${db:Status-abbrev}\'', name]
-    if subprocess.call(command) == 0:
+    if subprocess.call(command, stdout=devnull, stderr=devnull) == 0:
         return subprocess.check_output(command) == '\'ii \''
     return False
 
