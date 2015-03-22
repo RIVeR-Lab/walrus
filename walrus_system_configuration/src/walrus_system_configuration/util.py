@@ -97,7 +97,10 @@ def status_catkin_file(package, path, dest, name):
 
 
 def is_package_installed(name):
-    return subprocess.check_output(['dpkg-query', '-Wf\'${db:Status-abbrev}\'', name]) == '\'ii \''
+    command = ['dpkg-query', '-Wf\'${db:Status-abbrev}\'', name]
+    if subprocess.call(command) == 0:
+        return subprocess.check_output(command) == '\'ii \''
+    return False
 
 def install_package(name):
     if not is_package_installed(name):
