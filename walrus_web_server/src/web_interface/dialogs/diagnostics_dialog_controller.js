@@ -1,6 +1,8 @@
 angular.module("app").controller("DiagnosticsDialogController",
 				 function($scope, $mdDialog, roslib, diagnosticsService) {
 
+  $scope.diagnostics = null;
+
   $scope.$on("ros-diagnostics", function(e, diagnostics) {
       $scope.diagnostics = diagnostics.msg;
   });

@@ -21,19 +21,26 @@
 
   <!-- Computer -->
   <rect x="85" y="60" width="60" height="60" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
-  <rect x="85" y="60" width="30" height="60" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
-  <rect x="115" y="60" width="30" height="60" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
-  <!-- State -->
-  <rect x="85" ng-attr-y="{{60 + 60*(1-diagnostics.cpu.value)}}" width="30" ng-attr-height="{{60*diagnostics.cpu.value}}" ng-attr-style="fill:{{stateToColor(diagnostics.cpu.state)}};stroke-width:3;stroke:rgb(0,0,0)" />
-  <rect x="115" ng-attr-y="{{60 + 60*(1-diagnostics.memory.value)}}" width="30" ng-attr-height="{{60*diagnostics.memory.value}}" ng-attr-style="fill:{{stateToColor(diagnostics.memory.state)}};stroke-width:3;stroke:rgb(0,0,0)" />
+  <g>
+    <title>CPU: {{100*diagnostics.cpu.value|number:1}}%</title>
+    <rect x="85" y="60" width="30" height="60" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
+    <rect x="85" ng-attr-y="{{60 + 60*(1-diagnostics.cpu.value)}}" width="30" ng-attr-height="{{60*diagnostics.cpu.value}}" ng-attr-style="fill:{{stateToColor(diagnostics.cpu.state)}};stroke-width:3;stroke:rgb(0,0,0)" />
+  </g>
+  <g>
+    <title>Memory: {{100*diagnostics.memory.value | number:1}}%</title>
+    <rect x="115" y="60" width="30" height="60" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
+    <rect x="115" ng-attr-y="{{60 + 60*(1-diagnostics.memory.value)}}" width="30" ng-attr-height="{{60*diagnostics.memory.value}}" ng-attr-style="fill:{{stateToColor(diagnostics.memory.state)}};stroke-width:3;stroke:rgb(0,0,0)" />
+  </g>
   <text x="115" y="150" text-anchor="middle" font-weight="bolder" ng-attr-fill="{{stateToColor(diagnostics.cpu_temp.state)}}">{{diagnostics.cpu_temp.value}}°C</text>
 
   <!-- Batteries -->
-  <g ng-repeat="i in [0, 1, 2, 3]" ng-init="x=240 + i%2 * 80;y=10 + Math.floor(i/2) * 80;">
-    <rect ng-attr-x="{{x}}" ng-attr-y="{{y}}" width="70" height="70" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
-    <rect ng-attr-x="{{x}}" ng-attr-y="{{y + 70*(1-diagnostics.batteries[i].value)}}" width="70" ng-attr-height="{{70*diagnostics.batteries[i].value}}" ng-attr-style="fill:{{stateToColor(diagnostics.batteries[i].state)}};stroke-width:3;stroke:rgb(0,0,0)" />
+  <g ng-repeat="i in [0, 1, 2, 3]" ng-init="x=240 + i%2 * 90;y=20 + Math.floor(i/2) * 90;">
+    <title ng-if="diagnostics.batteries[i].connected">{{diagnostics.batteries[i].value*100|number:1}}%</title>
+    <title ng-if="!diagnostics.batteries[i].connected">Disconnected</title>
+    <rect ng-attr-x="{{x}}" ng-attr-y="{{y}}" width="70" height="70" ng-attr-style="fill:LightBlue;stroke-width:5;stroke:{{stateToColor(diagnostics.batteries[i].state)}}" />
+    <rect ng-attr-x="{{x}}" ng-attr-y="{{y + 70*(1-diagnostics.batteries[i].value)}}" width="70" ng-attr-height="{{70*diagnostics.batteries[i].value}}" ng-attr-style="fill:{{stateToColor(diagnostics.batteries[i].state)}};stroke-width:5;stroke:{{stateToColor(diagnostics.batteries[i].state)}};" />
     <g ng-hide="diagnostics.batteries[i].connected">
-      <rect ng-attr-x="{{x}}" ng-attr-y="{{y}}" width="70" height="70" ng-attr-style="fill:{{stateToColor(diagnostics.batteries[i].state)}};stroke-width:3;stroke:rgb(0,0,0)" />
+      <rect ng-attr-x="{{x}}" ng-attr-y="{{y}}" width="70" height="70" ng-attr-style="fill:{{stateToColor(diagnostics.batteries[i].state)}};stroke-width:5;stroke:rgb(0,0,0);" />
       <line ng-attr-x1="{{x}}" ng-attr-y1="{{y}}"
 	    ng-attr-x2="{{x+70}}" ng-attr-y2="{{y+70}}"
 	    style="stroke:Black;stroke-width:3" />

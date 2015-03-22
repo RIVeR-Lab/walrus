@@ -3,6 +3,7 @@ from walrus_system_configuration.grub import *
 from walrus_system_configuration.dhcp import *
 from walrus_system_configuration.routing import *
 from walrus_system_configuration.dns import *
+from walrus_system_configuration.webserver import *
 
 def install():
     udev.install()
@@ -10,6 +11,7 @@ def install():
     dhcp.install()
     routing.install()
     dns.install()
+    webserver.install()
     return 0
 
 def status():
@@ -18,4 +20,5 @@ def status():
     dhcp.status()
     routing.status()
     dns.status()
+    webserver.status()
     return 0

@@ -49,12 +49,16 @@
         Model
       </md-tab>
       <md-tab>
+	Lights
+      </md-tab>
+      <md-tab>
 	Autonomy
       </md-tab>
     </md-tabs>
     <div style="flex:1;">
       <ng-include src="'/web_interface/sidepanel/model_tab.tpl.html'" ng-show="tabs.selectedIndex==0"></ng-include>
-      <ng-include src="'/web_interface/sidepanel/autonomy_tab.tpl.html'" ng-show="tabs.selectedIndex==1"></ng-include>
+      <ng-include src="'/web_interface/sidepanel/lights_tab.tpl.html'" ng-show="tabs.selectedIndex==1"></ng-include>
+      <ng-include src="'/web_interface/sidepanel/autonomy_tab.tpl.html'" ng-show="tabs.selectedIndex==2"></ng-include>
     </div>
     <video-viewer style="flex:none;" stream="secondary_video_stream" ng-click="showSecondaryStreamSelectorDialog($event)"></video-viewer>
   </div>
