@@ -18,9 +18,7 @@ add_message_files(
 generate_messages()
 
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES joystick_controller
-  CATKIN_DEPENDS roscpp geometry_msgs sensor_msgs walrus_pod_controller walrus_drive_controller message_runtime
+  CATKIN_DEPENDS geometry_msgs sensor_msgs walrus_pod_controller walrus_drive_controller message_runtime
 )
 
 ###########
