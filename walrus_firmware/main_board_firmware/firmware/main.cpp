@@ -113,18 +113,18 @@ void doHighSpeedOperations()
             motor3.writeMicroseconds(hs_control_msg.motor_power[2]);
             motor4.writeMicroseconds(hs_control_msg.motor_power[3]);
         #else
-            //REG_MOTOR_1 = hs_control_msg.motor_power[0];
-           // REG_MOTOR_2 = hs_control_msg.motor_power[1];
-            //REG_MOTOR_3 = hs_control_msg.motor_power[2];
-            //REG_MOTOR_4 = hs_control_msg.motor_power[3];
+            REG_MOTOR_1 = hs_control_msg.motor_power[0];
+            REG_MOTOR_2 = hs_control_msg.motor_power[1];
+            REG_MOTOR_3 = hs_control_msg.motor_power[2];
+            REG_MOTOR_4 = hs_control_msg.motor_power[3];
         #endif
     }
     if (nh.connected())
     {
         //Read feedback values
-       // for (int l = 0; l < 4; l++)
-        //{
-           /* long total = 0;
+        for (int l = 0; l < 4; l++)
+        {
+           /*long total = 0;
             current_samples[l][current_sample_ptr[l]] = ADC_TO_mA(analogRead(current_pins[l]));
             current_sample_ptr[l]++;
             if (current_sample_ptr[l] == CURRENT_AVERAGE_SAMPLES)
@@ -132,8 +132,8 @@ void doHighSpeedOperations()
             for (int m = 0; m < CURRENT_AVERAGE_SAMPLES; m++)
                 total += current_samples[l][m];
             hs_feedback_msg.motor_current[l] = total/CURRENT_AVERAGE_SAMPLES;*/
-            //hs_feedback_msg.pod_position[l] = analogRead(encoder_pins[l]);
-        //}
+            hs_feedback_msg.pod_position[l] = analogRead(encoder_pins[l]);
+        }
         
         //Publish feedback message
         hs_feedback.publish(&hs_feedback_msg);
@@ -282,7 +282,7 @@ void recv_control(const walrus_firmware_msgs::MainBoardControl& msg)
         break;
         case MainBoardControl::SET_LED:
             #ifdef USE_SERVO
-                analogWrite(led_pins[msg.index], msg.value / 4));
+                analogWrite(led_pins[msg.index], msg.value / 4);
             #else
                 switch (msg.index)
                 {
