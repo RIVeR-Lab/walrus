@@ -40,7 +40,7 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
   front_left_pod_pub_ = nh.advertise<walrus_pod_controller::PodCommand>("left_pods_joint_controller/front/command", 1);
   front_right_pod_pub_ = nh.advertise<walrus_pod_controller::PodCommand>("right_pods_joint_controller/front/command", 1);
 
-  state_pub_ = pnh.advertise<walrus_joystick_controller::JoystickControllerState>("state", 1);
+  state_pub_ = pnh.advertise<walrus_joystick_controller::JoystickControllerState>("state", 1, true);
   state_pub_timer_ = nh.createTimer(ros::Duration(1.0), boost::bind(&JoystickController::updateState, this, false));
 
   joy_sub_ = nh.subscribe<sensor_msgs::Joy>("joy", 1, &JoystickController::joyCallback, this);
