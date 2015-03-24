@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   PodCommand.msg
+  PodCommandStamped.msg
 )
 
 generate_messages(
