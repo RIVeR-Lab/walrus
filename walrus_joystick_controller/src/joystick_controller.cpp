@@ -76,10 +76,13 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
 
     double speed_scale = high_speed_mode_ ? high_speed_max_ : low_speed_max_;
     walrus_drive_controller::TankDriveCommand tank_drive_msg;
-    tank_drive_msg.left_speed = joy_msg->axes[axis_tank_left_]* speed_scale;
-    tank_drive_msg.right_speed = joy_msg->axes[axis_tank_right_]* speed_scale;
+    double left_raw = joy_msg->axes[axis_tank_left_];
+    double left_sign = left_raw < 0 ? -1 : 1;
+    double right_raw = joy_msg->axes[axis_tank_right_];
+    double right_sign = right_raw < 0 ? -1 : 1;
+    tank_drive_msg.left_speed = left_sign * left_raw * left_raw * speed_scale;
+    tank_drive_msg.right_speed = right_sign * right_raw * right_raw * speed_scale;
     tank_drive_pub_.publish(tank_drive_msg);
-
 
     if(joy_msg->buttons[button_front_pods_up_]) {
       publishFrontPodEffort(-1.0);
