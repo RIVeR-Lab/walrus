@@ -134,7 +134,8 @@ namespace walrus_mainboard_driver
             //Pod constants
             bool POD_AUTO_ENABLE;
             double POD_POSITION_NEUTRAL[4];
-            bool POD_REV[4];
+            bool POD_ENCODER_REV[4];
+            bool POD_MOTOR_REV[4];
             double OUTPUT_TORQUE_PER_AMP; 
             int OUTPUT_POWER_NEUTRAL; 
             int OUTPUT_POWER_LIMIT; 

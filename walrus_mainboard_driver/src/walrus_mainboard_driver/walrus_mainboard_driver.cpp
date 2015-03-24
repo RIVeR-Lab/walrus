@@ -37,10 +37,14 @@ namespace walrus_mainboard_driver
         pnh.param("frontright_pod_neutral_position", POD_POSITION_NEUTRAL[FR-1], 0.0);
         pnh.param("backright_pod_neutral_position", POD_POSITION_NEUTRAL[BR-1], 0.0);
         pnh.param("backleft_pod_neutral_position", POD_POSITION_NEUTRAL[BL-1], 0.0);
-        pnh.param("frontleft_pod_reverse", POD_REV[FL-1], false);
-        pnh.param("frontright_pod_reverse", POD_REV[FR-1], false);
-        pnh.param("backright_pod_reverse", POD_REV[BR-1], false);
-        pnh.param("backleft_pod_reverse", POD_REV[BL-1], false);
+        pnh.param("frontleft_pod_encoder_reverse", POD_ENCODER_REV[FL-1], false);
+        pnh.param("frontright_pod_encoder_reverse", POD_ENCODER_REV[FR-1], false);
+        pnh.param("backright_pod_encoder_reverse", POD_ENCODER_REV[BR-1], false);
+        pnh.param("backleft_pod_encoder_reverse", POD_ENCODER_REV[BL-1], false);
+        pnh.param("frontleft_pod_motor_reverse", POD_MOTOR_REV[FL-1], false);
+        pnh.param("frontright_pod_motor_reverse", POD_MOTOR_REV[FR-1], false);
+        pnh.param("backright_pod_motor_reverse", POD_MOTOR_REV[BR-1], false);
+        pnh.param("backleft_pod_motor_reverse", POD_MOTOR_REV[BL-1], false);
         pnh.param("pod_output_torque_per_amp", OUTPUT_TORQUE_PER_AMP, 1.0);
         pnh.param("pod_output_power_neutral", OUTPUT_POWER_NEUTRAL, 1500);
         pnh.param("pod_output_power_limit", OUTPUT_POWER_LIMIT, 500);
@@ -155,12 +159,15 @@ namespace walrus_mainboard_driver
         for (int l = 0; l < 4; l++)
         {
             double position, delta;
-            position = ((hs_feedback_msg.pod_position[l]/1023.0)*2*M_PI)-M_PI; //Convert raw ADC value (0-1023) to angle (0-2pi)
-            if (POD_REV[l])
-                position = 0.0 - position;
+            position = ((hs_feedback_msg.pod_position[l]/1023.0)*2*M_PI)-M_PI; //Convert raw ADC  value (0-1023) to angle (-pi to pi)
+                       
             position -= POD_POSITION_NEUTRAL[l];
             if (position < -M_PI)
                 position += 2*M_PI;
+            else if (position > M_PI)
+                position -= 2*M_PI;
+            if (POD_ENCODER_REV[l])
+                position *= -1;
             delta = position - pod_position[l];
             if (delta > M_PI) //Decrease angle across 0
                 pod_velocity[l] = (delta-2*M_PI)/dt.toSec();
@@ -181,11 +188,11 @@ namespace walrus_mainboard_driver
             boost::lock_guard<boost::mutex> lock(control_data_mutex);
             //Send motor control message            
             for (int l = 0; l < 4; l++)
-            {
+            {  
                 if (pod_force_disable[l])
                     pod_power[l] = OUTPUT_POWER_NEUTRAL;
                 else
-                    pod_power[l] = (pod_effort_cmd[l]*OUTPUT_POWER_LIMIT) + OUTPUT_POWER_NEUTRAL;
+                    pod_power[l] = (pod_effort_cmd[l]*OUTPUT_POWER_LIMIT*(POD_MOTOR_REV[l] ? -1 : 1)) + OUTPUT_POWER_NEUTRAL;	
                 hs_control_msg.motor_power[l] = pod_power[l];
             }
         }
