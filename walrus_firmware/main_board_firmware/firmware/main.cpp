@@ -124,14 +124,14 @@ void doHighSpeedOperations()
         //Read feedback values
         for (int l = 0; l < 4; l++)
         {
-           /*long total = 0;
+            long total = 0;
             current_samples[l][current_sample_ptr[l]] = ADC_TO_mA(analogRead(current_pins[l]));
             current_sample_ptr[l]++;
             if (current_sample_ptr[l] == CURRENT_AVERAGE_SAMPLES)
                 current_sample_ptr[l] = 0;
             for (int m = 0; m < CURRENT_AVERAGE_SAMPLES; m++)
                 total += current_samples[l][m];
-            hs_feedback_msg.motor_current[l] = total/CURRENT_AVERAGE_SAMPLES;*/
+            hs_feedback_msg.motor_current[l] = total/CURRENT_AVERAGE_SAMPLES;
             hs_feedback_msg.pod_position[l] = analogRead(encoder_pins[l]);
         }
         
@@ -400,12 +400,12 @@ void setup()
     lower[3].begin(&i2c_bus7);
 
     //Init current sensor averages
-    /*for (int l = 0; l < 4; l++)
+    for (int l = 0; l < 4; l++)
     {
         current_sample_ptr[l] = 0;
-        for (int m = 0; m < CURRENT_AVERAGE_SAMPLES; l++)
+        for (int m = 0; m < CURRENT_AVERAGE_SAMPLES; m++)
             current_samples[l][m] = 0;
-    }*/
+    }
     
     //Setup Motors
     #ifdef USE_SERVO
