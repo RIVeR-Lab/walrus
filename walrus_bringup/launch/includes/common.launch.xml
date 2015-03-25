@@ -6,5 +6,5 @@
     <arg name="type" value="$(arg type)"/>
   </include>
   <include file="$(find walrus_diagnostics)/launch/diagnostics.launch" />
-  <include file="$(find walrus_web_interface_controller)/launch/web_interface.launch" ns="web_interface" />
+  <include file="$(find walrus_interface_controller)/launch/interfaces.launch" />
 </launch>

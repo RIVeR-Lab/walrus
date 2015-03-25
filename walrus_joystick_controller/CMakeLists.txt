@@ -7,12 +7,18 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   walrus_pod_controller
   walrus_drive_controller
+  message_generation
 )
 
+add_message_files(
+  FILES
+  JoystickControllerState.msg
+)
+
+generate_messages()
+
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES joystick_controller
-  CATKIN_DEPENDS roscpp geometry_msgs sensor_msgs walrus_pod_controller walrus_drive_controller
+  CATKIN_DEPENDS geometry_msgs sensor_msgs walrus_pod_controller walrus_drive_controller message_runtime
 )
 
 ###########
@@ -24,6 +30,7 @@ include_directories(
 )
 
 add_executable(joystick_controller_node src/joystick_controller_node.cpp src/joystick_controller.cpp)
+add_dependencies(joystick_controller_node ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(joystick_controller_node
   ${catkin_LIBRARIES}

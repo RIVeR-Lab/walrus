@@ -10,12 +10,16 @@
 namespace walrus_pod_controller{
 
 Pod::Pod(ros::NodeHandle nh)
-  : nh_(nh), next_state_update_(0), controller_state_period_(0.5) {
+  : nh_(nh), next_state_update_(0), controller_state_period_(0.5),
+    command_timeout_(0.5) {
   last_command_.mode = walrus_pod_controller::PodCommand::DISABLED;
 }
 
 bool Pod::init(hardware_interface::EffortJointInterface* hw, urdf::Model urdf) {
   std::string joint_name;
+
+  nh_.param("command_timeout", command_timeout_, command_timeout_);
+
   if (!nh_.getParam("joint", joint_name)) {
     ROS_ERROR("No joint given (namespace: %s)", nh_.getNamespace().c_str());
     return false;
@@ -36,14 +40,17 @@ bool Pod::init(hardware_interface::EffortJointInterface* hw, urdf::Model urdf) {
   command_sub_ = nh_.subscribe<walrus_pod_controller::PodCommand>("command", 1, &Pod::setCommandCallback, this);
 }
 
-void Pod::setCommandCallback(const walrus_pod_controller::PodCommandConstPtr& msg) {
-  walrus_pod_controller::PodCommand command = *msg;
-  command_buffer_.writeFromNonRT(command);
+void Pod::setCommandCallback(const walrus_pod_controller::PodCommandConstPtr& command) {
+  walrus_pod_controller::PodCommandStamped command_stamped;
+  command_stamped.header.stamp = ros::Time::now();
+  command_stamped.command = *command;
+  command_buffer_.writeFromNonRT(command_stamped);
 }
 
 void Pod::starting(const ros::Time& time) {
-  walrus_pod_controller::PodCommand command;
-  command.mode = walrus_pod_controller::PodCommand::HOLD_POSITION;
+  walrus_pod_controller::PodCommandStamped command;
+  command.header.stamp = ros::Time(0);
+  command.command.mode = walrus_pod_controller::PodCommand::HOLD_POSITION;
   command_buffer_.initRT(command);
 }
 
@@ -53,11 +60,19 @@ void Pod::stopping(const ros::Time& time) {
 
 void Pod::update(const ros::Time& time, const ros::Duration& period) {
   double current_position = joint_.getPosition();
-  walrus_pod_controller::PodCommand command = *(command_buffer_.readFromRT());
+  walrus_pod_controller::PodCommandStamped command_stamped = *(command_buffer_.readFromRT());
 
+  const double dt = (time - command_stamped.header.stamp).toSec();
   double command_effort;
   double command_position;
   double error;
+
+  walrus_pod_controller::PodCommand command = command_stamped.command;
+  if (dt > command_timeout_) {
+    // timeout
+    command.mode = walrus_pod_controller::PodCommand::DISABLED;
+  }
+
   if(command.mode == walrus_pod_controller::PodCommand::POSITION ||
      command.mode == walrus_pod_controller::PodCommand::HOLD_POSITION) {
     // switching to position mode so reset the pid controller
@@ -85,13 +100,13 @@ void Pod::update(const ros::Time& time, const ros::Duration& period) {
     error = std::numeric_limits<double>::quiet_NaN();
     command_effort = command.set_point;
   }
-  else {
+  else { // disabled
     command_position = std::numeric_limits<double>::quiet_NaN();
     error = std::numeric_limits<double>::quiet_NaN();
     command_effort = 0.0;
   }
-  joint_.setCommand(command_effort);
   last_command_ = command;
+  joint_.setCommand(command_effort);
 
   // publish state
   if (time > next_state_update_) {
