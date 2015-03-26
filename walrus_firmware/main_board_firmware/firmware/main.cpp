@@ -217,7 +217,7 @@ void doLowSpeedOperations()
             case READ_BATT3_CURRENT: 
             case READ_BATT4_CURRENT:
                 index = report_state - READ_BATT1_CURRENT;
-                if (!upper[index].getCurrent(&value))
+                if (upper[index].getCurrent(&value))
                     ls_data_msg.batt_present |= (1 << index);
                 else
                     ls_data_msg.batt_present &= ~(1 << index);
