@@ -22,7 +22,7 @@ private:
     
     //Private bus functions
     int read_block(i2c_bus_t* bus, byte addr, byte command_code, byte* buf, int buf_size);
-    int read_word(i2c_bus_t* bus, byte addr, byte command_code, int16_t* value);
+    bool read_word(i2c_bus_t* bus, byte addr, byte command_code, int16_t* value);
 
 public:
     SmartBatt();

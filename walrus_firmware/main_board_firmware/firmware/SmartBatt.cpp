@@ -22,14 +22,14 @@ bool SmartBatt::getVoltage(int16_t* value)
 {
     if (started)
          return read_word(i2c_bus, 11, 0x09, value);
-    return -1;
+    return false;
 }
 
 bool SmartBatt::getCurrent(int16_t* value)
 {
     if (started)
         return read_word(i2c_bus, 11, 0x0a, value);
-    return -1;
+    return false;
 }
 
 //Get the battery output charge in hundredths of a percent (0.01%)
@@ -37,7 +37,7 @@ bool SmartBatt::getCharge(int16_t* value)
 {
     if (started)
         return read_word(i2c_bus, 11, 0x0d, value);
-    return -1;
+    return false;
 }
 
 //Get the battery temperature in hundredths of a degree C
@@ -45,7 +45,7 @@ bool SmartBatt::getTemp(int16_t* value)
 {
     if (started)
         return read_word(i2c_bus, 11, 0x08, value);
-    return -1;
+    return false;
 }
 
 //Get manufacturer name
@@ -107,7 +107,7 @@ bool SmartBatt::getSerial(int16_t* value)
 {
     if (started)
         return read_word(i2c_bus, 11, 0x1c, value);
-    return -1;
+    return false;
 }
 
 //Get average current
@@ -115,7 +115,7 @@ bool SmartBatt::getAvgCurrent(int16_t* value)
 {
     if (started)
          return read_word(i2c_bus, 11, 0x0b, value);
-    return -1;
+    return false;
 }
 
 //Get remaining capacity
@@ -123,7 +123,7 @@ bool SmartBatt::getRemCap(int16_t* value)
 {
     if (started)
         return read_word(i2c_bus, 11, 0x0f, value);
-    return -1;
+    return false;
 }
 
 //Get full capacity
@@ -131,7 +131,7 @@ bool SmartBatt::getFullCap(int16_t* value)
 {
     if (started)
         return read_word(i2c_bus, 11, 0x10, value);
-    return -1;
+    return false;
 }
 
 
@@ -157,8 +157,8 @@ int SmartBatt::read_block(i2c_bus_t* bus, byte addr, byte command_code, byte* bu
     return ret;
 }
 
-int SmartBatt::read_word(i2c_bus_t* bus, byte addr, byte command_code, int16_t* value){
-  int ret = -1;
+bool SmartBatt::read_word(i2c_bus_t* bus, byte addr, byte command_code, int16_t* value){
+  int ret = false;
   if (bus->start((addr << 1) | I2C_WRITE)) {
       bus->write(command_code);
       bus->stop();
@@ -169,7 +169,7 @@ int SmartBatt::read_word(i2c_bus_t* bus, byte addr, byte command_code, int16_t* 
         int pec = bus->read(true);
         int val = (high & 0xFF) << 8 | low & 0xFF;
         (*value) = val;
-        ret = 0;
+        ret = true;
       }
     }
     bus->stop();
