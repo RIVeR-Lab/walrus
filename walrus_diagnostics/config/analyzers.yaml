@@ -45,14 +45,16 @@ analyzers:
             path: Left Drive
             expected: [
                 'base: Left Drive Motor Temperature', 
-                'base_epos: left_drive_actuator: Motor']
+                'base_epos: left_drive_actuator: Motor',
+                'base_epos: left_drive_actuator: Motor Output']
             remove_prefix: 'base: '
         right_drive:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Right Drive
             expected: [
                 'base: Right Drive Motor Temperature',
-                'base_epos: right_drive_actuator: Motor']
+                'base_epos: right_drive_actuator: Motor',
+                'base_epos: right_drive_actuator: Motor Output']
             remove_prefix: 'base: '
   pods:
     type: diagnostic_aggregator/GenericAnalyzer
