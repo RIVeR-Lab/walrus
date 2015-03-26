@@ -3,13 +3,15 @@
 # position, velocity, and acceleration in device units
 operation_mode: 'profile_velocity'
 clear_faults: true
+halt_velocity: true
+torque_constant: 0.0263
 
 motor:
   type: 10
   ec_motor:
     nominal_current: 10.000
-    max_output_current: 20.000
-    thermal_time_constant: 31
+    max_output_current: 25.000
+    thermal_time_constant: 60
     number_of_pole_pairs: 1
 
 sensor:
