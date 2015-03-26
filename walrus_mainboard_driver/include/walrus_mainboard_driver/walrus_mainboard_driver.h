@@ -14,10 +14,15 @@
 #include <walrus_firmware_msgs/MainBoardHighSpeedFeedback.h>
 #include <walrus_firmware_msgs/MainBoardLowSpeedData.h>
 #include <walrus_firmware_msgs/MainBoardControl.h>
+#include <std_msgs/Float64.h>
+#include <std_msgs/Bool.h>
 #include <string.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 
 
 namespace walrus_mainboard_driver
@@ -56,9 +61,13 @@ namespace walrus_mainboard_driver
             hardware_interface::ActuatorStateInterface asi_;
             hardware_interface::EffortActuatorInterface aei_;
             
+            void led_callback(const std_msgs::Float64::ConstPtr& msg, int index);
+            void set_enable_callback(const std_msgs::Bool& msg);
             void hs_feedback_callback(const walrus_firmware_msgs::MainBoardHighSpeedFeedback& msg);
             void ls_data_callback(const walrus_firmware_msgs::MainBoardLowSpeedData& msg);
             void from_board_callback(const walrus_firmware_msgs::MainBoardControl& msg);
+            
+            static std::string formatDouble(double value, int precision);
             
             void tp_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat);
             void int_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat);
@@ -74,7 +83,9 @@ namespace walrus_mainboard_driver
             
             void heartbeat_callback(const ros::TimerEvent&);
             
-            ros::Subscriber hs_feedback, ls_data, from_board;
+            ros::Timer heartbeat_timer;
+            
+            ros::Subscriber hs_feedback, ls_data, from_board, back_led, front_led, bottom_led, set_enable;
             ros::Publisher hs_control, to_board;
             
             walrus_firmware_msgs::MainBoardHighSpeedFeedback hs_feedback_msg;
@@ -93,17 +104,21 @@ namespace walrus_mainboard_driver
             double main_charge;
             double main_current;
             double main_avg_current;
-            std::string main_board_status;
-            uint8_t main_board_status_level;
             
             //Data for pod control and state
-            ros::Time last_hs_msg;
-            ros::Time last_read;
-            bool main_board_connected;
-            bool host_enabled, board_enabled;
             bool pod_force_disable[4];
             double pod_velocity[4], pod_position[4], pod_current[4], pod_effort[4], pod_effort_cmd[4], pod_power[4];
             
+            //Main Board Control
+            const ros::Duration ls_data_timeout;
+            const ros::Duration hs_feedback_timeout;        
+            std::string main_board_status;
+            uint8_t main_board_status_level;
+            ros::Time last_hs_feedback;
+            ros::Time last_ls_data;
+            bool main_board_connected;
+            bool host_enabled, board_enabled;      
+            const int led_scale;      
             
             //Constants obtained from parameters
             
@@ -117,8 +132,10 @@ namespace walrus_mainboard_driver
             int BACKUP_BATT_VOLTAGE;
             
             //Pod constants
+            bool POD_AUTO_ENABLE;
             double POD_POSITION_NEUTRAL[4];
-            bool POD_REV[4];
+            bool POD_ENCODER_REV[4];
+            bool POD_MOTOR_REV[4];
             double OUTPUT_TORQUE_PER_AMP; 
             int OUTPUT_POWER_NEUTRAL; 
             int OUTPUT_POWER_LIMIT; 
@@ -149,6 +166,7 @@ namespace walrus_mainboard_driver
             double MAIN_BATT_VOLTAGE_LOW_BELOW;
             double MAIN_BATT_CHARGE_LOW_BELOW;
             double MAIN_BATT_TEMP_HIGH_ABOVE;
+            double BACKUP_BATT_VOLTS_PER_COUNT;
             //For power systems
             double VICOR_TEMP_HIGH_ABOVE;
             double VICOR_TEMP_CRITICAL_ABOVE;

@@ -1,4 +1,6 @@
 
+//#define USE_SERVO
+
 #include <Arduino.h>
 #include <ros.h>
 #include <walrus_firmware_msgs/MainBoardHighSpeedControl.h>
@@ -11,7 +13,9 @@
 #undef STATUS //Defined in MPL3115A2.h
 #include <ExternalADC.h>
 #include <OneWire.h>
-#include <Servo.h>
+#ifdef USE_SERVO
+    #include <Servo.h>
+#endif
 #include <SmartBatt.h>
 #include "constants.h"
 
@@ -40,7 +44,7 @@ ros::Publisher ls_data("main_board/ls_data", &ls_data_msg);
 
 //Control pipes
 bool mark_error = false;
-char* err_str = "";
+const char* err_str = "";
 long last_control_msg = 0;
 bool delayed_operation = false;
 bool no_ls = false;
@@ -59,10 +63,17 @@ TempHumid temphumid_sense;
 //OneWire object for temperature sensors
 OneWire exttemp_sense(P_EXT_TEMP);
 //Motor servos
-Servo motor1, motor2, motor3, motor4;
+#ifdef USE_SERVO
+    Servo motor1, motor2, motor3, motor4;
+#endif
 //Battery SMBus objects
 SmartBatt upper[4], lower[4];
+//Current sample average
+int16_t current_samples [4][CURRENT_AVERAGE_SAMPLES];
+uint8_t current_sample_ptr[4];
 //LED pin array
+uint8_t current_pins[] = {P_CURRENT_1, P_CURRENT_2, P_CURRENT_3, P_CURRENT_4};
+uint8_t encoder_pins[] = {P_ENCODER_1, P_ENCODER_2, P_ENCODER_3, P_ENCODER_4};
 uint8_t led_pins[] = {P_EXT_LED_1, P_EXT_LED_2, P_EXT_LED_3};
 //Temp sensor addresses
 uint8_t temp_addr[10][8] = {TEMP_1_ADDR, TEMP_2_ADDR, TEMP_3_ADDR, TEMP_4_ADDR, TEMP_5_ADDR, TEMP_6_ADDR, TEMP_7_ADDR, TEMP_8_ADDR, TEMP_9_ADDR, TEMP_10_ADDR};
@@ -82,29 +93,47 @@ void doHighSpeedOperations()
     //Write motor power data if enabled
     if (output_disable)
     {
-        motor1.writeMicroseconds(0);
-        motor2.writeMicroseconds(0);
-        motor3.writeMicroseconds(0);
-        motor4.writeMicroseconds(0);
+        #ifdef USE_SERVO
+            motor1.writeMicroseconds(1500);
+            motor2.writeMicroseconds(1500);
+            motor3.writeMicroseconds(1500);
+            motor4.writeMicroseconds(1500);
+        #else
+            REG_MOTOR_1 = 0;
+            REG_MOTOR_2 = 0;
+            REG_MOTOR_3 = 0;
+            REG_MOTOR_4 = 0;
+        #endif
     }
     else
     {
-        motor1.writeMicroseconds(hs_control_msg.motor_power[0]);
-        motor2.writeMicroseconds(hs_control_msg.motor_power[1]);
-        motor3.writeMicroseconds(hs_control_msg.motor_power[2]);
-        motor4.writeMicroseconds(hs_control_msg.motor_power[3]);
+        #ifdef USE_SERVO
+            motor1.writeMicroseconds(hs_control_msg.motor_power[0]);
+            motor2.writeMicroseconds(hs_control_msg.motor_power[1]);
+            motor3.writeMicroseconds(hs_control_msg.motor_power[2]);
+            motor4.writeMicroseconds(hs_control_msg.motor_power[3]);
+        #else
+            REG_MOTOR_1 = hs_control_msg.motor_power[0];
+            REG_MOTOR_2 = hs_control_msg.motor_power[1];
+            REG_MOTOR_3 = hs_control_msg.motor_power[2];
+            REG_MOTOR_4 = hs_control_msg.motor_power[3];
+        #endif
     }
     if (nh.connected())
     {
         //Read feedback values
-        hs_feedback_msg.motor_current[0] = ADC_TO_mA(analogRead(P_CURRENT_1));
-        hs_feedback_msg.motor_current[1] = ADC_TO_mA(analogRead(P_CURRENT_2));
-        hs_feedback_msg.motor_current[2] = ADC_TO_mA(analogRead(P_CURRENT_3));
-        hs_feedback_msg.motor_current[3] = ADC_TO_mA(analogRead(P_CURRENT_4));
-        hs_feedback_msg.pod_position[0] = analogRead(P_ENCODER_1);
-        hs_feedback_msg.pod_position[1] = analogRead(P_ENCODER_2);
-        hs_feedback_msg.pod_position[2] = analogRead(P_ENCODER_3);
-        hs_feedback_msg.pod_position[3] = analogRead(P_ENCODER_4);
+        for (int l = 0; l < 4; l++)
+        {
+            long total = 0;
+            current_samples[l][current_sample_ptr[l]] = ADC_TO_mA(analogRead(current_pins[l]));
+            current_sample_ptr[l]++;
+            if (current_sample_ptr[l] == CURRENT_AVERAGE_SAMPLES)
+                current_sample_ptr[l] = 0;
+            for (int m = 0; m < CURRENT_AVERAGE_SAMPLES; m++)
+                total += current_samples[l][m];
+            hs_feedback_msg.motor_current[l] = total/CURRENT_AVERAGE_SAMPLES;
+            hs_feedback_msg.pod_position[l] = analogRead(encoder_pins[l]);
+        }
         
         //Publish feedback message
         hs_feedback.publish(&hs_feedback_msg);
@@ -121,6 +150,7 @@ void recv_hs_control(const walrus_firmware_msgs::MainBoardHighSpeedControl& msg)
 void doLowSpeedOperations()
 {   
     uint8_t index;
+    int16_t value;
     //Don't bother doing anything if we're not connected
     if (nh.connected())
     {
@@ -137,12 +167,12 @@ void doLowSpeedOperations()
                 ls_data_msg.pressure = pressure_sense.readPressure();
             break;
             case READ_WATER:
-                ls_data_msg.water_sense = digitalRead(P_WATER_1) | 
+                ls_data_msg.water_sense = ~(digitalRead(P_WATER_1) | 
                                         (digitalRead(P_WATER_2) << 1) | 
                                         (digitalRead(P_WATER_3) << 2) | 
                                         (digitalRead(P_WATER_4) << 3) | 
                                         (digitalRead(P_WATER_5) << 4) |
-                                        (digitalRead(P_WATER_6) << 5);
+                                        (digitalRead(P_WATER_6) << 5));
             break;
             case READ_EXTTEMP_1:
             case READ_EXTTEMP_2:
@@ -177,40 +207,53 @@ void doLowSpeedOperations()
             case READ_BATT3_VOLTAGE: 
             case READ_BATT4_VOLTAGE:
                 index = report_state - READ_BATT1_VOLTAGE;
-                ls_data_msg.ucell_voltage[index] = upper[index].getVoltage();
-                ls_data_msg.lcell_voltage[index] = lower[index].getVoltage();
+                upper[index].getVoltage(&value);
+                ls_data_msg.ucell_voltage[index] = value;
+                lower[index].getVoltage(&value);
+                ls_data_msg.lcell_voltage[index] = value;
             break;
             case READ_BATT1_CURRENT:
             case READ_BATT2_CURRENT:
             case READ_BATT3_CURRENT: 
             case READ_BATT4_CURRENT:
                 index = report_state - READ_BATT1_CURRENT;
-                ls_data_msg.ucell_current[index] = upper[index].getCurrent();
-                ls_data_msg.lcell_current[index] = lower[index].getCurrent();
+                if (!upper[index].getCurrent(&value))
+                    ls_data_msg.batt_present |= (1 << index);
+                else
+                    ls_data_msg.batt_present &= ~(1 << index);
+                ls_data_msg.ucell_current[index] = value;
+                lower[index].getCurrent(&value);
+                ls_data_msg.lcell_current[index] = value;
             break;
             case READ_BATT1_AVGCURRENT:
             case READ_BATT2_AVGCURRENT:
             case READ_BATT3_AVGCURRENT:
             case READ_BATT4_AVGCURRENT:
                 index = report_state - READ_BATT1_AVGCURRENT;
-                ls_data_msg.ucell_avgcurr[index] = upper[index].getAvgCurrent();
-                ls_data_msg.lcell_avgcurr[index] = lower[index].getAvgCurrent();
+                upper[index].getAvgCurrent(&value);
+                ls_data_msg.ucell_avgcurr[index] = value; 
+                lower[index].getAvgCurrent(&value);
+                ls_data_msg.lcell_avgcurr[index] = value;
             break;    
             case READ_BATT1_TEMP:
             case READ_BATT2_TEMP:
             case READ_BATT3_TEMP:
             case READ_BATT4_TEMP:
                 index = report_state - READ_BATT1_TEMP;
-                ls_data_msg.ucell_temp[index] = upper[index].getTemp();
-                ls_data_msg.lcell_temp[index] = lower[index].getTemp();
+                upper[index].getTemp(&value);
+                ls_data_msg.ucell_temp[index] = value;
+                lower[index].getTemp(&value);
+                ls_data_msg.lcell_temp[index] = value;
             break;
             case READ_BATT1_CHARGE:
             case READ_BATT2_CHARGE:
             case READ_BATT3_CHARGE:
             case READ_BATT4_CHARGE:
                 index = report_state - READ_BATT1_CHARGE;
-                ls_data_msg.ucell_charge[index] = upper[index].getCharge();
-                ls_data_msg.lcell_charge[index] = lower[index].getCharge();
+                upper[index].getCharge(&value);
+                ls_data_msg.ucell_charge[index] = value;
+                lower[index].getCharge(&value);
+                ls_data_msg.lcell_charge[index] = value;
             break;
             case SEND_DATA:
                 ls_data.publish(&ls_data_msg);
@@ -238,7 +281,22 @@ void recv_control(const walrus_firmware_msgs::MainBoardControl& msg)
             //Don't need to do anything, other logic will take care of timeouts
         break;
         case MainBoardControl::SET_LED:
-            analogWrite(led_pins[msg.index], msg.value & 0xFF);
+            #ifdef USE_SERVO
+                analogWrite(led_pins[msg.index], msg.value / 4);
+            #else
+                switch (msg.index)
+                {
+                    case 0:
+                        SET_LED1(msg.value);
+                        break;
+                    case 1:
+                        SET_LED2(msg.value);
+                        break;
+                    case 2:
+                        SET_LED3(msg.value);
+                        break;
+                }
+            #endif
         break;
         case MainBoardControl::POWER_OFF:
             digitalWrite(P_CONTACTOR, HIGH);
@@ -260,15 +318,17 @@ void recv_control(const walrus_firmware_msgs::MainBoardControl& msg)
                 delayed_operation = true;
                 to_pc_data.index = msg.index;
                 to_pc_data.value = 0;
-                to_pc_data.msg = buff;
-                lower[msg.index].getManufacturer(buff, 30);
-                to_pc_data.type = MainBoardControl::BATT_MFR;   
+                lower[msg.index].getManufacturer(buff, sizeof(buff));
+                to_pc_data.type = MainBoardControl::BATT_MFR; 
+                to_pc_data.msg = buff;  
                 to_pc.publish(&to_pc_data);
-                lower[msg.index].getDeviceName(buff, 30);
+                lower[msg.index].getDeviceName(buff, sizeof(buff));
                 to_pc_data.type = MainBoardControl::BATT_NAME;
+                to_pc_data.msg = buff;
                 to_pc.publish(&to_pc_data);
-                lower[msg.index].getChemistry(buff, 30);
+                lower[msg.index].getChemistry(buff, sizeof(buff));
                 to_pc_data.type = MainBoardControl::BATT_CHEM;
+                to_pc_data.msg = buff;
                 to_pc.publish(&to_pc_data);
             }
             else
@@ -302,17 +362,7 @@ void setup()
     nh.advertise(to_pc);
     nh.subscribe(hs_control);
     nh.subscribe(from_pc);
-    
-    //Setup Motors
-    motor1.attach(P_MOTOR_1);
-    motor2.attach(P_MOTOR_2);
-    motor3.attach(P_MOTOR_3);
-    motor4.attach(P_MOTOR_4);
-    motor1.writeMicroseconds(0);
-    motor2.writeMicroseconds(0);
-    motor3.writeMicroseconds(0);
-    motor4.writeMicroseconds(0);
-
+ 
     //Setup digital IO  
     pinMode(P_WATER_1, INPUT_PULLUP);
     pinMode(P_WATER_2, INPUT_PULLUP);
@@ -323,6 +373,7 @@ void setup()
     pinMode(P_EXT_LED_1, OUTPUT);
     pinMode(P_EXT_LED_2, OUTPUT);
     pinMode(P_EXT_LED_3, OUTPUT);
+    pinMode(P_LED_STATUS, OUTPUT);
     pinMode(P_CONTACTOR, OUTPUT);
     
     //Setup external ADC
@@ -347,22 +398,52 @@ void setup()
     lower[1].begin(&i2c_bus3);
     lower[2].begin(&i2c_bus5);
     lower[3].begin(&i2c_bus7);
+
+    //Init current sensor averages
+    for (int l = 0; l < 4; l++)
+    {
+        current_sample_ptr[l] = 0;
+        for (int m = 0; m < CURRENT_AVERAGE_SAMPLES; m++)
+            current_samples[l][m] = 0;
+    }
     
-    //Setup timer 1 to control motors 1, 2 and 4 via output compare
-    /*PRR0 &= ~(1 << PRTIM1); //Clear power reduction disable
-    ICR1 = (uint16_t)20000; //Put 20,000 in input capture register (used as TOP for timer) to make 50 Hz period PWM
-    OCR1A = (uint16_t)0;  //Set output compare registers to 0 (determines duty cycle)
-    OCR1B = (uint16_t)0;  //It turns out that the number in these registers equals the high pulse time of the signal in microseconds
-    OCR1C = (uint16_t)0; 
-    TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << COM1C1); //Set all OC pins to set pin on downcounting match and clear it on upcounting match
-    TCCR1B = (1 << WGM13) | (1 << CS11); //Set clock mode to clk/8 prescalar for a 2 Mhz counter
-    pinMode(P_MOTOR_1, OUTPUT);  //Set all motor pins to outputs
-    pinMode(P_MOTOR_2, OUTPUT);
-    pinMode(P_MOTOR_3, OUTPUT);
-    pinMode(P_MOTOR_4, OUTPUT);
-    REG_MOTOR_1 = 1500;
-    REG_MOTOR_2 = 1500;
-    REG_MOTOR_4 = 1500;*/
+    //Setup Motors
+    #ifdef USE_SERVO
+        motor1.attach(P_MOTOR_1);
+        motor2.attach(P_MOTOR_2);
+        motor3.attach(P_MOTOR_3);
+        motor4.attach(P_MOTOR_4);
+        motor1.writeMicroseconds(1500);
+        motor2.writeMicroseconds(1500);
+        motor3.writeMicroseconds(1500);
+        motor4.writeMicroseconds(1500);
+    #else
+        //Setup timer 1 to control motors 1, 2 and 4 via output compare
+        PRR0 &= ~(1 << PRTIM1); //Clear power reduction disable
+        ICR1 = (uint16_t)TIMER_TOP; //Put 20,000 in input capture register (used as TOP for timer) to make 50 Hz period PWM
+        OCR1A = (uint16_t)0;  //Set output compare registers to 0 (determines duty cycle)
+        OCR1B = (uint16_t)0;  //It turns out that the number in these registers equals the high pulse time of the signal in microseconds
+        OCR1C = (uint16_t)0; 
+        TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << COM1C1); //Set all OC pins to set pin on downcounting match and clear it on upcounting match
+        TCCR1B = (1 << WGM13) | (1 << CS11); //Set clock mode to clk/8 prescalar for a 2 Mhz counter
+        pinMode(P_MOTOR_1, OUTPUT);  //Set all motor pins to outputs
+        pinMode(P_MOTOR_2, OUTPUT);
+        pinMode(P_MOTOR_3, OUTPUT);
+        pinMode(P_MOTOR_4, OUTPUT);
+        //Setup timer 1 to control motor 3 and LED's 1 and 2 via output compare
+        PRR0 &= ~(1 << PRTIM3); //Clear power reduction disable
+        ICR3 = (uint16_t)TIMER_TOP; //Put 20,000 in input capture register (used as TOP for timer) to make 50 Hz period PWM
+        OCR3A = (uint16_t)0;  //Set output compare registers to 0 (determines duty cycle)
+        OCR3B = (uint16_t)0;  //It turns out that the number in these registers equals the high pulse time of the signal in microseconds
+        OCR3C = (uint16_t)0; 
+        TCCR3A = (1 << COM3A1) | (1 << COM3B1) | (1 << COM3C1); //Set all OC pins to set pin on downcounting match and clear it on upcounting match
+        TCCR3B = (1 << WGM33) | (1 << CS31); //Set clock mode to clk/8 prescalar for a 2 Mhz counter
+        //Setup timer 2 to control LED 3
+        PRR0 &= ~(1 << PRTIM2); //Clear power reduction disable
+        OCR2A = (uint16_t)0; //Set output compare register to 0 (determines duty cycle)
+        TCCR2A = (1 << COM2A1) | (1 << WGM20); //Set OCA pin to set pin on downcounting match and clear it on upcounting match
+        TCCR2B = (1 << CS22) | (1 << CS21); //Set clock mode to clk/256 for a 62.5 khz counter
+    #endif
 }
 
 void loop()
@@ -397,8 +478,8 @@ void loop()
     else if (millis() > last_hs_msg + HS_DATA_TIMEOUT)
     {
         output_disable = true;
-        err_str = NO_MOTOR_DATA_ERROR;
-        status = &STATUS_NO_HS_DATA;
+        mark_error = true;
+        err_str = NO_MOTOR_DATA_ERROR;     
     }    
     //Everything's cool and motors are enabled
     else

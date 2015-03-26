@@ -2,18 +2,13 @@ pub_rate: 1.0
 analyzers:
   chassis:
     type: diagnostic_aggregator/GenericAnalyzer
-    path: General
+    path: Chassis
+    contains: 'Water'
     expected: [
         'base: Top Plate Temperature',
         'base: Internal Temperature',
         'base: Internal Humidity',
-        'base: Internal Pressure',
-        'base: Water Sensor 1',
-        'base: Water Sensor 2',
-        'base: Water Sensor 3',
-        'base: Water Sensor 4',
-        'base: Water Sensor 5',
-        'base: Water Sensor 6']
+        'base: Internal Pressure']
     remove_prefix: 'base: '
   computers:
     type: diagnostic_aggregator/AnalyzerGroup
@@ -49,13 +44,15 @@ analyzers:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Left Drive
             expected: [
-                'base: Left Drive Motor Temperature' ]
+                'base: Left Drive Motor Temperature', 
+                'base_epos: left_drive_actuator: Motor']
             remove_prefix: 'base: '
         right_drive:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Right Drive
             expected: [
-                'base: Right Drive Motor Temperature']
+                'base: Right Drive Motor Temperature',
+                'base_epos: right_drive_actuator: Motor']
             remove_prefix: 'base: '
   pods:
     type: diagnostic_aggregator/GenericAnalyzer

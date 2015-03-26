@@ -15,6 +15,8 @@ include_directories(${ROS_LIB_DIR} "${CMAKE_BINARY_DIR}/include/")
 add_definitions(-DSTR_MANUFACTURER=L"WALRUS Rover MQP Team")
 add_definitions(-DSTR_PRODUCT=L"WALRUS Main Control Board")
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -gdwarf-2")
+
 generate_arduino_firmware(main_board_firmware
   SRCS main.cpp ${ROS_LIB_DIR}/time.cpp SmartBatt.cpp i2c_buses.cpp
   BOARD teensypp2

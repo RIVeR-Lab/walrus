@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   roscpp
   diagnostic_updater
+  std_msgs
 )
 
 ###################################
@@ -19,7 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
    INCLUDE_DIRS include
    LIBRARIES walrus_mainboard_driver
-   CATKIN_DEPENDS walrus_firmware_msgs hardware_interface roscpp controller_manager diagnostic_updater
+   CATKIN_DEPENDS walrus_firmware_msgs hardware_interface roscpp controller_manager diagnostic_updater std_msgs
 )
 
 ###########
