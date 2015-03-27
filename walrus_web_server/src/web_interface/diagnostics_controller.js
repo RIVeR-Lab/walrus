@@ -1,5 +1,5 @@
 angular.module("app").controller("DiagnosticsCtrl",
-				 function( $scope, $mdDialog, $mdBottomSheet, diagnosticsService, gamepadService ) {
+				 function( $scope, $mdDialog, $mdBottomSheet, diagnosticsService, gamepadService, pingService ) {
     $scope.ros = {
 	connected: false
     };
@@ -15,6 +15,10 @@ angular.module("app").controller("DiagnosticsCtrl",
     $scope.$on("ros-close", function() {
 	$scope.ros.connected = false;
     });
+
+    pingService.repeatPing(function(success, delay) {
+	$scope.diagnostics.network.bullet.connected = success;
+    }, 1000, "www.google.com", "/images/srpr/logo11w.png");
 
     $scope.$on("ros-diagnostics", function(e, diagnostics) {
 	var percent_regex = /^(\d+(?:\.\d+)?)%$/; // matches ##.##%
@@ -71,7 +75,10 @@ angular.module("app").controller("DiagnosticsCtrl",
 	drive: [
 	    {value: 0.0, state: diagnosticsService.STALE, current_limit_active: false},
 	    {value: 0.0, state: diagnosticsService.STALE, current_limit_active: false}
-	]
+	],
+	network: {
+	    bullet: { connected: false }
+	}
     };
 
 

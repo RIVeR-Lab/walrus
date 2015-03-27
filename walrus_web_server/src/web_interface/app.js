@@ -1,4 +1,4 @@
-var app = angular.module("app", ["ros", "gamepad", "ngMaterial", "html_templates", "svg_templates"]);
+var app = angular.module("app", ["ros", "gamepad", "ngMaterial", "html_templates", "svg_templates", "ping"]);
 angular.module("html_templates", []);
 angular.module("svg_templates", []);
 
