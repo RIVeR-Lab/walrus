@@ -40,7 +40,7 @@ angular.module("app").controller("DiagnosticsCtrl",
 	    $scope.diagnostics.batteries[i].value = charge_percent / 100;
 	}
 
-	var current_regex = /^(\d+(?:\.\d+)?)\s*A$/; // matches ##.## A
+	var current_regex = /^(-?\d+(?:\.\d+)?)\s*A$/; // matches ##.## A
 
 	var drive_motor_names = ["right", "left"];
 	for(var j = 0; j < drive_motor_names.length; ++j) {
