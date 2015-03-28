@@ -3,11 +3,7 @@
   <rect x="40" y="20" width="150" height="160" style="fill:LightBlue;stroke-width:3;stroke:rgb(0,0,0)" />
 
   <!-- Pods -->
-  <rect x="10" y="10" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[0])}};stroke-width:3;stroke:rgb(0,0,0)">
-    <md-tooltip>
-      POD 0
-    </md-tooltip>
-  </rect>
+  <rect x="10" y="10" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[0])}};stroke-width:3;stroke:rgb(0,0,0)" />
   <rect x="190" y="10" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[1])}};stroke-width:3;stroke:rgb(0,0,0)" />
   <rect x="10" y="120" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[2])}};stroke-width:3;stroke:rgb(0,0,0)" />
   <rect x="190" y="120" width="30" height="70" ng-attr-style="fill:{{percentToColorHighBad(diagnostics.pods[3])}};stroke-width:3;stroke:rgb(0,0,0)" />
