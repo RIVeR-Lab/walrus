@@ -42,7 +42,8 @@ angular.module("app").controller("DiagnosticsCtrl",
 
 	var current_regex = /^(-?\d+(?:\.\d+)?)\s*A$/; // matches ##.## A
 
-	var drive_motor_names = ["right", "left"];
+	var drive_motor_names = ["left", "right"];
+	var drive_motor_directions = [1, -1];
 	for(var j = 0; j < drive_motor_names.length; ++j) {
 	    var motor_name = drive_motor_names[j];
 	    var path = "/Drive/"+(motor_name.charAt(0).toUpperCase() + motor_name.slice(1))+" Drive";
@@ -50,8 +51,9 @@ angular.module("app").controller("DiagnosticsCtrl",
 	    var output_current = diagnostics.value(output_path, "Current", current_regex);
 	    var nominal_current = diagnostics.value(output_path, "Nominal Current", current_regex);
 	    var max_current = diagnostics.value(output_path, "Max Current", current_regex);
+	    console.log(output_current, nominal_current);
 	    $scope.diagnostics.drive[j].state = diagnostics.state(path);
-	    $scope.diagnostics.drive[j].value = output_current / max_current;
+	    $scope.diagnostics.drive[j].value = drive_motor_directions[j] * output_current / max_current;
 	}
     });
 
