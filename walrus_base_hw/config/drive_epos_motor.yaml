@@ -26,5 +26,5 @@ safety:
   max_acceleration: 20000
 
 velocity_profile:
-  acceleration: 8000
-  deceleration: 8000
+  acceleration: 16000
+  deceleration: 3500 # DO NOT INCREASE THIS VALUE (will result in back emf through EPOS)
