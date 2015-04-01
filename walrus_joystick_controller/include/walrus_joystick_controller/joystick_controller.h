@@ -4,6 +4,16 @@
 
 namespace walrus_joystick_controller {
 
+class Pod {
+public:
+  Pod(ros::NodeHandle nh, const std::string& topic);
+  void publishCommand(int mode, double set_point);
+  void publishEffortOrHold(double effort);
+  void publishHold();
+private:
+  ros::Publisher pub_;
+};
+
 class JoystickController {
  public:
   JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh);
@@ -15,10 +25,10 @@ class JoystickController {
 
   ros::Publisher tank_drive_pub_;
 
-  ros::Publisher back_left_pod_pub_;
-  ros::Publisher back_right_pod_pub_;
-  ros::Publisher front_left_pod_pub_;
-  ros::Publisher front_right_pod_pub_;
+  Pod back_left_pod_;
+  Pod back_right_pod_;
+  Pod front_left_pod_;
+  Pod front_right_pod_;
 
   ros::Publisher state_pub_;
   ros::Timer state_pub_timer_;
@@ -34,6 +44,9 @@ class JoystickController {
   int button_back_pods_up_;
   int button_back_pods_down_;
 
+  int button_left_pods_;
+  int button_right_pods_;
+
   int button_toggle_speed_;
   bool previous_button_toggle_speed_state_;
 
@@ -42,11 +55,6 @@ class JoystickController {
 
   bool enabled_;
   bool high_speed_mode_;
-
-  void publishFrontPodEffort(double effort);
-  void publishBackPodEffort(double effort);
-  void publishFrontPodHold();
-  void publishBackPodHold();
 
   ros::Duration state_publish_delay_;
   ros::Time last_state_publish_;
