@@ -9,6 +9,11 @@
     <param name="controller_rate" value="50.0" type="double" />
   </node>
 
+  <!-- Kinect -->
+  <include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch" if="$(arg have_boom)">
+    <arg name="base_name" value="boom_kinect"/>
+  </include>
+
   <!-- IMU -->
   <node name="orientus_node" pkg="orientus_driver" type="orientus_node" respawn="true" respawn_delay="5">
     <param name="port" value="/dev/walrus_imu"/>
