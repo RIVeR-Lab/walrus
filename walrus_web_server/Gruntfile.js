@@ -26,9 +26,9 @@ module.exports = function(grunt) {
 
 		quotmark: "double",
 		maxparams: 6,
-		maxdepth: 2,
+		maxdepth: 3,
 		maxstatements: 30,
-		maxcomplexity: 5
+		maxcomplexity: 6
 	    },
 	    files: ["Gruntfile.js", "src/**/*.js"]
 	},

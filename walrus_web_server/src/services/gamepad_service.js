@@ -47,22 +47,30 @@ rosModule
 	    };
 
 	    $interval(function() {
-		var gamepadData = navigator.getGamepads()[0];
-		if(gamepadData) {
-		    if(!gamepad.connected) {
-			gamepad.connected = true;
+		try {
+		    var gamepadData = navigator.getGamepads()[0];
+		    if(gamepadData) {
+			if(!gamepad.connected) {
+			    gamepad.connected = true;
+			    gamepad.valid = false;
+			}
+			if(isDifferent(gamepadData)) {
+			    gamepad.lastRawData = angular.copy(gamepadData);
+			    processRawJoystick();
+			}
+		    }
+		    else if(gamepad.connected){
+			gamepad.connected = false;
 			gamepad.valid = false;
+			gamepad.lastRawData = null;
+			gamepad.lastValidData = null;
 		    }
-		    if(isDifferent(gamepadData)) {
-			gamepad.lastRawData = angular.copy(gamepadData);
-			processRawJoystick();
-		    }
-		}
-		else if(gamepad.connected){
+		} catch(e) {
 		    gamepad.connected = false;
 		    gamepad.valid = false;
 		    gamepad.lastRawData = null;
 		    gamepad.lastValidData = null;
+		    console.log("Error polling joystick", e);
 		}
 	    }, this.pollRate);
 
