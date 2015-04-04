@@ -52,7 +52,7 @@ angular.module("app").controller("DiagnosticsCtrl",
 	    var nominal_current = diagnostics.value(output_path, "Nominal Current", current_regex);
 	    var max_current = diagnostics.value(output_path, "Max Current", current_regex);
 	    $scope.diagnostics.drive[j].state = diagnostics.state(path);
-	    $scope.diagnostics.drive[j].current_limit_active = diagnostics.value(output_path, "Current Limit Active", current_regex) === "true";
+	    $scope.diagnostics.drive[j].current_limit_active = diagnostics.value(output_path, "Current Limit Active") === "True";
 	    $scope.diagnostics.drive[j].value = drive_motor_directions[j] * output_current / max_current;
 	}
     });
