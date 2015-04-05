@@ -4,31 +4,16 @@
 #include <controller_manager/controller_manager.h>
 #include <vector>
 #include "walrus_base_hw/realtime_rate.h"
+#include "walrus_base_hw/util.h"
 #include <boost/assign/list_of.hpp>
-#include <controller_manager_msgs/SwitchController.h>
-
-void switch_controllers(controller_manager::ControllerManager* cm) {
-  std::vector<std::string> controller_names = boost::assign::list_of
-    ("joint_state_controller")
-    ("drive_controller");
-  BOOST_FOREACH(const std::string& name, controller_names) {
-    ROS_INFO_STREAM("Loading " << name);
-    if(!cm->loadController(name))
-      ROS_ERROR_STREAM("Failed to load controller: " << name);
-  }
-
-  if(!cm->switchController(controller_names, std::vector<std::string>(), controller_manager_msgs::SwitchController::Request::BEST_EFFORT))
-    ROS_ERROR("Failed to activate controllers");
-}
 
 int main(int argc, char** argv) {
-  ros::init(argc, argv, "walrus_base_epos_hw_node");
+  ros::init(argc, argv, "epos_hw_node");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
 
   double controller_rate;
   pnh.param<double>("controller_rate", controller_rate, 10);
-
 
   std::vector<std::string> epos_names;
   epos_names.push_back("left_drive_actuator");
@@ -46,8 +31,7 @@ int main(int argc, char** argv) {
   ROS_INFO("Motors Initialized");
 
   controller_manager::ControllerManager cm(&robot, pnh);
-  // need to activate controllers async so that the control loop will run concurrently
-  ros::Timer startControllerTimer = nh.createTimer(ros::Duration(0), boost::bind(switch_controllers, &cm), true);
+  ros::Timer controller_load_timer = walrus_base_hw::createControllerLoadTimer(pnh, &cm);
 
   ROS_INFO("Running loop");
   walrus_base_hw::RealtimeRate rate(controller_rate);

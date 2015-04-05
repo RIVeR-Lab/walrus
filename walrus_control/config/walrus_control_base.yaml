@@ -1,9 +1,11 @@
 base:
+  controllers: ['joint_state_controller', 'left_pods_joint_controller', 'right_pods_joint_controller']
   joint_state_controller:
     type: joint_state_controller/JointStateController
     publish_rate: 50
 
 base_epos:
+  controllers: ['joint_state_controller', 'drive_controller']
   joint_state_controller:
     type: joint_state_controller/JointStateController
     publish_rate: 50

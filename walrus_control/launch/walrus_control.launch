@@ -1,8 +1,12 @@
 <launch>
   <arg name="type" />
+  <arg name="have_boom" />
   <!-- Load controller configurations -->
-  <rosparam file="$(find walrus_control)/config/walrus_control.yaml" command="load" />
-  <rosparam file="$(find walrus_control)/config/walrus_control_$(arg type).yaml" command="load" />
+  <rosparam file="$(find walrus_control)/config/walrus_control_base.yaml" command="load" />
+  <rosparam file="$(find walrus_control)/config/walrus_control_base_$(arg type).yaml" command="load" />
+
+  <rosparam file="$(find walrus_control)/config/walrus_control_boom.yaml" command="load" if="$(arg have_boom)"/>
+  <rosparam file="$(find walrus_control)/config/walrus_control_boom_$(arg type).yaml" command="load" if="$(arg have_boom)"/>
 
   <!-- Robot state publisher to publish tf from joint states -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true"/>

@@ -1,5 +1,5 @@
-#ifndef WALRUS_BASE_ROBOT_H_
-#define WALRUS_BASE_ROBOT_H_
+#ifndef WALRUS_ROBOT_BASE_H_
+#define WALRUS_ROBOT_BASE_H_
 
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
@@ -11,38 +11,30 @@
 #include <transmission_interface/transmission_interface_loader.h>
 #include <transmission_interface/transmission_parser.h>
 #include <boost/scoped_ptr.hpp>
-#include <epos_hardware/epos_manager.h>
-#include <walrus_mainboard_driver/walrus_mainboard_driver.h>
-#include <walrus_boomboard_driver/walrus_boomboard_driver.h>
 
 namespace walrus_base_hw {
 
 using namespace transmission_interface;
 using namespace hardware_interface;
 
-class WalrusBaseRobot : public RobotHW
+class WalrusRobotBase : public RobotHW
 {
  public:
-  WalrusBaseRobot(ros::NodeHandle nh, ros::NodeHandle pnh);
+  WalrusRobotBase(ros::NodeHandle nh, ros::NodeHandle pnh);
 
-  bool init();
+  bool loadTransmissions(const std::vector<std::string>& actuator_names);
 
-  void write(ros::Duration dt);
-  void read(ros::Duration dt);
-  void update_diagnostics();
+  virtual void write(ros::Duration dt) = 0;
+  virtual void read(ros::Duration dt) = 0;
+  virtual void update_diagnostics() = 0;
 
- private:
+protected:
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
-
-  ActuatorStateInterface as_interface_;
-  EffortActuatorInterface ae_interface_;
-
   RobotTransmissions robot_transmissions_;
-  boost::scoped_ptr<TransmissionInterfaceLoader> transmission_loader_;
-  walrus_mainboard_driver::MainBoardDriver mainboard_;
-  walrus_boomboard_driver::BoomBoardDriver boomboard_;
 
+private:
+  boost::scoped_ptr<TransmissionInterfaceLoader> transmission_loader_;
 };
 
 }

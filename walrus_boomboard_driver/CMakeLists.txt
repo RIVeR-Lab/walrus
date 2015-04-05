@@ -11,16 +11,14 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   roscpp
   diagnostic_updater
+  walrus_base_hw
+  rosserial_server
 )
 
 ###################################
 ## catkin specific configuration ##
 ###################################
-catkin_package(
-   INCLUDE_DIRS include
-   LIBRARIES walrus_boomboard_driver
-   CATKIN_DEPENDS walrus_firmware_msgs hardware_interface roscpp controller_manager diagnostic_updater
-)
+catkin_package(CATKIN_DEPENDS walrus_firmware_msgs)
 
 ###########
 ## Build ##
@@ -31,11 +29,12 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_library(walrus_boomboard_driver
-  src/${PROJECT_NAME}/walrus_boomboard_driver.cpp
+add_executable(walrus_boomboard_node
+  src/${PROJECT_NAME}/walrus_boomboard_robot.cpp
+  src/${PROJECT_NAME}/walrus_boomboard_node.cpp
 )
 
-target_link_libraries(walrus_boomboard_driver
+target_link_libraries(walrus_boomboard_node
    ${catkin_LIBRARIES}
 )
 
@@ -43,13 +42,8 @@ target_link_libraries(walrus_boomboard_driver
 ## Install ##
 #############
 
-install(TARGETS walrus_boomboard_driver
+install(TARGETS walrus_boomboard_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h"
 )
