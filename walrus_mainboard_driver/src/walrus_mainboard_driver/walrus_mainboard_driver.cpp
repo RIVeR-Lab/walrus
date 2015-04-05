@@ -189,6 +189,10 @@ namespace walrus_mainboard_driver
             //Send motor control message            
             for (int l = 0; l < 4; l++)
             {  
+	        if (pod_effort_cmd[l] < -1)
+pod_effort_cmd[l] = -1;
+	        else if (pod_effort_cmd[l] > 1)
+		    pod_effort_cmd[l] = 1;
                 if (pod_force_disable[l])
                     pod_power[l] = OUTPUT_POWER_NEUTRAL;
                 else

@@ -10,6 +10,7 @@ rosModule
 	    var gamepad = {
 		config: {
 		    axes: {
+			deadband: 0.05,
 			inverted: [true, true, true, true]
 		    }
 		},
@@ -23,11 +24,12 @@ rosModule
 		var processedData = angular.copy(gamepad.lastRawData);
 		processedData.axes = processedData.axes.map(function(value, index) {
 		    if(gamepad.config.axes.inverted[index]) {
-			return -value;
+			value = -value;
 		    }
-		    else {
-			return value;
+		    if(Math.abs(value) < gamepad.config.axes.deadband) {
+			value = 0.0;
 		    }
+		    return value;
 		});
 
 		if(!gamepad.valid) {

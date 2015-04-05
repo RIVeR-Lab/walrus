@@ -11,7 +11,7 @@ motor:
   ec_motor:
     nominal_current: 10.000
     max_output_current: 25.000
-    thermal_time_constant: 60
+    thermal_time_constant: 400
     number_of_pole_pairs: 1
 
 sensor:

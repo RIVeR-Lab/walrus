@@ -21,6 +21,9 @@
     <param name="button_back_pods_up" value="5" />
     <param name="button_back_pods_down" value="7" />
 
+    <param name="button_left_pods" value="0" />
+    <param name="button_right_pods" value="2" />
+
     <param name="button_toggle_speed" value="8" />
   </node>
   <include file="$(find walrus_web_server)/launch/server.launch" />
