@@ -17,8 +17,12 @@ angular.module("app").controller("DiagnosticsCtrl",
     });
 
     pingService.repeatPing(function(success, delay) {
-	$scope.diagnostics.network.bullet.connected = success;
-    }, 1000, "www.google.com", "/images/srpr/logo11w.png");
+	$scope.diagnostics.network.bullet_ap.connected = success;
+    }, 5000, "192.168.1.20", "/130528.1754/images/airos_logo.png");
+
+    pingService.repeatPing(function(success, delay) {
+	$scope.diagnostics.network.bullet_remote.connected = success;
+    }, 5000, "192.168.1.21", "/130528.1754/images/airos_logo.png");
 
     $scope.$on("ros-diagnostics", function(e, diagnostics) {
 	var percent_regex = /^(\d+(?:\.\d+)?)%$/; // matches ##.##%
@@ -77,7 +81,8 @@ angular.module("app").controller("DiagnosticsCtrl",
 	    {value: 0.0, state: diagnosticsService.STALE, current_limit_active: false}
 	],
 	network: {
-	    bullet: { connected: false }
+	    bullet_ap: { connected: false },
+	    bullet_remote: { connected: false }
 	}
     };
 

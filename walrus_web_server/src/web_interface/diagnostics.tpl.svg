@@ -57,7 +57,7 @@
   <rect x="450" y="90" width="70" height="70" rx="10" ry="10" ng-attr-style="fill:{{(gamepad.connected?(gamepad.valid?'green':'yellow'):'red')}}" />
   <image xlink:href="img/gamepad.svg" x="450" y="90" width="70px" height="70px"/>
 
-  <rect x="550" y="30" width="110" height="110" rx="10" ry="10" ng-attr-style="fill:{{(diagnostics.network.bullet.connected?'green':'red')}};" />
+  <rect x="550" y="30" width="110" height="110" rx="10" ry="10" ng-attr-style="fill:{{(diagnostics.network.bullet_ap.connected?'green':'red')}};" />
   <image xlink:href="img/wifi.svg" x="550" y="30" width="110px" height="110px"/>
 
 
