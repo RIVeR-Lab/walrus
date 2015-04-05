@@ -11,34 +11,33 @@
 #include <diagnostic_updater/diagnostic_updater.h>
 #include <walrus_firmware_msgs/BoomBoardTXMsg.h>
 #include <walrus_firmware_msgs/BoomBoardRXMsg.h>
+#include <walrus_base_hw/walrus_robot_base.h>
 
 namespace walrus_boomboard_driver
 {
-    class BoomBoardDriver
+  class BoomBoardRobot : public walrus_base_hw::WalrusRobotBase
     {
         public:
-            BoomBoardDriver(hardware_interface::ActuatorStateInterface& asi,
-                  hardware_interface::EffortActuatorInterface& aei,
-                  ros::NodeHandle& nh, ros::NodeHandle& pnh);
+            BoomBoardRobot(ros::NodeHandle& nh, ros::NodeHandle& pnh);
             bool init();
             void read(ros::Duration dt);
             void write(ros::Duration dt);
             void update_diagnostics();
-            
+
         private:
             diagnostic_updater::Updater diagnostic_updater;
-        
+
             hardware_interface::ActuatorStateInterface asi_;
             hardware_interface::EffortActuatorInterface aei_;
-            
+
             void rx_callback(const walrus_firmware_msgs::BoomBoardRXMsg& msg);
-            
+
             ros::Subscriber rx;
             ros::Publisher tx;
-            
+
             walrus_firmware_msgs::BoomBoardTXMsg tx_msg;
             walrus_firmware_msgs::BoomBoardRXMsg rx_msg;
-            
+
             double deploy_effort_cmd;
             double deploy_velocity;
             double deploy_position;

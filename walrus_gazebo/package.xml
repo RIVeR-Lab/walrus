@@ -29,6 +29,5 @@
 
   <export>
     <gazebo_ros_control plugin="${prefix}/walrus_hw_sim_plugins.xml"/>
-    <gazebo_ros_control plugin="${prefix}/walrus_epos_hw_sim_plugins.xml"/>
   </export>
 </package>

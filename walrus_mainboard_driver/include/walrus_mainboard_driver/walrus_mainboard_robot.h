@@ -10,6 +10,7 @@
 #include <transmission_interface/robot_transmissions.h>
 #include <transmission_interface/transmission_interface_loader.h>
 #include <diagnostic_updater/diagnostic_updater.h>
+#include <walrus_base_hw/walrus_robot_base.h>
 #include <walrus_firmware_msgs/MainBoardHighSpeedControl.h>
 #include <walrus_firmware_msgs/MainBoardHighSpeedFeedback.h>
 #include <walrus_firmware_msgs/MainBoardLowSpeedData.h>
@@ -42,20 +43,16 @@ namespace walrus_mainboard_driver
         bool shutdown;
     };
     
-    class MainBoardDriver
+  class MainBoardRobot : public walrus_base_hw::WalrusRobotBase
     {
         public:
-            MainBoardDriver(hardware_interface::ActuatorStateInterface& asi,
-                  hardware_interface::EffortActuatorInterface& aei,
-                  ros::NodeHandle& nh, ros::NodeHandle& pnh);
+            MainBoardRobot(ros::NodeHandle& nh, ros::NodeHandle& pnh);
             bool init();
             void read(ros::Duration dt);
             void write(ros::Duration dt);
             void update_diagnostics();
             
         private:
-            ros::NodeHandle nh, pnh;
-            
             diagnostic_updater::Updater diagnostic_updater;
         
             hardware_interface::ActuatorStateInterface asi_;
