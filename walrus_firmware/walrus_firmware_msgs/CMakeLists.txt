@@ -12,8 +12,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  BoomBoardRXMsg.msg
-  BoomBoardTXMsg.msg
+  BoomBoardHighSpeedControl.msg
+  BoomBoardHighSpeedFeedback.msg
+  BoomBoardLowSpeedData.msg
+  BoomBoardControl.msg
   DiagnosticRXMsg.msg
   DiagnosticTXMsg.msg
   MainBoardHighSpeedControl.msg
