@@ -2,6 +2,25 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+//ROS Diagnostics states
+#define STATE_OK 0
+#define STATE_WARN 1
+#define STATE_ERROR 2
+#define STATE_STALE 3
+
+//Status structure
+typedef struct Status {
+    const char* str;
+    int16_t code;
+    uint16_t blink_code;
+} Status;
+
+//Defined statuses
+Status STATUS_ENABLED = {"Enabled", STATE_OK, /*10_1010_1010*/0x2AA}; 
+Status STATUS_DISABLED = {"Disabled", STATE_OK, /*11_1110_0000*/0x3E0};
+Status STATUS_NO_CONTROL_DATA = {"No data", STATE_WARN, /*10_1010_0000*/0x2A0};
+Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x280};
+
 //Status LED (pin sources LED Current)
 #define P_LED_STATUS 18 //PE6
 
@@ -61,14 +80,30 @@
 #define CHAN_PAN_MOTOR 0
 #define CHAN_TILT_MOTOR 1
 
-//Timing
-#define ROS_MSG_RATE 10
-#define MOTOR_OFF_TIMEOUT 500
+//Current sensing
+#define ADC_TO_mA(adcVal) adcVal
 
-//Status LED blink rates
-#define STATUS_OK 100
-#define STATUS_NO_PC 1000
-#define STATUS_NO_MSG 250
+//Timing
+#define ROS_MSG_RATE 20
+#define STATUS_BLINK_PERIOD 100
+#define STATUS_BLINK_LENGTH 10
+#define LED_TRIGGER(count) (count % (STATUS_BLINK_PERIOD/ROS_MSG_RATE) == 0)
+#define LED_SEGMENT(count) ((count % (STATUS_BLINK_PERIOD/ROS_MSG_RATE*STATUS_BLINK_LENGTH))/(STATUS_BLINK_PERIOD/ROS_MSG_RATE))
+#define HS_DATA_TIMEOUT 250
+#define CONTROL_DATA_TIMEOUT 1500
+
+//Error strings
+#define LOOP_TOO_LONG_ERROR "Main loop took longer than 20 ms."
+#define SLOW_REQUEST_ERROR "Cannot complete request when enabled."
+#define INVALID_REQUEST_ERROR "Received invalid control message type."
+#define NO_MOTOR_DATA_ERROR "Received no motor data when enabled, disabling..."
+
+//Data report states for low speed data aquisition state machine
+enum LowSpeedOpState { READ_TEMPHUMID, 
+                        READ_GAS,
+                        READ_ANALOG,
+                        SEND_DATA,
+                        LOW_SPEED_OP_STATE_NUM }; 
 
 
 #endif
