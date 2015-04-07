@@ -87,7 +87,7 @@ void Bridge::setMotor(int channel, int speed)
             {
                 digitalWrite(p_in1, LOW);
                 digitalWrite(p_in2, LOW);
-                if (coastA)
+                if (coastA == MOTOR_COAST)
                     digitalWrite(p_d1, HIGH);
                 else
                     digitalWrite(p_d1, LOW);
@@ -113,7 +113,7 @@ void Bridge::setMotor(int channel, int speed)
             {
                 digitalWrite(p_in3, LOW);
                 digitalWrite(p_in4, LOW);
-                if (coastA)
+                if (coastB == MOTOR_COAST)
                     digitalWrite(p_d3, HIGH);
                 else
                     digitalWrite(p_d3, LOW);
@@ -157,18 +157,30 @@ void Bridge::setLEDDir(int dir)
 void Bridge::setBrake(int channel)
 {
     if (channel == CHAN_A)
+    {
         coastA = MOTOR_BRAKE;
+        setMotor(CHAN_A, 0);
+    }
     else
+    {
         coastB = MOTOR_BRAKE;
+        setMotor(CHAN_B, 0);
+    }
 }
 
 //Set the provided channel to coast mode
 void Bridge::setCoast(int channel)
 {
     if (channel == CHAN_A)
+    {
         coastA = MOTOR_COAST;
+        setMotor(CHAN_A, 0);
+    }
     else
+    {
         coastB = MOTOR_COAST;
+        setMotor(CHAN_B, 0);
+    }
 }
 
 //Set the stop mode of the provided channel to the given brake/coast setting

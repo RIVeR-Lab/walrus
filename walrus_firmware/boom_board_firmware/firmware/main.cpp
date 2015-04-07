@@ -1,7 +1,6 @@
 
 #include <Arduino.h>
 #include <ros.h>
-#include <ros/time.h>
 #include <walrus_firmware_msgs/BoomBoardHighSpeedControl.h>
 #include <walrus_firmware_msgs/BoomBoardHighSpeedFeedback.h>
 #include <walrus_firmware_msgs/BoomBoardLowSpeedData.h>
@@ -73,14 +72,17 @@ void enableOutput()
 //Disable motor drivers
 void disableOutput()
 {
-    maxon.disable();
-    bridge.disable(CHAN_TILT_MOTOR);
-    bridge.disable(CHAN_PAN_MOTOR);
+    //maxon.disable();
+    //bridge.disable(CHAN_TILT_MOTOR);
+    //bridge.disable(CHAN_PAN_MOTOR);
     output_disable = true;
 }
 //Functions for high speed motor control operations
 void doHighSpeedOperations()
 {
+    //Sustain motor control leds
+    bridge.sustain();
+    maxon.sustain();
     if (nh.connected())
     {
         //Write motor powers
@@ -105,7 +107,10 @@ void doHighSpeedOperations()
 //High speed control message handler
 void recv_hs_control(const walrus_firmware_msgs::BoomBoardHighSpeedControl& msg)
 {
-    hs_control_msg = msg;
+    bridge.setMotor(CHAN_TILT_MOTOR, msg.tilt_power);
+        bridge.setMotor(CHAN_PAN_MOTOR, msg.pan_power);
+        maxon.setMotor(msg.deploy_power);
+    //hs_control_msg = msg;
     last_hs_msg = millis();
 }
 
@@ -206,19 +211,29 @@ void setup()
     temphumid_sense.begin(ADDR_TEMP_HUMID);
     temphumid_sense.measure();
     
+    //Force setup timer 3 to work with analogWrite
+    //This should not have to be done, but it dosn't work otherwise
+    PRR0 &= ~(1 << PRTIM3); //Clear power reduction disable
+    ICR3 = (uint16_t)255; //Put 20,000 in input capture register (used as TOP for timer) to make 50 Hz period PWM
+    OCR3A = (uint16_t)0;  //Set output compare registers to 0 (determines duty cycle)
+    OCR3B = (uint16_t)0;  //It turns out that the number in these registers equals the high pulse time of the signal in microseconds
+    OCR3C = (uint16_t)0; 
+    TCCR3A = 0;//(1 << COM3A1) | (1 << COM3B1) | (1 << COM3C1); //Set all OC pins to set pin on downcounting match and clear it on upcounting match
+    TCCR3B = (1 << WGM33) | (1 << CS31); //Set clock mode to clk/8 prescalar for a 2 Mhz counter
+    
     //Setup maxon motor controller
     maxon.begin(P_MAXON_IN1, P_MAXON_IN2, P_MAXON_DIR, P_MAXON_EN, P_MAXON_SPEED, P_MAXON_READY, P_MAXON_STATUS);
     maxon.setMode(SPEED_MODE_OPEN);
     maxon.setLEDDir(LED_SOURCE);
-    maxon.enable();
+    maxon.disable();
     
     //Setup H-bridge motor controller
     bridge.begin(P_BRIDGE_IN1, P_BRIDGE_IN2, P_BRIDGE_IN3, P_BRIDGE_IN4, P_BRIDGE_D1, P_BRIDGE_D2, P_BRIDGE_D3, P_BRIDGE_D4, P_BRIDGE_SFA, P_BRIDGE_SFB, P_BRIDGE_LEDA, P_BRIDGE_LEDB);
     bridge.setLEDDir(LED_SOURCE);
     bridge.setBrake(CHAN_PAN_MOTOR);
     bridge.setBrake(CHAN_TILT_MOTOR);
-    bridge.enable(CHAN_PAN_MOTOR);
-    bridge.enable(CHAN_TILT_MOTOR);
+    bridge.disable(CHAN_PAN_MOTOR);
+    bridge.disable(CHAN_TILT_MOTOR);
 }
 
 void loop()
