@@ -9,7 +9,7 @@
 #include <boost/assign/list_of.hpp>
 
 int main( int argc, char** argv ) {
-  ros::init(argc, argv, "walrus_boom_hw");
+  ros::init(argc, argv, "walrus_main_hw");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
 
