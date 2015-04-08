@@ -22,5 +22,5 @@ deploy_neutral_position: 2048
 deploy_position_scale: 1.0
 deploy_motor_reverse: false
 deploy_potentiometer_reverse: false
-motor_output_power_scale: 1.0     
+motor_output_power_scale: 255     
 motor_output_auto_enable: true
