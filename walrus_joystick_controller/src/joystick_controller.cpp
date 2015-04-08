@@ -67,6 +67,10 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
   pnh.param<int>("button_toggle_speed", button_toggle_speed_, 2);
 
   tank_drive_pub_ = nh.advertise<walrus_drive_controller::TankDriveCommand>("tank_drive", 1);
+  
+  boom_pan_effort = nh.advertise<std_msgs::Float64>("/boom/pan_controller/command", 1);
+  boom_tilt_effort = nh.advertise<std_msgs::Float64>("/boom/tilt_controller/command", 1);
+  boom_deploy_effort = nh.advertise<std_msgs::Float64>("/boom/deploy_controller/command", 1);
 
   state_pub_ = pnh.advertise<walrus_joystick_controller::JoystickControllerState>("state", 1, true);
   state_pub_timer_ = nh.createTimer(ros::Duration(1.0), boost::bind(&JoystickController::updateState, this, false));
@@ -161,6 +165,11 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
     back_right_pod_.publishEffortOrHold(back_effort * right_effort);
     front_left_pod_.publishEffortOrHold(front_effort * left_effort);
     front_right_pod_.publishEffortOrHold(front_effort * right_effort);
+    std_msgs::Float64 pan, deploy;
+    pan.data = joy_msg->axes[4];
+    deploy.data = joy_msg->axes[5];
+    boom_deploy_effort.publish(deploy);
+    boom_pan_effort.publish(pan);
   }
 }
 

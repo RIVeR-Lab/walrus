@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "std_msgs/Bool.h"
 #include "sensor_msgs/Joy.h"
+#include "std_msgs/Float64.h"
 
 namespace walrus_joystick_controller {
 
@@ -29,6 +30,8 @@ class JoystickController {
   Pod back_right_pod_;
   Pod front_left_pod_;
   Pod front_right_pod_;
+  
+  ros::Publisher boom_tilt_effort, boom_pan_effort, boom_deploy_effort;
 
   ros::Publisher state_pub_;
   ros::Timer state_pub_timer_;
