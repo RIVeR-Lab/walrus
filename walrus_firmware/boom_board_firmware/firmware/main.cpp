@@ -72,9 +72,9 @@ void enableOutput()
 //Disable motor drivers
 void disableOutput()
 {
-    //maxon.disable();
-    //bridge.disable(CHAN_TILT_MOTOR);
-    //bridge.disable(CHAN_PAN_MOTOR);
+    maxon.disable();
+    bridge.disable(CHAN_TILT_MOTOR);
+    bridge.disable(CHAN_PAN_MOTOR);
     output_disable = true;
 }
 //Functions for high speed motor control operations
@@ -107,10 +107,7 @@ void doHighSpeedOperations()
 //High speed control message handler
 void recv_hs_control(const walrus_firmware_msgs::BoomBoardHighSpeedControl& msg)
 {
-    bridge.setMotor(CHAN_TILT_MOTOR, msg.tilt_power);
-        bridge.setMotor(CHAN_PAN_MOTOR, msg.pan_power);
-        maxon.setMotor(msg.deploy_power);
-    //hs_control_msg = msg;
+    hs_control_msg = msg;
     last_hs_msg = millis();
 }
 

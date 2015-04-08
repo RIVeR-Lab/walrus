@@ -81,7 +81,11 @@ Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x2
 #define CHAN_TILT_MOTOR 1
 
 //Current sensing
-#define ADC_TO_mA(adcVal) adcVal
+#define CURRENT_SENSE_R 270
+#define CURRENT_SENSE_ 0.24
+//0.24% of load current output from pins throught 270 ohm resistor
+//V = I*R = (0.0024*I)*270 = 0.648*I = V; I = 1.543*V
+#define ADC_TO_mA(adcVal) (adcVal*15)/10
 
 //Timing
 #define ROS_MSG_RATE 20
