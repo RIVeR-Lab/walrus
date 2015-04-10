@@ -199,7 +199,7 @@ void setup()
     pinMode(P_LPF_CLK, OUTPUT);
     
     //Output a clock to configure the ADC filters
-    tone(P_LPF_CLK, LPF_VALUE);
+    //tone(P_LPF_CLK, LPF_VALUE);
     
     //Setup external ADC
     extADC.begin(ADDR_EXT_ADC, NUM_CHANNELS);
@@ -210,13 +210,13 @@ void setup()
     
     //Force setup timer 3 to work with analogWrite
     //This should not have to be done, but it dosn't work otherwise
-    PRR0 &= ~(1 << PRTIM3); //Clear power reduction disable
+    /*PRR0 &= ~(1 << PRTIM3); //Clear power reduction disable
     ICR3 = (uint16_t)255; //Put 20,000 in input capture register (used as TOP for timer) to make 50 Hz period PWM
     OCR3A = (uint16_t)0;  //Set output compare registers to 0 (determines duty cycle)
     OCR3B = (uint16_t)0;  //It turns out that the number in these registers equals the high pulse time of the signal in microseconds
     OCR3C = (uint16_t)0; 
     TCCR3A = 0;//(1 << COM3A1) | (1 << COM3B1) | (1 << COM3C1); //Set all OC pins to set pin on downcounting match and clear it on upcounting match
-    TCCR3B = (1 << WGM33) | (1 << CS31); //Set clock mode to clk/8 prescalar for a 2 Mhz counter
+    TCCR3B = (1 << WGM33) | (1 << CS31); //Set clock mode to clk/8 prescalar for a 2 Mhz counter*/
     
     //Setup maxon motor controller
     maxon.begin(P_MAXON_IN1, P_MAXON_IN2, P_MAXON_DIR, P_MAXON_EN, P_MAXON_SPEED, P_MAXON_READY, P_MAXON_STATUS);
