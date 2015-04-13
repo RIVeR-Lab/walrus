@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   std_msgs
   geometry_msgs
+  sensor_msgs
+  message_filters
 )
 
 find_package(PCL 1.7 REQUIRED)
@@ -39,13 +41,14 @@ generate_messages(
    DEPENDENCIES
    std_msgs
    geometry_msgs
+   sensor_msgs
 )
 
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES walrus_stair_detector walrus_stair_detector_ros
-  CATKIN_DEPENDS pcl_ros roscpp pcl_conversions message_runtime std_msgs geometry_msgs
+  CATKIN_DEPENDS pcl_ros roscpp pcl_conversions message_runtime std_msgs geometry_msgs sensor_msgs message_filters
 )
 
 ###########

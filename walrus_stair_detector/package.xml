@@ -22,6 +22,8 @@
   <exec_depend>message_runtime</exec_depend>
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>message_filters</depend>
 
   <test_depend>rosunit</test_depend>
   <test_depend>walrus_testdata</test_depend>
