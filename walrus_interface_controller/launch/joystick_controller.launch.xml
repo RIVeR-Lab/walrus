@@ -1,5 +1,6 @@
 <launch>
   <node name="joystick_controller" pkg="walrus_joystick_controller" type="joystick_controller_node">
+    <remap from="stairs" to="/boom/stairs" />
     <remap from="tank_drive" to="/base_epos/drive_controller/tank_drive" />
     <remap from="cmd_vel" to="/base_epos/drive_controller/cmd_vel" />
     <remap from="left_pods_joint_controller/front/command" to="/base/left_pods_joint_controller/front/command" />

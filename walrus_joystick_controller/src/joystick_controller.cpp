@@ -3,6 +3,7 @@
 #include <walrus_pod_controller/PodCommand.h>
 #include <walrus_drive_controller/TankDriveCommand.h>
 #include <geometry_msgs/Twist.h>
+#include <control_toolbox/filters.h>
 
 namespace walrus_joystick_controller {
 
@@ -75,6 +76,8 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
 
   joy_sub_ = nh.subscribe<sensor_msgs::Joy>("joy", 1, &JoystickController::joyCallback, this);
   enable_sub_ = nh.subscribe<std_msgs::Bool>("enable", 1, &JoystickController::enableCallback, this);
+
+  stair_sub_ = nh.subscribe<walrus_stair_detector::Stair>("stairs", 1, &JoystickController::stairCallback, this);
 }
 
 void JoystickController::updateState(bool force_publish) {
@@ -84,6 +87,7 @@ void JoystickController::updateState(bool force_publish) {
     state.high_speed_mode = high_speed_mode_.state();
     state.stair_mode = stair_mode_.state();
     state.available = joy_available_buffer_.available();
+    state.stairs_found = stair_detection_buffer_.available();
     state_pub_.publish(state);
     last_state_publish_ = ros::Time::now();
   }
@@ -111,10 +115,17 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
     if(stair_mode_.state()) {
       walrus_stair_detector::Stair::ConstPtr stair = stair_detection_buffer_.get();
       if(stair) {
+	double climb_speed = right_sqr * speed_scale;
+
+	double max_stair_angular_vel = 0.5;
+	double position_term = stair->origin.x;
+	double angle_term = stair->direction.x;
+	double angular_result = -position_term * 2.0;
 	geometry_msgs::Twist twist_msg;
-	twist_msg.linear.x = right_sqr * speed_scale;
-	twist_msg.angular.z = stair->origin.x * speed_scale;
+	twist_msg.linear.x = climb_speed;
+	twist_msg.angular.z = filters::clamp(angular_result, -max_stair_angular_vel, max_stair_angular_vel) * climb_speed;
 	twist_pub_.publish(twist_msg);
+	ROS_ERROR("Stair mode: Position: %f, Angle: %f, Result: %f, Scaled: %f", position_term, angle_term, angular_result, twist_msg.angular.z);
       }
       else {
 	geometry_msgs::Twist twist_msg;

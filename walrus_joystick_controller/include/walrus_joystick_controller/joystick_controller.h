@@ -84,6 +84,8 @@ class JoystickController {
   ros::Subscriber joy_sub_;
   ros::Subscriber enable_sub_;
 
+  ros::Subscriber stair_sub_;
+
   int axis_tank_left_;
   int axis_tank_right_;
 
