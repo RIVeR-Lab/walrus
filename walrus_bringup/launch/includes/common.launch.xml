@@ -20,6 +20,7 @@
 
   <node name="stair_detector" pkg="walrus_stair_detector" type="walrus_stair_detector_node" respawn="true" respawn_delay="5" ns="boom" if="$(arg have_boom)">
     <remap from="points" to="kinect/depth_lowres/points"/>
+    <remap from="imu" to="/imu/data"/>
   </node>
 
 </launch>

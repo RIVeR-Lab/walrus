@@ -35,8 +35,9 @@ void WalrusStairDetectorRos::pointsCallback(const PointCloud::ConstPtr& msg) {
   sensor_msgs::Imu::ConstPtr imu_msg = last_imu_msg; // TODO find imu message closed to point cloud
 
   if(imu_msg) {
-    double robot_angle = atan2(imu_msg->linear_acceleration.y, imu_msg->linear_acceleration.z);
-    double kinect_angle = 23.0 / 180 * M_PI; // angle down from horizontal
+    // angles are positive down from horizontal
+    double robot_angle = atan2(imu_msg->linear_acceleration.y, imu_msg->linear_acceleration.z) + M_PI;
+    double kinect_angle = 23.0 / 180 * M_PI;
     double angle = robot_angle + kinect_angle;
 
     Eigen::Vector3f vertical;
