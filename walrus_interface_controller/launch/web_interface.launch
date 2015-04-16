@@ -3,28 +3,7 @@
     <param name="have_joystick_controller" value="true" />
   </node>
 
-  <node name="joystick_controller" pkg="walrus_joystick_controller" type="joystick_controller_node">
-    <remap from="tank_drive" to="/base_epos/drive_controller/tank_drive" />
-    <remap from="left_pods_joint_controller/front/command" to="/base/left_pods_joint_controller/front/command" />
-    <remap from="right_pods_joint_controller/front/command" to="/base/right_pods_joint_controller/front/command" />
-    <remap from="left_pods_joint_controller/back/command" to="/base/left_pods_joint_controller/back/command" />
-    <remap from="right_pods_joint_controller/back/command" to="/base/right_pods_joint_controller/back/command" />
+  <include file="$(find walrus_interface_controller)/launch/joystick_controller.launch.xml" />
 
-    <param name="axis_tank_left" value="1" />
-    <param name="axis_tank_right" value="3" />
-
-    <param name="high_speed_max" value="2.0" />
-    <param name="low_speed_max" value="0.5" />
-
-    <param name="button_front_pods_up" value="4" />
-    <param name="button_front_pods_down" value="6" />
-    <param name="button_back_pods_up" value="5" />
-    <param name="button_back_pods_down" value="7" />
-
-    <param name="button_left_pods" value="0" />
-    <param name="button_right_pods" value="2" />
-
-    <param name="button_toggle_speed" value="8" />
-  </node>
   <include file="$(find walrus_web_server)/launch/server.launch" />
 </launch>

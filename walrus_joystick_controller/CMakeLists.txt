@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   walrus_pod_controller
   walrus_drive_controller
   message_generation
+  walrus_stair_detector
 )
 
 add_message_files(
@@ -18,7 +19,7 @@ add_message_files(
 generate_messages()
 
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs sensor_msgs walrus_pod_controller walrus_drive_controller message_runtime
+  CATKIN_DEPENDS geometry_msgs sensor_msgs walrus_pod_controller walrus_drive_controller message_runtime walrus_stair_detector
 )
 
 ###########

@@ -2,6 +2,7 @@
 #include "walrus_joystick_controller/JoystickControllerState.h"
 #include <walrus_pod_controller/PodCommand.h>
 #include <walrus_drive_controller/TankDriveCommand.h>
+#include <geometry_msgs/Twist.h>
 
 namespace walrus_joystick_controller {
 
@@ -36,15 +37,14 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
   : back_left_pod_(nh, "left_pods_joint_controller/back/command"),
     back_right_pod_(nh, "right_pods_joint_controller/back/command"),
     front_left_pod_(nh, "left_pods_joint_controller/front/command"),
-    front_right_pod_(nh, "right_pods_joint_controller/front/command")
+    front_right_pod_(nh, "right_pods_joint_controller/front/command"),
+    high_speed_mode_(false),
+    stair_mode_(false),
+    stair_detection_buffer_(ros::Duration(0.5)),
+    joy_available_buffer_(ros::Duration(2.0))
 {
   state_publish_delay_ = ros::Duration(1.0);
   last_state_publish_ = ros::Time(0);
-
-  joystick_available_timeout_ = ros::Duration(2.0);
-  last_joy_message_ = ros::Time(0);
-
-  previous_button_toggle_speed_state_ = false;
 
   high_speed_mode_ = false;
 
@@ -65,8 +65,10 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
   pnh.param<int>("button_right_pods", button_right_pods_, 1);
 
   pnh.param<int>("button_toggle_speed", button_toggle_speed_, 2);
+  pnh.param<int>("button_toggle_stair", button_toggle_stair_, 3);
 
   tank_drive_pub_ = nh.advertise<walrus_drive_controller::TankDriveCommand>("tank_drive", 1);
+  twist_pub_ = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
   state_pub_ = pnh.advertise<walrus_joystick_controller::JoystickControllerState>("state", 1, true);
   state_pub_timer_ = nh.createTimer(ros::Duration(1.0), boost::bind(&JoystickController::updateState, this, false));
@@ -76,12 +78,12 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
 }
 
 void JoystickController::updateState(bool force_publish) {
-  bool available = last_joy_message_ + joystick_available_timeout_ > ros::Time::now();
-  if(last_state_publish_ + state_publish_delay_ < ros::Time::now() || !available || force_publish) {
+  if(last_state_publish_ + state_publish_delay_ < ros::Time::now() || force_publish) {
     walrus_joystick_controller::JoystickControllerState state;
     state.enabled = enabled_;
-    state.high_speed_mode = high_speed_mode_;
-    state.available = available;
+    state.high_speed_mode = high_speed_mode_.state();
+    state.stair_mode = stair_mode_.state();
+    state.available = joy_available_buffer_.available();
     state_pub_.publish(state);
     last_state_publish_ = ros::Time::now();
   }
@@ -89,28 +91,44 @@ void JoystickController::updateState(bool force_publish) {
 
 void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
 {
-  last_joy_message_ = ros::Time::now();
+  joy_available_buffer_.feed(joy_msg);
   updateState();
   if(enabled_)
   {
-    bool button_toggle_speed_state = joy_msg->buttons[button_toggle_speed_];
-    // if button state changed and was pressed in previous message (button was just released)
-    if(previous_button_toggle_speed_state_ != button_toggle_speed_state
-       && previous_button_toggle_speed_state_) {
-      high_speed_mode_ = !high_speed_mode_;
+    if(high_speed_mode_.update(joy_msg->buttons[button_toggle_speed_]) ||
+       stair_mode_.update(joy_msg->buttons[button_toggle_stair_]))
       updateState(true);
-    }
-    previous_button_toggle_speed_state_ = button_toggle_speed_state;
 
-    double speed_scale = high_speed_mode_ ? high_speed_max_ : low_speed_max_;
-    walrus_drive_controller::TankDriveCommand tank_drive_msg;
+    double speed_scale = high_speed_mode_.state() ? high_speed_max_ : low_speed_max_;
+
     double left_raw = joy_msg->axes[axis_tank_left_];
     double left_sign = left_raw < 0 ? -1 : 1;
     double right_raw = joy_msg->axes[axis_tank_right_];
     double right_sign = right_raw < 0 ? -1 : 1;
-    tank_drive_msg.left_speed = left_sign * left_raw * left_raw * speed_scale;
-    tank_drive_msg.right_speed = right_sign * right_raw * right_raw * speed_scale;
-    tank_drive_pub_.publish(tank_drive_msg);
+    double left_sqr = left_sign * left_raw * left_raw;
+    double right_sqr = right_sign * right_raw * right_raw;
+
+    if(stair_mode_.state()) {
+      walrus_stair_detector::Stair::ConstPtr stair = stair_detection_buffer_.get();
+      if(stair) {
+	geometry_msgs::Twist twist_msg;
+	twist_msg.linear.x = right_sqr * speed_scale;
+	twist_msg.angular.z = stair->origin.x * speed_scale;
+	twist_pub_.publish(twist_msg);
+      }
+      else {
+	geometry_msgs::Twist twist_msg;
+	twist_msg.linear.x = 0;
+	twist_msg.linear.z = 0;
+	twist_pub_.publish(twist_msg);
+      }
+    }
+    else {
+      walrus_drive_controller::TankDriveCommand tank_drive_msg;
+      tank_drive_msg.left_speed = left_sqr * speed_scale;
+      tank_drive_msg.right_speed = right_sqr * speed_scale;
+      tank_drive_pub_.publish(tank_drive_msg);
+    }
 
     bool front_up = joy_msg->buttons[button_front_pods_up_];
     bool back_up = joy_msg->buttons[button_back_pods_up_];
@@ -163,6 +181,11 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
     front_right_pod_.publishEffortOrHold(front_effort * right_effort);
   }
 }
+
+void JoystickController::stairCallback(const walrus_stair_detector::Stair::ConstPtr& stair_msg) {
+  stair_detection_buffer_.feed(stair_msg);
+}
+
 
 
 void JoystickController::enableCallback(const std_msgs::Bool::ConstPtr& bool_msg)
