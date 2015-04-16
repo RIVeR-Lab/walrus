@@ -37,7 +37,7 @@ public:
     last_msg_stamp_ = ros::Time::now();
   }
   bool available() {
-    return !(last_msg_stamp_.isZero() || last_msg_stamp_ + timeout_ > ros::Time::now());
+    return !last_msg_stamp_.isZero() && last_msg_stamp_ + timeout_ > ros::Time::now();
   }
   typename M::ConstPtr get() {
     if(!available())

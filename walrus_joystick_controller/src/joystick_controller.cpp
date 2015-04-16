@@ -78,7 +78,7 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
 }
 
 void JoystickController::updateState(bool force_publish) {
-  if(last_state_publish_ + state_publish_delay_ < ros::Time::now() || force_publish) {
+  if(last_state_publish_ + state_publish_delay_ < ros::Time::now() || joy_available_buffer_.available() || force_publish) {
     walrus_joystick_controller::JoystickControllerState state;
     state.enabled = enabled_;
     state.high_speed_mode = high_speed_mode_.state();
