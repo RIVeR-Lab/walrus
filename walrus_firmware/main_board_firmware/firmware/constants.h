@@ -35,6 +35,16 @@ Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x2
 #define P_EXT_LED_2 15 //MCU Pin: PC5; MCU Output Compare: OCR3B; Silkscreen: LED Board Control - 5 / J29; Schematic: LED2
 #define P_EXT_LED_3 24 //MCU Pin: PB4; MCU Output Compare: OCR2A; Silkscreen: Pod Motor Control - 3 / J27; Schematic: POD_MOTOR1
 
+//SERIAL MODE
+#define P_FRONT_TX 25
+#define P_FRONT_RX 16
+#define P_BACK_TX 27
+#define P_BACK_RX 26
+#define MAKE_MOTOR_1_BYTE(power) power
+#define MAKE_MOTOR_2_BYTE(power) (power | 128)
+#define MAKE_MOTOR_3_BYTE(power) power
+#define MAKE_MOTOR_4_BYTE(power) (power | 128)
+
 //TIMER MODE
 //16 bit timer top value
 #define TIMER_TOP 10000

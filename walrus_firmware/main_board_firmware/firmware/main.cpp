@@ -1,5 +1,6 @@
 
 //#define USE_SERVO
+//#define USE_SERIAL
 
 #include <Arduino.h>
 #include <ros.h>
@@ -15,6 +16,8 @@
 #include <OneWire.h>
 #ifdef USE_SERVO
     #include <Servo.h>
+#elif USE_SERIAL
+	#include <SoftwareSerial.h>
 #endif
 #include <SmartBatt.h>
 #include "constants.h"
@@ -65,6 +68,9 @@ OneWire exttemp_sense(P_EXT_TEMP);
 //Motor servos
 #ifdef USE_SERVO
     Servo motor1, motor2, motor3, motor4;
+#elif USE_SERIAL
+	SoftwareSerial front_mc(P_FRONT_RX, P_FRONT_TX, false);
+	SoftwareSerial back_mc(P_BACK_RX, P_BACK_TX, false);
 #endif
 //Battery SMBus objects
 SmartBatt upper[4], lower[4];
@@ -98,6 +104,9 @@ void doHighSpeedOperations()
             motor2.writeMicroseconds(1500);
             motor3.writeMicroseconds(1500);
             motor4.writeMicroseconds(1500);
+        #elif USE_SERIAL
+        	front_mc.write(0);
+        	back_mc.write(0);
         #else
             REG_MOTOR_1 = 0;
             REG_MOTOR_2 = 0;
@@ -112,6 +121,11 @@ void doHighSpeedOperations()
             motor2.writeMicroseconds(hs_control_msg.motor_power[1]);
             motor3.writeMicroseconds(hs_control_msg.motor_power[2]);
             motor4.writeMicroseconds(hs_control_msg.motor_power[3]);
+        #elif USE_SERIAL
+        	front_mc.write(MAKE_MOTOR_1_BYTE(hs_control_msg.motor_power[0]);
+        	front_mc.write(MAKE_MOTOR_2_BYTE(hs_control_msg.motor_power[1]);
+        	back_mc.write(MAKE_MOTOR_3_BYTE(hs_control_msg.motor_power[2]);
+        	back_mc.write(MAKE_MOTOR_4_BYTE(hs_control_msg.motor_power[3]);
         #else
             REG_MOTOR_1 = hs_control_msg.motor_power[0];
             REG_MOTOR_2 = hs_control_msg.motor_power[1];
@@ -407,6 +421,20 @@ void setup()
             current_samples[l][m] = 0;
     }
     
+    //Setup timer 2 to control LED 3
+    PRR0 &= ~(1 << PRTIM2); //Clear power reduction disable
+    OCR2A = (uint16_t)0; //Set output compare register to 0 (determines duty cycle)
+    TCCR2A = (1 << COM2A1) | (1 << WGM20); //Set OCA pin to set pin on downcounting match and clear it on upcounting match
+    TCCR2B = (1 << CS22) | (1 << CS21); //Set clock mode to clk/256 for a 62.5 khz counter
+    //Setup timer 1 to control motor 3 and LED's 1 and 2 via output compare
+    PRR0 &= ~(1 << PRTIM3); //Clear power reduction disable
+    ICR3 = (uint16_t)TIMER_TOP; //Put 20,000 in input capture register (used as TOP for timer) to make 50 Hz period PWM
+    OCR3B = (uint16_t)0;  //It turns out that the number in these registers equals the high pulse time of the signal in microseconds
+    OCR3C = (uint16_t)0; 
+    TCCR3A = (1 << COM3B1) | (1 << COM3C1); //Set all OC pins to set pin on downcounting match and clear it on upcounting match
+    TCCR3B = (1 << WGM33) | (1 << CS31); //Set clock mode to clk/8 prescalar for a 2 Mhz counter
+    
+    
     //Setup Motors
     #ifdef USE_SERVO
         motor1.attach(P_MOTOR_1);
@@ -417,6 +445,9 @@ void setup()
         motor2.writeMicroseconds(1500);
         motor3.writeMicroseconds(1500);
         motor4.writeMicroseconds(1500);
+    #elif USE_SERIAL
+    	front_mc.begin(38400);
+    	back_mc.begin(38400);
     #else
         //Setup timer 1 to control motors 1, 2 and 4 via output compare
         PRR0 &= ~(1 << PRTIM1); //Clear power reduction disable
@@ -426,23 +457,12 @@ void setup()
         OCR1C = (uint16_t)0; 
         TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << COM1C1); //Set all OC pins to set pin on downcounting match and clear it on upcounting match
         TCCR1B = (1 << WGM13) | (1 << CS11); //Set clock mode to clk/8 prescalar for a 2 Mhz counter
+        TCCR3B |= (1 << COM3A1); //Set timer 3 to control motor 3
+        OCR3A = (uint16_t)0;  //Set output compare registers to 0 (determines duty cycle)
         pinMode(P_MOTOR_1, OUTPUT);  //Set all motor pins to outputs
         pinMode(P_MOTOR_2, OUTPUT);
         pinMode(P_MOTOR_3, OUTPUT);
-        pinMode(P_MOTOR_4, OUTPUT);
-        //Setup timer 1 to control motor 3 and LED's 1 and 2 via output compare
-        PRR0 &= ~(1 << PRTIM3); //Clear power reduction disable
-        ICR3 = (uint16_t)TIMER_TOP; //Put 20,000 in input capture register (used as TOP for timer) to make 50 Hz period PWM
-        OCR3A = (uint16_t)0;  //Set output compare registers to 0 (determines duty cycle)
-        OCR3B = (uint16_t)0;  //It turns out that the number in these registers equals the high pulse time of the signal in microseconds
-        OCR3C = (uint16_t)0; 
-        TCCR3A = (1 << COM3A1) | (1 << COM3B1) | (1 << COM3C1); //Set all OC pins to set pin on downcounting match and clear it on upcounting match
-        TCCR3B = (1 << WGM33) | (1 << CS31); //Set clock mode to clk/8 prescalar for a 2 Mhz counter
-        //Setup timer 2 to control LED 3
-        PRR0 &= ~(1 << PRTIM2); //Clear power reduction disable
-        OCR2A = (uint16_t)0; //Set output compare register to 0 (determines duty cycle)
-        TCCR2A = (1 << COM2A1) | (1 << WGM20); //Set OCA pin to set pin on downcounting match and clear it on upcounting match
-        TCCR2B = (1 << CS22) | (1 << CS21); //Set clock mode to clk/256 for a 62.5 khz counter
+        pinMode(P_MOTOR_4, OUTPUT);       
     #endif
 }
 
