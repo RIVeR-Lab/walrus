@@ -27,7 +27,8 @@ static geometry_msgs::Vector3 toVector3Msg(Eigen::Vector3f v) {
 
 void WalrusStairDetectorRos::pointsCallback(const PointCloud::ConstPtr& msg) {
   Eigen::Vector3f vertical;
-  vertical << 0, -1, 0;
+  double angle = 23.0 / 180 * M_PI; // angle down from horizontal
+  vertical << 0, -cos(angle), -sin(angle);
 
   std::vector<StairModel> stairs;
   MultiTimer timer;

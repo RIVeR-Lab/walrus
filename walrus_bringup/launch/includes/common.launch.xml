@@ -13,7 +13,13 @@
   <include file="$(find walrus_diagnostics)/launch/diagnostics.launch" />
   <include file="$(find walrus_interface_controller)/launch/interfaces.launch" />
 
+
   <node name="imu_throttler" pkg="topic_tools" type="throttle" respawn="true" respawn_delay="5" args="messages imu/data 5">
     <param name="lazy" value="true"/>
   </node>
+
+  <node name="stair_detector" pkg="walrus_stair_detector" type="walrus_stair_detector_node" respawn="true" respawn_delay="5" ns="boom" if="$(arg have_boom)">
+    <remap from="points" to="kinect/depth_lowres/points"/>
+  </node>
+
 </launch>
