@@ -10,6 +10,11 @@
   </node>
 
   <!-- Kinect -->
+  <remap from="/boom_kinect/depth_lowres/points" to="/boom/kinect/depth_lowres/points"/>
+  <remap from="/boom_kinect/rgb/image" to="/boom/kinect/rgb/image"/>
+  <remap from="/boom_kinect/rgb/camera_info" to="/boom/kinect/rgb/camera_info"/>
+  <remap from="/boom_kinect/ir/image" to="/boom/kinect/ir/image"/>
+  <remap from="/boom_kinect/ir/camera_info" to="/boom/kinect/ir/camera_info"/>
   <include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch" if="$(arg have_boom)">
     <arg name="base_name" value="boom_kinect"/>
   </include>
