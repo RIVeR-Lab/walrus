@@ -26,6 +26,7 @@
   <run_depend>roscpp</run_depend>
   <run_depend>transmission_interface</run_depend>
   <run_depend>urdf</run_depend>
+  <run_depend>hector_gazebo_plugins</run_depend>
 
   <export>
     <gazebo_ros_control plugin="${prefix}/walrus_hw_sim_plugins.xml"/>

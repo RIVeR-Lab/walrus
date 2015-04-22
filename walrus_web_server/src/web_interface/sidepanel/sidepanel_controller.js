@@ -1,4 +1,4 @@
-angular.module("app").controller("SidepanelCtrl", function( $scope ) {
+angular.module("app").controller("SidepanelCtrl", function( $scope, roslib ) {
     $scope.tabs = {
 	selectedIndex : 0
     };
@@ -9,4 +9,17 @@ angular.module("app").controller("SidepanelCtrl", function( $scope ) {
 	    }, 100);
 	}
     });
+
+    $scope.toDegrees = function(rad) {
+	return rad * 180 / Math.PI;
+    };
+
+    $scope.pitch = 0;
+    $scope.roll = 0;
+    var imuCallback = function(imu) {
+	$scope.pitch = Math.atan2(imu.linear_acceleration.x, imu.linear_acceleration.z) + Math.PI;
+	$scope.roll = Math.atan2(imu.linear_acceleration.y, imu.linear_acceleration.z) + Math.PI;
+    };
+    var imuSub = roslib.subscribe("imu/data_throttle", "sensor_msgs/Imu", imuCallback);
+
 });
