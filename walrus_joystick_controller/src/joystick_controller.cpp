@@ -120,7 +120,7 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
 	double max_stair_angular_vel = 0.5;
 	double position_term = stair->origin.x;
 	double angle_term = stair->direction.x;
-	double angular_result = -position_term * 2.0;
+	double angular_result = -angle_term * 2.0 -position_term * 2.0;
 	geometry_msgs::Twist twist_msg;
 	twist_msg.linear.x = climb_speed;
 	twist_msg.angular.z = filters::clamp(angular_result, -max_stair_angular_vel, max_stair_angular_vel) * climb_speed;
