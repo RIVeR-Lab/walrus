@@ -27,6 +27,7 @@ def update_callback(event):
     global ip_address
     global diagnostic_pub
     global device_name
+    global use_https
 
     session = requests.Session()
     headers = {'Content-Type' : 'multipart/form-data; boundary=----WebKitFormBoundary1XGwEG3Z3z94qHL4'}
@@ -44,10 +45,11 @@ Content-Disposition: form-data; name="password"\r
 ubnt\r
 ------WebKitFormBoundary1XGwEG3Z3z94qHL4--\r
 """
-    login_page_result = session.get('https://'+ip_address+'/index.cgi', verify=False)
-    login_result = session.post('https://'+ip_address+'/login.cgi', headers=headers, data=payload, verify=False)
-    status_result = session.get('https://'+ip_address+'/status.cgi', verify=False)
-    ifstats_result = session.get('https://'+ip_address+'/iflist.cgi', verify=False)
+    protocol = "https://" if use_https else "http://"
+    login_page_result = session.get(protocol+ip_address+'/index.cgi', verify=False)
+    login_result = session.post(protocol+ip_address+'/login.cgi', headers=headers, data=payload, verify=False)
+    status_result = session.get(protocol+ip_address+'/status.cgi', verify=False)
+    ifstats_result = session.get(protocol+ip_address+'/iflist.cgi', verify=False)
 
     #print status_result.content
     status = status_result.json()
@@ -104,6 +106,8 @@ if __name__=='__main__':
     device_name = rospy.get_param('~device_name', rospy.get_name()[1:])
 
     period = rospy.get_param("~diagnostic_period", 5.0)
+
+    use_https = rospy.get_param("~use_https", True)
 
     timer = rospy.Timer(rospy.Duration(period), update_callback)
     diagnostic_pub = rospy.Publisher("/diagnostics", DiagnosticArray, queue_size = 1)
