@@ -40,8 +40,8 @@ Status STATUS_NO_CONNECTION = {"No connection", STATE_ERROR, /*10_1000_0000*/0x2
 #define P_FRONT_RX 16
 #define P_BACK_TX 27
 #define P_BACK_RX 26
-#define MAKE_MOTOR_1_BYTE(power) (((int16_t)power-1500)+64)
-#define MAKE_MOTOR_2_BYTE(power) (((int16_t)power-1500)+192)
+#define MAKE_MOTOR_1_BYTE(power) (((int16_t)power-1500)+192)
+#define MAKE_MOTOR_2_BYTE(power) (((int16_t)power-1500)+64)
 #define MAKE_MOTOR_3_BYTE(power) (((int16_t)power-1500)+64)
 #define MAKE_MOTOR_4_BYTE(power) (((int16_t)power-1500)+192)
 
