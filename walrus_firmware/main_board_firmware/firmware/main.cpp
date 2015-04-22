@@ -1,6 +1,6 @@
 
 //#define USE_SERVO
-//#define USE_SERIAL
+#define USE_SERIAL
 
 #include <Arduino.h>
 #include <ros.h>
@@ -16,7 +16,7 @@
 #include <OneWire.h>
 #ifdef USE_SERVO
     #include <Servo.h>
-#elif USE_SERIAL
+#elif defined USE_SERIAL
 	#include <SoftwareSerial.h>
 #endif
 #include <SmartBatt.h>
@@ -68,7 +68,7 @@ OneWire exttemp_sense(P_EXT_TEMP);
 //Motor servos
 #ifdef USE_SERVO
     Servo motor1, motor2, motor3, motor4;
-#elif USE_SERIAL
+#elif defined USE_SERIAL
 	SoftwareSerial front_mc(P_FRONT_RX, P_FRONT_TX, false);
 	SoftwareSerial back_mc(P_BACK_RX, P_BACK_TX, false);
 #endif
@@ -104,9 +104,9 @@ void doHighSpeedOperations()
             motor2.writeMicroseconds(1500);
             motor3.writeMicroseconds(1500);
             motor4.writeMicroseconds(1500);
-        #elif USE_SERIAL
-        	front_mc.write(0);
-        	back_mc.write(0);
+        #elif defined USE_SERIAL
+        	front_mc.write((uint8_t)0);
+        	back_mc.write((uint8_t)0);
         #else
             REG_MOTOR_1 = 0;
             REG_MOTOR_2 = 0;
@@ -121,11 +121,11 @@ void doHighSpeedOperations()
             motor2.writeMicroseconds(hs_control_msg.motor_power[1]);
             motor3.writeMicroseconds(hs_control_msg.motor_power[2]);
             motor4.writeMicroseconds(hs_control_msg.motor_power[3]);
-        #elif USE_SERIAL
-        	front_mc.write(MAKE_MOTOR_1_BYTE(hs_control_msg.motor_power[0]);
-        	front_mc.write(MAKE_MOTOR_2_BYTE(hs_control_msg.motor_power[1]);
-        	back_mc.write(MAKE_MOTOR_3_BYTE(hs_control_msg.motor_power[2]);
-        	back_mc.write(MAKE_MOTOR_4_BYTE(hs_control_msg.motor_power[3]);
+        #elif defined USE_SERIAL
+        	front_mc.write(MAKE_MOTOR_1_BYTE(hs_control_msg.motor_power[0]));
+        	front_mc.write(MAKE_MOTOR_2_BYTE(hs_control_msg.motor_power[1]));
+        	back_mc.write(MAKE_MOTOR_3_BYTE(hs_control_msg.motor_power[2]));
+        	back_mc.write(MAKE_MOTOR_4_BYTE(hs_control_msg.motor_power[3]));
         #else
             REG_MOTOR_1 = hs_control_msg.motor_power[0];
             REG_MOTOR_2 = hs_control_msg.motor_power[1];
@@ -445,9 +445,9 @@ void setup()
         motor2.writeMicroseconds(1500);
         motor3.writeMicroseconds(1500);
         motor4.writeMicroseconds(1500);
-    #elif USE_SERIAL
-    	front_mc.begin(38400);
-    	back_mc.begin(38400);
+    #elif defined USE_SERIAL
+    	front_mc.begin(19200);
+    	back_mc.begin(19200);
     #else
         //Setup timer 1 to control motors 1, 2 and 4 via output compare
         PRR0 &= ~(1 << PRTIM1); //Clear power reduction disable

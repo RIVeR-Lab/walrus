@@ -34,7 +34,7 @@ backright_pod_motor_reverse: true
 backleft_pod_motor_reverse: true
 pod_output_torque_per_amp: 29.184
 pod_output_power_neutral: 1500
-pod_output_power_limit: 100
+pod_output_power_limit: 25
 
 water_sense_1_position: 'Back Left Water Sensor'
 water_sense_2_position: 'Front Left Water Sensor'
