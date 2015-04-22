@@ -1,5 +1,5 @@
 angular.module("app").controller("DiagnosticsCtrl",
-				 function( $scope, $mdDialog, $mdBottomSheet, diagnosticsService, gamepadService ) {
+				 function( $scope, $mdDialog, $mdBottomSheet, diagnosticsService, gamepadService, pingService ) {
     $scope.ros = {
 	connected: false
     };
@@ -15,6 +15,14 @@ angular.module("app").controller("DiagnosticsCtrl",
     $scope.$on("ros-close", function() {
 	$scope.ros.connected = false;
     });
+
+    pingService.repeatPing(function(success, delay) {
+	$scope.diagnostics.network.bullet_ap.connected = success;
+    }, 5000, "192.168.1.20", "/130528.1754/images/airos_logo.png");
+
+    pingService.repeatPing(function(success, delay) {
+	$scope.diagnostics.network.bullet_remote.connected = success;
+    }, 5000, "192.168.1.21", "/130528.1754/images/airos_logo.png");
 
     $scope.$on("ros-diagnostics", function(e, diagnostics) {
 	var percent_regex = /^(\d+(?:\.\d+)?)%$/; // matches ##.##%
@@ -71,7 +79,11 @@ angular.module("app").controller("DiagnosticsCtrl",
 	drive: [
 	    {value: 0.0, state: diagnosticsService.STALE, current_limit_active: false},
 	    {value: 0.0, state: diagnosticsService.STALE, current_limit_active: false}
-	]
+	],
+	network: {
+	    bullet_ap: { connected: false },
+	    bullet_remote: { connected: false }
+	}
     };
 
 
