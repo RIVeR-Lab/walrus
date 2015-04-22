@@ -20,10 +20,10 @@ back_cam_led_id: 3
 backup_batt_voltage_id: 2
 
 pod_auto_enable: true
-frontleft_pod_neutral_position: -1.712
-frontright_pod_neutral_position: 2.466
-backright_pod_neutral_position: 2.675
-backleft_pod_neutral_position: -0.144
+frontleft_pod_neutral_position: 0.900
+frontright_pod_neutral_position: 1.981
+backright_pod_neutral_position: -2.619
+backleft_pod_neutral_position: 2.871
 frontleft_pod_encoder_reverse: true
 frontright_pod_encoder_reverse: false
 backright_pod_encoder_reverse: false
@@ -34,7 +34,7 @@ backright_pod_motor_reverse: true
 backleft_pod_motor_reverse: true
 pod_output_torque_per_amp: 29.184
 pod_output_power_neutral: 1500
-pod_output_power_limit: 100
+pod_output_power_limit: 25
 
 water_sense_1_position: 'Back Left Water Sensor'
 water_sense_2_position: 'Front Left Water Sensor'
