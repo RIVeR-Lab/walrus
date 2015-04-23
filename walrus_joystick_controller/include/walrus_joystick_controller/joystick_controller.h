@@ -49,6 +49,11 @@ class JoystickController {
 
   int button_left_pods_;
   int button_right_pods_;
+  
+  int axis_boom_pan_;
+  int axis_boom_tilt_;
+  int axis_boom_deploy_;
+  int button_boom_deploy_enable_;
 
   int button_toggle_speed_;
   bool previous_button_toggle_speed_state_;

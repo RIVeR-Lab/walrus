@@ -65,6 +65,11 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
   pnh.param<int>("button_right_pods", button_right_pods_, 1);
 
   pnh.param<int>("button_toggle_speed", button_toggle_speed_, 2);
+  
+  pnh.param<int>("axis_boom_pan", axis_boom_pan_, 4);
+  pnh.param<int>("axis_boom_tilt", axis_boom_tilt_, 5);
+  pnh.param<int>("axis_boom_deploy", axis_boom_tilt_, 5);
+  pnh.param<int>("button_boom_deploy_enable", button_boom_deploy_enable_, 3);
 
   tank_drive_pub_ = nh.advertise<walrus_drive_controller::TankDriveCommand>("tank_drive", 1);
   
@@ -165,11 +170,23 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
     back_right_pod_.publishEffortOrHold(back_effort * right_effort);
     front_left_pod_.publishEffortOrHold(front_effort * left_effort);
     front_right_pod_.publishEffortOrHold(front_effort * right_effort);
-    std_msgs::Float64 pan, deploy;
-    pan.data = joy_msg->axes[4];
-    deploy.data = joy_msg->axes[5];
+    
+    //Boom Controls
+    std_msgs::Float64 pan, deploy, tilt;
+    pan.data = joy_msg->axes[axis_boom_pan_];
+    if (joy_msg->buttons[button_boom_deploy_enable_])
+    {
+        tilt.data = 0;
+        deploy.data = joy_msg->axes[axis_boom_deploy_];
+    }
+    else
+    {
+        tilt.data = joy_msg->axes[axis_boom_tilt_];
+        deploy.data = 0;
+    }
     boom_deploy_effort.publish(deploy);
     boom_pan_effort.publish(pan);
+    boom_tilt_effort.publish(tilt);
   }
 }
 
