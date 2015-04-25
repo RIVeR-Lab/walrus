@@ -5,6 +5,7 @@ from walrus_system_configuration.routing import *
 from walrus_system_configuration.dns import *
 from walrus_system_configuration.webserver import *
 from walrus_system_configuration.boot import *
+from walrus_system_configuration.upstart import *
 
 def install():
     udev.install()
@@ -14,6 +15,7 @@ def install():
     dns.install()
     webserver.install()
     boot.install()
+    upstart.install()
     return 0
 
 def status():
@@ -24,4 +26,5 @@ def status():
     dns.status()
     webserver.status()
     boot.status()
+    upstart.status()
     return 0
