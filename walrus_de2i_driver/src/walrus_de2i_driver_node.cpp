@@ -15,9 +15,14 @@
 #define MMAP_SIZE 65536
 
 // ADDRESS MAP (read from QSYS)
-#define PCI_OUTPORT 0XC040
-#define PCI_INPORT 0XC060
 #define PCI_MEMORY 0XC000
+#define PCI_HEXPORT 0XC000
+#define PCI_INPORT 0XC020
+
+unsigned char hexdigit[] = {0x3F, 0x06, 0x5B, 0x4F,
+                            0x66, 0x6D, 0x7D, 0x07,
+                            0x7F, 0x6F, 0x77, 0x7C,
+			    0x39, 0x5E, 0x79, 0x71};
 
 // finds PCI base address by vendor & device id
 off_t pci_read_base_address(int vendor, int device)
@@ -41,16 +46,16 @@ off_t pci_read_base_address(int vendor, int device)
 	return 0;
 }
 
-inline void pci_mm_read(uint8_t* dst, uint8_t* devptr, int offset, int n){
-  int i;
-  for(i=0; i<n; i++)
-    *(uint8_t*)(dst+i) = *(uint8_t*)(devptr+offset+i);
+inline void pci_mm_read16(uint8_t* dst, uint8_t* devptr, int offset, int n){
+  for(int i=0; i<n; i+=2) {
+    *(uint16_t*)(dst+i) = *(uint16_t*)(devptr+offset+i);
+  }
 }
 
-inline void pci_mm_write(uint8_t* src, uint8_t* devptr, int offset, int n){
-  int i;
-  for(i=0; i<n; i++)
-    *(uint8_t*)(devptr+offset+i) = *(uint8_t*)(src+i);
+inline void pci_mm_write32(uint8_t* src, uint8_t* devptr, int offset, int n){
+  for(int i=0; i<n; i +=4) {
+    *(uint32_t*)(devptr+offset+i) = *(uint32_t*)(src+i);
+  }
 }
 
 int main(){
@@ -61,7 +66,20 @@ int main(){
   if(ptr == MAP_FAILED)
     perror("MMAP FAILED");
   else
-    printf("PCI BAR0 0x0000 = %p",  ptr);
+    printf("PCI BAR0 0x0000 = %p\n",  ptr);
+
+
+  while(true) {
+    uint16_t j;
+    pci_mm_read16((uint8_t*)&j, ptr, PCI_INPORT, 2);
+
+    uint32_t k = hexdigit[j & 0xF]
+      | (hexdigit[(j >>  4) & 0xF] << 8)
+      | (hexdigit[(j >>  8) & 0xF] << 16)
+      | (hexdigit[(j >> 12) & 0xF] << 24);
+    k = ~k;
+    pci_mm_write32((uint8_t*)&k, ptr, PCI_HEXPORT, 4);
+  }
 
   munmap(ptr, MMAP_SIZE);
   close(fd);
