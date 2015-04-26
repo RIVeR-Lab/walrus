@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/mman.h>
+#include <ros/ros.h>
+#include <std_msgs/UInt16.h>
+#include <std_msgs/UInt32.h>
 
 // PCI CONSTANTS
 #define PCI_VENDOR_ID 0x1172
@@ -19,13 +22,8 @@
 #define PCI_HEXPORT 0XC000
 #define PCI_INPORT 0XC020
 
-unsigned char hexdigit[] = {0x3F, 0x06, 0x5B, 0x4F,
-                            0x66, 0x6D, 0x7D, 0x07,
-                            0x7F, 0x6F, 0x77, 0x7C,
-			    0x39, 0x5E, 0x79, 0x71};
-
 // finds PCI base address by vendor & device id
-off_t pci_read_base_address(int vendor, int device)
+static off_t pci_read_base_address(int vendor, int device)
 {
 	FILE* f;
 	int dev, dum;
@@ -46,43 +44,78 @@ off_t pci_read_base_address(int vendor, int device)
 	return 0;
 }
 
-inline void pci_mm_read16(uint8_t* dst, uint8_t* devptr, int offset, int n){
-  for(int i=0; i<n; i+=2) {
-    *(uint16_t*)(dst+i) = *(uint16_t*)(devptr+offset+i);
+class PciMemory {
+public:
+  PciMemory() : fd(-1), pci_mem(NULL) {}
+
+  bool open(int vendor, int device) {
+    int fd = ::open("/dev/mem", O_RDWR|O_SYNC);
+    off_t pci_bar0 = pci_read_base_address(vendor, device);
+    pci_mem = (uint8_t*)mmap(0, MMAP_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, pci_bar0);
+
+    if(pci_mem == MAP_FAILED) {
+      perror("MMAP FAILED");
+      pci_mem = NULL;
+      close();
+      return false;
+    }
+    else {
+      return true;
+    }
   }
+
+  void close() {
+    if(pci_mem) {
+      munmap((void*)pci_mem, MMAP_SIZE);
+      pci_mem = NULL;
+    }
+    if(fd != -1) {
+      ::close(fd);
+      fd = -1;
+    }
+  }
+
+  uint16_t read16(int offset){
+    return *(volatile uint16_t*)(pci_mem + offset);
+  }
+
+  void write32(int offset, uint32_t value){
+    *(volatile uint32_t*)(pci_mem + offset) = value;
+  }
+
+private:
+  int fd;
+  volatile uint8_t *pci_mem;
+};
+
+
+void hexCallback(PciMemory* fpga_mem, const std_msgs::UInt32::ConstPtr data) {
+  fpga_mem->write32(PCI_HEXPORT, data->data);
 }
 
-inline void pci_mm_write32(uint8_t* src, uint8_t* devptr, int offset, int n){
-  for(int i=0; i<n; i +=4) {
-    *(uint32_t*)(devptr+offset+i) = *(uint32_t*)(src+i);
-  }
-}
+int main(int argc, char **argv) {
+  ros::init(argc, argv, "de2i_driver");
 
-int main(){
-  int fd = open("/dev/mem", O_RDWR|O_SYNC);
-  off_t pci_bar0 = pci_read_base_address(PCI_VENDOR_ID, PCI_DEVICE_ID);
-  uint8_t* ptr = (uint8_t*)mmap(0, MMAP_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, pci_bar0);
-
-  if(ptr == MAP_FAILED)
-    perror("MMAP FAILED");
-  else
-    printf("PCI BAR0 0x0000 = %p\n",  ptr);
-
-
-  while(true) {
-    uint16_t j;
-    pci_mm_read16((uint8_t*)&j, ptr, PCI_INPORT, 2);
-
-    uint32_t k = hexdigit[j & 0xF]
-      | (hexdigit[(j >>  4) & 0xF] << 8)
-      | (hexdigit[(j >>  8) & 0xF] << 16)
-      | (hexdigit[(j >> 12) & 0xF] << 24);
-    k = ~k;
-    pci_mm_write32((uint8_t*)&k, ptr, PCI_HEXPORT, 4);
+  PciMemory fpga_mem;
+  if(!fpga_mem.open(PCI_VENDOR_ID, PCI_DEVICE_ID)) {
+    ROS_FATAL("Failed to open FPGA PCI device");
   }
 
-  munmap(ptr, MMAP_SIZE);
-  close(fd);
+  ros::NodeHandle nh;
+
+  ros::Publisher input_pub = nh.advertise<std_msgs::UInt16>("switches", 1);
+  ros::Subscriber hex_sub = nh.subscribe<std_msgs::UInt32>("hex", 1, boost::bind(hexCallback, &fpga_mem, _1));
+
+  ros::Rate rate(10);
+  while(ros::ok()) {
+    std_msgs::UInt16 msg;
+    msg.data = fpga_mem.read16(PCI_INPORT);
+    input_pub.publish(msg);
+    ros::spinOnce();
+    rate.sleep();
+  }
+
+  fpga_mem.close();
 
   return 0;
 }

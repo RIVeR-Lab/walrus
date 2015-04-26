@@ -3,6 +3,7 @@ project(walrus_de2i_driver)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  std_msgs
 )
 
 catkin_package()
