@@ -10,6 +10,7 @@ catkin_package()
 ###########
 ## Build ##
 ###########
+include_directories(${catkin_INCLUDE_DIRS})
 
 add_executable(walrus_de2i_driver_node src/walrus_de2i_driver_node.cpp)
 target_link_libraries(walrus_de2i_driver_node
