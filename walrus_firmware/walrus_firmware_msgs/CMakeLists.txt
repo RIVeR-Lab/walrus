@@ -18,9 +18,8 @@ add_message_files(
   BoomBoardControl.msg
   DiagnosticRXMsg.msg
   DiagnosticTXMsg.msg
-  MainBoardHighSpeedControl.msg
-  MainBoardHighSpeedFeedback.msg
-  MainBoardLowSpeedData.msg
+  MainBoardPodMotorFeedback.msg
+  MainBoardSensorData.msg
   MainBoardControl.msg
 )
 
