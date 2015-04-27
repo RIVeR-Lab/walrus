@@ -1,8 +1,17 @@
 <!-- Bringup file for the robot -->
 <launch>
   <arg name="have_boom" default="true"/>
+  <arg name="have_oryx_arm" default="true"/>
 
   <include file="$(find walrus_base_hw)/launch/walrus_base_hw.launch" />
+
+  <node name="arm" pkg="walrus_base_hw" type="epos_hw_node" respawn="true" respawn_delay="5" if="$(arg have_oryx_arm)">
+    <remap from="arm/joint_states" to="joint_states" />
+    <param name="controller_rate" value="10.0" type="double" />
+    <rosparam param="names">['arm_pan_actuator', 'arm_shoulder_actuator', 'arm_scoop_actuator']</rosparam>
+    <rosparam command="load" file="$(find walrus_bringup)/config/oryx_arm_epos_motors.yaml" />
+  </node>
+
 
   <node name="boom" pkg="walrus_boomboard_driver" type="walrus_boomboard_node" respawn="true" respawn_delay="5" if="$(arg have_boom)">
     <remap from="boom/joint_states" to="joint_states" />
