@@ -6,7 +6,9 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS std_msgs
+)
 
 ###########
 ## Build ##
