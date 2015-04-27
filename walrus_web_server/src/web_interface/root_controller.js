@@ -37,8 +37,8 @@ angular.module("app").controller("RootCtrl",
 	{ label: "Front Camera", topic: "front_camera/image_raw" },
 	{ label: "Back Camera", topic: "back_camera/image_raw" },
 	{ label: "Bottom Camera", topic: "bottom_camera/image_raw" },
-	{ label: "Boom Camera", topic: "boom/kinect/rgb/image_raw" },
-	{ label: "Boom Depth Camera", topic: "boom/kinect/depth/image_raw" }
+	{ label: "Boom Camera", topic: "boom/kinect/rgb/image" },
+	{ label: "Boom IR Camera", topic: "boom/kinect/ir/image" }
     ];
     $scope.primary_video_stream = $scope.available_video_streams[0];
     $scope.secondary_video_stream = $scope.available_video_streams[3];
