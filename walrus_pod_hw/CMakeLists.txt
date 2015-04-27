@@ -5,7 +5,6 @@ find_package(catkin REQUIRED COMPONENTS
   walrus_firmware_msgs
   roscpp
   diagnostic_updater
-  std_msgs
   walrus_base_hw
   hardware_interface
   transmission_interface
@@ -18,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-  CATKIN_DEPENDS walrus_firmware_msgs diagnostic_updater std_msgs walrus_base_hw hardware_interface transmission_interface controller_manager rosserial_server roboteq_driver
+  CATKIN_DEPENDS walrus_firmware_msgs diagnostic_updater walrus_base_hw hardware_interface transmission_interface controller_manager rosserial_server roboteq_driver
 )
 
 ###########
@@ -31,8 +30,8 @@ include_directories(
 )
 
 add_executable(walrus_pod_hw_node
-   src/${PROJECT_NAME}/walrus_pod_hw.cpp
-   src/${PROJECT_NAME}/walrus_pod_hw_node.cpp
+   src/walrus_pod_hw.cpp
+   src/walrus_pod_hw_node.cpp
 )
 target_link_libraries(walrus_pod_hw_node
   ${catkin_LIBRARIES}

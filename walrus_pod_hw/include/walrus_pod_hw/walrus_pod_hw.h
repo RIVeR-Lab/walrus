@@ -6,6 +6,7 @@
 #include <walrus_base_hw/walrus_robot_base.h>
 #include <walrus_firmware_msgs/MainBoardPodMotorFeedback.h>
 #include <hardware_interface/hardware_interface.h>
+#include <diagnostic_updater/diagnostic_updater.h>
 #include <string>
 
 namespace walrus_pod_hw {
