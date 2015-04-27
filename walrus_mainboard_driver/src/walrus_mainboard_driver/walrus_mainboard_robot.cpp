@@ -7,21 +7,13 @@ namespace walrus_mainboard_driver
 {
 
     MainBoardRobot::MainBoardRobot(ros::NodeHandle& nh, ros::NodeHandle& pnh)
-    : WalrusRobotBase(nh, pnh), diagnostic_updater(nh, pnh), last_hs_feedback(0, 0), last_ls_data(0,0), hs_feedback_timeout(0.25), ls_data_timeout(3), led_scale(1000)
+    : nh_(nh), pnh_(pnh), diagnostic_updater(nh, pnh), last_sensor_data(0,0), sensor_data_timeout(3), led_scale(255)
     {
         //Load parameters    
-        pnh.param("frontleft_pod_id", FL, 1);
-        pnh.param("frontright_pod_id", FR, 2);
-        pnh.param("backright_pod_id", BR, 3);
-        pnh.param("backleft_pod_id", BL, 4);
-        pnh.param("frontleft_motor_temp_id", MOTOR_TEMP[FL-1], 1);   
-        pnh.param("frontright_motor_temp_id", MOTOR_TEMP[FR-1], 2);
-        pnh.param("backright_motor_temp_id", MOTOR_TEMP[BR-1], 3);
-        pnh.param("backleft_motor_temp_id", MOTOR_TEMP[BL-1], 4);
-        pnh.param("frontleft_controller_temp_id", CONTROLLER_TEMP[FL-1], 5);
-        pnh.param("frontright_controller_temp_id",CONTROLLER_TEMP[FR-1], 5);
-        pnh.param("backright_controller_temp_id", CONTROLLER_TEMP[BR-1], 6);
-        pnh.param("backleft_controller_temp_id", CONTROLLER_TEMP[BL-1], 7);
+        pnh.param("frontleft_motor_temp_id", FL_POD_MOTOR_TEMP, 1);   
+        pnh.param("frontright_motor_temp_id", FR_POD_MOTOR_TEMP, 2);
+        pnh.param("backright_motor_temp_id", BR_POD_MOTOR_TEMP, 3);
+        pnh.param("backleft_motor_temp_id", BL_POD_MOTOR_TEMP, 4);
         pnh.param("victor_temp_id", VICOR_TEMP, 7);
         pnh.param("top_plate_temp_id", TOP_PLATE_TEMP, 8);
         pnh.param("right_drive_motor_temp_id", RIGHT_DRIVE_TEMP, 9);
@@ -30,23 +22,6 @@ namespace walrus_mainboard_driver
         pnh.param("bottom_cam_led_id", BOTTOM_CAM_LED, 2);
         pnh.param("back_cam_led_id", BACK_CAM_LED, 3);
         pnh.param("backup_batt_voltage_id", BACKUP_BATT_VOLTAGE, 1);
-        
-        pnh.param("pod_auto_enable", POD_AUTO_ENABLE, false);
-        pnh.param("frontleft_pod_neutral_position", POD_POSITION_NEUTRAL[FL-1], 0.0);
-        pnh.param("frontright_pod_neutral_position", POD_POSITION_NEUTRAL[FR-1], 0.0);
-        pnh.param("backright_pod_neutral_position", POD_POSITION_NEUTRAL[BR-1], 0.0);
-        pnh.param("backleft_pod_neutral_position", POD_POSITION_NEUTRAL[BL-1], 0.0);
-        pnh.param("frontleft_pod_encoder_reverse", POD_ENCODER_REV[FL-1], false);
-        pnh.param("frontright_pod_encoder_reverse", POD_ENCODER_REV[FR-1], false);
-        pnh.param("backright_pod_encoder_reverse", POD_ENCODER_REV[BR-1], false);
-        pnh.param("backleft_pod_encoder_reverse", POD_ENCODER_REV[BL-1], false);
-        pnh.param("frontleft_pod_motor_reverse", POD_MOTOR_REV[FL-1], false);
-        pnh.param("frontright_pod_motor_reverse", POD_MOTOR_REV[FR-1], false);
-        pnh.param("backright_pod_motor_reverse", POD_MOTOR_REV[BR-1], false);
-        pnh.param("backleft_pod_motor_reverse", POD_MOTOR_REV[BL-1], false);
-        pnh.param("pod_output_torque_per_amp", OUTPUT_TORQUE_PER_AMP, 1.0);
-        pnh.param("pod_output_power_neutral", OUTPUT_POWER_NEUTRAL, 1500);
-        pnh.param("pod_output_power_limit", OUTPUT_POWER_LIMIT, 500);
         
         pnh.param<string>("water_sense_1_position", WATER_SENSE_POSITION[0], "Position 1");
         pnh.param<string>("water_sense_2_position", WATER_SENSE_POSITION[1], "Position 2");
@@ -65,14 +40,7 @@ namespace walrus_mainboard_driver
         pnh.param("humidity_critical_above", HUMIDITY_CRITICAL_ABOVE, -1.0);
         
         pnh.param("pod_motor_temp_high_above", POD_MOTOR_TEMP_HIGH_ABOVE, -1.0);
-        pnh.param("pod_motor_temp_critical_above", POD_MOTOR_TEMP_CRITICAL_ABOVE, -1.0);
-        pnh.param("pod_controller_temp_high_above", POD_CONTROLLER_TEMP_HIGH_ABOVE, -1.0);
-        pnh.param("pod_controller_temp_critical_above", POD_CONTROLLER_TEMP_CRITICAL_ABOVE, -1.0);
-        pnh.param("pod_motor_current_high_above", POD_MOTOR_CURRENT_HIGH_ABOVE, -1.0);
-        pnh.param("pod_motor_current_critical_above", POD_MOTOR_CURRENT_CRITICAL_ABOVE, -1.0);
-        
-        pnh.param("feedback_timeout", HS_FEEDBACK_TIMEOUT, 250);
-        
+
         pnh.param("main_batt_voltage_low_below", MAIN_BATT_VOLTAGE_LOW_BELOW, -1.0);
         pnh.param("main_batt_charge_low_below", MAIN_BATT_CHARGE_LOW_BELOW, -1.0);
         pnh.param("main_batt_temp_high_above", MAIN_BATT_TEMP_HIGH_ABOVE, -1.0);
@@ -88,30 +56,9 @@ namespace walrus_mainboard_driver
         pnh.param("drive_motor_temp_critical_above", DRIVE_MOTOR_TEMP_CRITICAL_ABOVE, -1.0);
              
         main_board_connected = false;
-        board_enabled = false;
         for (int l = 0; l < 4; l++)
-        {
             batteries[l].present = false;
-            pod_force_disable[l] = false;
-        }
-        
-        //Setup pod actuator interfaces
-        hardware_interface::ActuatorStateHandle state_handleFL("walrus/front_left_pod_joint_actuator", &pod_position[FL-1], &pod_velocity[FL-1], &pod_effort[FL-1]);
-        asi_.registerHandle(state_handleFL);
-        hardware_interface::ActuatorStateHandle state_handleFR("walrus/front_right_pod_joint_actuator", &pod_position[FR-1], &pod_velocity[FR-1], &pod_effort[FR-1]);
-        asi_.registerHandle(state_handleFR);
-        hardware_interface::ActuatorStateHandle state_handleBR("walrus/back_right_pod_joint_actuator", &pod_position[BR-1], &pod_velocity[BR-1], &pod_effort[BR-1]);
-        asi_.registerHandle(state_handleBR);
-        hardware_interface::ActuatorStateHandle state_handleBL("walrus/back_left_pod_joint_actuator", &pod_position[BL-1], &pod_velocity[BL-1], &pod_effort[BL-1]);
-        asi_.registerHandle(state_handleBL);        
-        hardware_interface::ActuatorHandle effort_handleFL(state_handleFL, &pod_effort_cmd[FL-1]);
-        aei_.registerHandle(effort_handleFL);
-        hardware_interface::ActuatorHandle effort_handleFR(state_handleFR, &pod_effort_cmd[FR-1]);
-        aei_.registerHandle(effort_handleFR);
-        hardware_interface::ActuatorHandle effort_handleBR(state_handleBR, &pod_effort_cmd[BR-1]);
-        aei_.registerHandle(effort_handleBR);
-        hardware_interface::ActuatorHandle effort_handleBL(state_handleBL, &pod_effort_cmd[BL-1]);
-        aei_.registerHandle(effort_handleBL);
+
         
         //Add diagnostics updaters
         diagnostic_updater.setHardwareID("Walrus Main Board");
@@ -121,10 +68,10 @@ namespace walrus_mainboard_driver
         diagnostic_updater.add("Internal Pressure", this, &MainBoardRobot::pressure_diagnostic_callback);
         for (int l = 0; l < 6; l++)
             diagnostic_updater.add(WATER_SENSE_POSITION[l], boost::bind(&MainBoardRobot::water_diagnostic_callback, this, _1, l));
-        diagnostic_updater.add("Front Left Pod", boost::bind(&MainBoardRobot::pod_diagnostic_callback, this, _1, FL-1));
-        diagnostic_updater.add("Front Right Pod", boost::bind(&MainBoardRobot::pod_diagnostic_callback, this, _1, FR-1));
-        diagnostic_updater.add("Back Right Pod", boost::bind(&MainBoardRobot::pod_diagnostic_callback, this, _1, BR-1));
-        diagnostic_updater.add("Back Left Pod", boost::bind(&MainBoardRobot::pod_diagnostic_callback, this, _1, BL-1));
+        diagnostic_updater.add("Front Left Pod Temperature", boost::bind(&MainBoardRobot::pod_temp_diagnostic_callback, this, _1, FL_POD_MOTOR_TEMP));
+        diagnostic_updater.add("Front Right Pod Temperature", boost::bind(&MainBoardRobot::pod_temp_diagnostic_callback, this, _1, FR_POD_MOTOR_TEMP));
+        diagnostic_updater.add("Back Right Pod Temperature", boost::bind(&MainBoardRobot::pod_temp_diagnostic_callback, this, _1, BR_POD_MOTOR_TEMP));
+        diagnostic_updater.add("Back Left Pod Temperature", boost::bind(&MainBoardRobot::pod_temp_diagnostic_callback, this, _1, BL_POD_MOTOR_TEMP));
         diagnostic_updater.add("Main Control Board", this, &MainBoardRobot::mainboard_diagnostic_callback);
         diagnostic_updater.add("Battery 1", boost::bind(&MainBoardRobot::batt_diagnostic_callback, this, _1, 0));
         diagnostic_updater.add("Battery 2", boost::bind(&MainBoardRobot::batt_diagnostic_callback, this, _1, 1));
@@ -133,85 +80,15 @@ namespace walrus_mainboard_driver
         diagnostic_updater.add("Power Systems", this, &MainBoardRobot::power_diagnostic_callback);
         diagnostic_updater.add("Left Drive Motor Temperature", this, &MainBoardRobot::left_drive_temp_diagnostic_callback);
         diagnostic_updater.add("Right Drive Motor Temperature", this, &MainBoardRobot::right_drive_temp_diagnsotic_callback);
-    }
-    
-    bool MainBoardRobot::init()
-    {        
+        
         //Setup publishers and subscribers to communicate with the embedded board
-        hs_control = nh_.advertise<walrus_firmware_msgs::MainBoardHighSpeedControl>("main_board/hs_control", 1000);
         to_board = nh_.advertise<walrus_firmware_msgs::MainBoardControl>("main_board/PC_to_board_control", 1000);
         heartbeat_timer = nh_.createTimer(ros::Duration(1), &MainBoardRobot::heartbeat_callback, this);
         front_led = nh_.subscribe<std_msgs::Float64>("front_led", 1000, boost::bind(&MainBoardRobot::led_callback, this, _1, FRONT_CAM_LED-1));
         back_led = nh_.subscribe<std_msgs::Float64>("back_led", 1000, boost::bind(&MainBoardRobot::led_callback, this, _1, BACK_CAM_LED-1));
         bottom_led = nh_.subscribe<std_msgs::Float64>("bottom_led", 1000, boost::bind(&MainBoardRobot::led_callback, this, _1, BOTTOM_CAM_LED-1));
-        set_enable = nh_.subscribe("set_enable", 1000, &MainBoardRobot::set_enable_callback, this);
         from_board = nh_.subscribe("main_board/board_to_PC_control", 1000, &MainBoardRobot::from_board_callback, this);
-        ls_data = nh_.subscribe("main_board/ls_data", 1000, &MainBoardRobot::ls_data_callback, this);    
-        hs_feedback = nh_.subscribe("main_board/hs_feedback", 1000, &MainBoardRobot::hs_feedback_callback, this);   
-
-	registerInterface(&asi_);
-	registerInterface(&aei_);
-
-	std::vector<std::string> actuator_names = boost::assign::list_of
-	  ("walrus/front_left_pod_joint_actuator")
-	  ("walrus/front_right_pod_joint_actuator")
-	  ("walrus/back_left_pod_joint_actuator")
-	  ("walrus/back_right_pod_joint_actuator");
-	return loadTransmissions(actuator_names);
-    }
-
-    void MainBoardRobot::read(ros::Duration dt)
-    {       
-        boost::lock_guard<boost::mutex> lock(control_data_mutex);
-       
-        for (int l = 0; l < 4; l++)
-        {
-            double position, delta;
-            position = ((hs_feedback_msg.pod_position[l]/1023.0)*2*M_PI)-M_PI; //Convert raw ADC  value (0-1023) to angle (-pi to pi)
-                       
-            position -= POD_POSITION_NEUTRAL[l];
-            if (position < -M_PI)
-                position += 2*M_PI;
-            else if (position > M_PI)
-                position -= 2*M_PI;
-            if (POD_ENCODER_REV[l])
-                position *= -1;
-            delta = position - pod_position[l];
-            if (delta > M_PI) //Decrease angle across 0
-                pod_velocity[l] = (delta-2*M_PI)/dt.toSec();
-            else if (delta < -M_PI) //Increase angle across 0
-                pod_velocity[l] = (delta+2*M_PI)/dt.toSec();
-            else  
-                pod_velocity[l] = delta/dt.toSec();
-            pod_position[l] = position;        
-            pod_current[l] = (hs_feedback_msg.motor_current[l] / 1000.0); //mA -> A
-            pod_effort[l] = pod_effort[l] * OUTPUT_TORQUE_PER_AMP;
-        }        
-	robot_transmissions_.get<transmission_interface::ActuatorToJointStateInterface>()->propagate();
-    }
-    
-    void MainBoardRobot::write(ros::Duration dt)
-    {            
-        robot_transmissions_.get<transmission_interface::JointToActuatorEffortInterface>()->propagate();
-        walrus_firmware_msgs::MainBoardHighSpeedControl hs_control_msg;    
-        {
-            boost::lock_guard<boost::mutex> lock(control_data_mutex);
-            //Send motor control message            
-            for (int l = 0; l < 4; l++)
-            {  
-	        if (pod_effort_cmd[l] < -1)
-pod_effort_cmd[l] = -1;
-	        else if (pod_effort_cmd[l] > 1)
-		    pod_effort_cmd[l] = 1;
-                if (pod_force_disable[l])
-                    pod_power[l] = OUTPUT_POWER_NEUTRAL;
-                else
-                    pod_power[l] = (pod_effort_cmd[l]*OUTPUT_POWER_LIMIT*(POD_MOTOR_REV[l] ? -1 : 1)) + OUTPUT_POWER_NEUTRAL;	
-                hs_control_msg.motor_power[l] = pod_power[l];
-            }
-        }
-        
-        hs_control.publish(hs_control_msg);        
+        sensor_data = nh_.subscribe("main_board/sensor_data", 1000, &MainBoardRobot::sensor_data_callback, this);    
     }
     
     void MainBoardRobot::update_diagnostics()
@@ -234,25 +111,7 @@ pod_effort_cmd[l] = -1;
         led_msg.msg = "";
         to_board.publish(led_msg);
     }
-    void MainBoardRobot::set_enable_callback(const std_msgs::Bool& msg)
-    {
-        walrus_firmware_msgs::MainBoardControl enable_msg;
-        if (msg.data)
-            enable_msg.type = walrus_firmware_msgs::MainBoardControl::SET_ENABLE;
-        else
-            enable_msg.type = walrus_firmware_msgs::MainBoardControl::SET_DISABLE;
-        enable_msg.index = 0;
-        enable_msg.value = 0; 
-        enable_msg.msg = "";
-        to_board.publish(enable_msg);
-    }
-    void MainBoardRobot::hs_feedback_callback(const walrus_firmware_msgs::MainBoardHighSpeedFeedback& msg)
-    {
-        boost::lock_guard<boost::mutex> lock(control_data_mutex);
-        hs_feedback_msg = msg;
-        last_hs_feedback = ros::Time::now();
-    }
-    void MainBoardRobot::ls_data_callback(const walrus_firmware_msgs::MainBoardLowSpeedData& msg)
+    void MainBoardRobot::sensor_data_callback(const walrus_firmware_msgs::MainBoardSensorData& msg)
     {
         boost::lock_guard<boost::mutex> lock(sensor_data_mutex);
         
@@ -331,7 +190,7 @@ pod_effort_cmd[l] = -1;
         main_voltage /= count;
         main_charge /= count;
         
-        last_ls_data = ros::Time::now();
+        last_sensor_data = ros::Time::now();
     }
     
     void MainBoardRobot::from_board_callback(const walrus_firmware_msgs::MainBoardControl& msg)
@@ -349,19 +208,6 @@ pod_effort_cmd[l] = -1;
             case walrus_firmware_msgs::MainBoardControl::BATT_CHEM:
                 batteries[msg.index].chemistry = msg.msg;
             break; 
-            case walrus_firmware_msgs::MainBoardControl::STATUS:
-                main_board_status = "Connected, " + msg.msg;
-                main_board_status_level = msg.value;
-                if (POD_AUTO_ENABLE && msg.msg.compare("Disabled") == 0)
-                {
-                    walrus_firmware_msgs::MainBoardControl status_req_msg;
-                    status_req_msg.type = walrus_firmware_msgs::MainBoardControl::SET_ENABLE;
-                    status_req_msg.index = 0;
-                    status_req_msg.value = 0; 
-                    status_req_msg.msg = "";
-                    to_board.publish(status_req_msg);   
-                }
-            break;
             case walrus_firmware_msgs::MainBoardControl::ERROR:
                 ROS_ERROR_STREAM(msg.msg);
             break;
@@ -446,115 +292,26 @@ pod_effort_cmd[l] = -1;
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Leak Detected");
     }
     
-    void MainBoardRobot::pod_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
+    void MainBoardRobot::pod_temp_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)
     {
-        boost::lock_guard<boost::mutex> lock(sensor_data_mutex);
-    
-        bool warning = false;
-        bool error = false;
-        string msg = "";   
-      
-        if (main_board_connected)
-        {      
-            //Check over current
-            if (POD_MOTOR_CURRENT_CRITICAL_ABOVE > 0 && pod_current[index] > POD_MOTOR_CURRENT_CRITICAL_ABOVE)
-            {
-                error = true;
-                msg += "Motor current critical. ";
-                pod_force_disable[index] = true;
-            }
-            else if (POD_MOTOR_CURRENT_HIGH_ABOVE > 0 && pod_current[index] > POD_MOTOR_CURRENT_HIGH_ABOVE)
-            {
-                warning = true;
-                msg += "Motor current high. ";            
-            }
-            
-            //Check motor over temperature
-            if (POD_MOTOR_TEMP_CRITICAL_ABOVE > 0 && temp_sensors[MOTOR_TEMP[index]-1] > POD_MOTOR_TEMP_CRITICAL_ABOVE)
-            {
-                error = true;
-                msg += "Motor temperature critical, motor disabled.";
-                pod_force_disable[index] = true;
-            }
-            else if (POD_MOTOR_TEMP_HIGH_ABOVE > 0 && temp_sensors[MOTOR_TEMP[index]-1] > POD_MOTOR_TEMP_HIGH_ABOVE)
-            {
-                warning = true;
-                msg += "Motor temperature high. ";
-            }
-            else
-                pod_force_disable[index] = false;
-            
-            //Check controller over temperature
-            if (POD_CONTROLLER_TEMP_CRITICAL_ABOVE > 0 && temp_sensors[CONTROLLER_TEMP[index]-1] > POD_CONTROLLER_TEMP_CRITICAL_ABOVE)
-            {
-                error = true;
-                msg += "Motor controller temperature critical. motor disabled.";
-                pod_force_disable[index] = true;
-            }
-            else if (POD_CONTROLLER_TEMP_HIGH_ABOVE > 0 && temp_sensors[CONTROLLER_TEMP[index]-1] > POD_CONTROLLER_TEMP_HIGH_ABOVE)
-            {
-                warning = true;
-                msg += "Motor controller temperature high. ";
-            }
-            else
-                pod_force_disable[index] = false;
-            
-            uint8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-            if (error)
-                level = diagnostic_msgs::DiagnosticStatus::ERROR;
-            else if (warning)
-                level = diagnostic_msgs::DiagnosticStatus::WARN;
-            else
-                msg = "Everything OK";
-            
-            stat.summary(level, msg); 
-        }
-        else
-            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "No Data");
-        
-        stat.add("Velocity", main_board_connected ? formatDouble(pod_velocity[index], 0) + " rpm" : "No Data");
-        stat.add("Position", main_board_connected ? formatDouble((pod_position[index]*180/M_PI), 2) + "\xc2\xb0" : "No Data");
-        stat.add("Current", main_board_connected ? formatDouble(pod_current[index], 3) + " A" : "No Data");
-        stat.add("Motor Temperature", main_board_connected ? formatDouble(temp_sensors[MOTOR_TEMP[index]-1], 1) + "\xc2\xb0""C" : "No Data");
-        stat.add("Controller Temperature", main_board_connected ? formatDouble(temp_sensors[CONTROLLER_TEMP[index]-1], 1) + "\xc2\xb0""C" : "No Data");
+        uint8_t level = diagnostic_msgs::DiagnosticStatus::OK;
+        if (!main_board_connected)
+            level = diagnostic_msgs::DiagnosticStatus::ERROR;
+        else if (POD_MOTOR_TEMP_HIGH_ABOVE > 0 && temp_sensors[index] > POD_MOTOR_TEMP_HIGH_ABOVE)
+            level = diagnostic_msgs::DiagnosticStatus::WARN;    
+        stat.summary(level, main_board_connected ? formatDouble(temp_sensors[index], 1) + "\xc2\xb0""C" : "No Data");
     }
-    
     
     void MainBoardRobot::mainboard_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat)
     {
         boost::lock_guard<boost::mutex> lock(sensor_data_mutex);
         
-        bool ls_data_good = false;
-        bool hs_feedback_good = false;
-        
-        if (ls_data_timeout > (ros::Time::now() - last_ls_data)) 
-            ls_data_good = true;
-        if (hs_feedback_timeout > (ros::Time::now() - last_hs_feedback))
-            hs_feedback_good = true;      
-        
-        if (!main_board_connected && ls_data_good && hs_feedback_good)
-        {
-            walrus_firmware_msgs::MainBoardControl status_req_msg;
-            status_req_msg.type = walrus_firmware_msgs::MainBoardControl::REQ_STATUS;
-            status_req_msg.index = 0;
-            status_req_msg.value = 0; 
-            status_req_msg.msg = "";
-            to_board.publish(status_req_msg);
-            main_board_connected = true;
-            main_board_status_level = diagnostic_msgs::DiagnosticStatus::WARN;
-            main_board_status = "Connected, Waiting for status";
-        }
-        else if (!ls_data_good || !hs_feedback_good)
-        {
-            main_board_connected = false;
-            main_board_status_level = diagnostic_msgs::DiagnosticStatus::ERROR;
-            main_board_status = "Not Connected";
-        }
-        
-        stat.summary(main_board_status_level, main_board_status);
-        
-        stat.add("Pod Motor Feedback", hs_feedback_good ? "OK" : "No Data");
-        stat.add("Other Sensor Feedback", ls_data_good ? "OK" : "No Data");
+        main_board_connected = sensor_data_timeout > (ros::Time::now() - last_sensor_data);
+
+        if (main_board_connected)
+            stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Connected");
+        else
+            stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Not Connected");
     }
     
     void MainBoardRobot::batt_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int index)

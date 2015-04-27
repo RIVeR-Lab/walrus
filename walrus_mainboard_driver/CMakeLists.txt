@@ -6,13 +6,9 @@ project(walrus_mainboard_driver)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   walrus_firmware_msgs
-  hardware_interface
-  transmission_interface
-  controller_manager
   roscpp
   diagnostic_updater
   std_msgs
-  walrus_base_hw
   rosserial_server
 )
 
@@ -20,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-   CATKIN_DEPENDS walrus_firmware_msgs std_msgs
+   CATKIN_DEPENDS walrus_firmware_msgs std_msgs diagnostic_updater rosserial_server
 )
 
 ###########
@@ -36,7 +32,6 @@ add_executable(walrus_mainboard_node
    src/${PROJECT_NAME}/walrus_mainboard_robot.cpp
    src/${PROJECT_NAME}/walrus_mainboard_node.cpp
 )
-
 target_link_libraries(walrus_mainboard_node
   ${catkin_LIBRARIES}
 )
