@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
   double controller_rate;
   pnh.param<double>("controller_rate", controller_rate, 50);
 
-  walrus_pod_hw::WalrusPodHW robot(nh, phn, "/dev/walrus_front_pod_controller", "/dev/walrus_back_pod_controller");
+  walrus_pod_hw::WalrusPodHW robot(nh, pnh, "/dev/walrus_front_pod_controller", "/dev/walrus_back_pod_controller");
 
   ros::AsyncSpinner spinner(1);
   spinner.start();
@@ -37,9 +37,9 @@ int main(int argc, char** argv) {
     ros::Time now;
     rate.beginLoop(&now, &dt);
 
-    robot.read();
+    robot.read(dt);
     cm.update(now, dt);
-    robot.write();
+    robot.write(dt);
 
     robot.update_diagnostics();
 

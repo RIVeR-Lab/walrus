@@ -8,19 +8,22 @@
 #include <hardware_interface/hardware_interface.h>
 #include <diagnostic_updater/diagnostic_updater.h>
 #include <string>
+#include <roboteq_driver/roboteq_motor_controller.h>
 
-namespace walrus_pod_hw {
+namespace walrus_pod_hw 
+{
 
-    class WalrusPodHW : public WalrusRobotBase
+    class WalrusPodHW : public walrus_base_hw::WalrusRobotBase
     {
     public:
        WalrusPodHW(ros::NodeHandle& nh, ros::NodeHandle& pnh, std::string front_controller_device, std::string back_controller_device);
        
-       WalrusPodHW~();
+       ~WalrusPodHW();
        
        bool init();
        void write(ros::Duration dt);
        void read(ros::Duration dt);
+       void update_diagnostics();
      
     private:  
        diagnostic_updater::Updater diagnostic_updater;
@@ -29,7 +32,7 @@ namespace walrus_pod_hw {
        hardware_interface::EffortActuatorInterface aei_;
        
        std::string controller_devices[2];
-       RoboteqMotorController* controllers[2];
+       roboteq_driver::RoboteqMotorController* controllers[2];
        
        void pm_feedback_callback(const walrus_firmware_msgs::MainBoardPodMotorFeedback& msg);
        
@@ -48,7 +51,7 @@ namespace walrus_pod_hw {
        
             
        //Pod constants
-       const int FL_POD, BL_POD, FR_POD, BL_POD;
+       const int FL_POD, BL_POD, FR_POD, BR_POD;
        const int CONTROLLER_MASK;
        const int FRONT_CONTROLLER, BACK_CONTROLLER;
        int POD_POSITION_INDEX[4];
@@ -59,7 +62,7 @@ namespace walrus_pod_hw {
        double OUTPUT_TORQUE_PER_AMP; 
        double POD_MOTOR_CURRENT_HIGH_ABOVE;
         
-    }
+    };
 
 }
 

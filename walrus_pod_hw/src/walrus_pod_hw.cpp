@@ -1,39 +1,40 @@
 #include "walrus_pod_hw/walrus_pod_hw.h"
+#include <boost/assign/list_of.hpp>
 
 namespace walrus_pod_hw
 {
-    WalrusPodHW::WalrusPodHW(ros::NodeHandle& nh, ros::NodeHandle& pnh, std::string front_controller_device, std_string back_controller_device) 
-    : WalrusRobotBase(nh, pnh), diagnostic_updater(nh, pnh), FL_POD(0), BL_POD(1), FR_POD(2), BL_POD(3), CONTROLLER_MASK(1), FRONT_CONTROLLER(0), BACK_CONTROLLER(1), pm_feedback_timeout(0.25), last_pm_feedback(0,0)
+    WalrusPodHW::WalrusPodHW(ros::NodeHandle& nh, ros::NodeHandle& pnh, std::string front_controller_device, std::string back_controller_device) 
+    : WalrusRobotBase(nh, pnh), diagnostic_updater(nh, pnh), FL_POD(0), BL_POD(1), FR_POD(2), BR_POD(3), CONTROLLER_MASK(1), FRONT_CONTROLLER(0), BACK_CONTROLLER(1), pm_feedback_timeout(0.25), last_pm_feedback(0,0)
     {    
-        controllers[0] = new RoboteqMotorController(1000, 1000, 0, 0);
-        controllers[0] = new RoboteqMotorController(1000, 1000, 0, 0);
+        controllers[0] = new roboteq_driver::RoboteqMotorController(1000, 1000, 0, 0);
+        controllers[0] = new roboteq_driver::RoboteqMotorController(1000, 1000, 0, 0);
         
         controller_devices[FRONT_CONTROLLER] = front_controller_device;
         controller_devices[BACK_CONTROLLER] = back_controller_device;
     
         //Load Parameters
-        pnh.param("frontleft_pod_position_index", FL_POD, 0);
-        pnh.param("frontright_pod_position_index", FR_POD, 1);
-        pnh.param("backright_pod_position_index", BR_POD, 2);
-        pnh.param("backleft_pod_position_index", BL_POD, 3);
-        pnh.param("frontleft_pod_channel", POD_CHANNEL[FL_POD], 0);
-        pnh.param("frontright_pod_channel", POD_CHANNEL[FR_POD], 1);
-        pnh.param("backright_pod_channel", POD_CHANNEL[BR_POD], 0);
-        pnh.param("backleft_pod_channel", POD_CHANNEL[BL_POD], 1);
-        pnh.param("frontleft_pod_neutral_position", POD_POSITION_NEUTRAL[FL_POD], 0.0);
-        pnh.param("frontright_pod_neutral_position", POD_POSITION_NEUTRAL[FR_POD], 0.0);
-        pnh.param("backright_pod_neutral_position", POD_POSITION_NEUTRAL[BR_POD], 0.0);
-        pnh.param("backleft_pod_neutral_position", POD_POSITION_NEUTRAL[BL_POD], 0.0);
-        pnh.param("frontleft_pod_encoder_reverse", POD_ENCODER_REV[FL_POD], false);
-        pnh.param("frontright_pod_encoder_reverse", POD_ENCODER_REV[FR_POD], false);
-        pnh.param("backright_pod_encoder_reverse", POD_ENCODER_REV[BR_POD], false);
-        pnh.param("backleft_pod_encoder_reverse", POD_ENCODER_REV[BL_POD], false);
-        pnh.param("frontleft_pod_motor_reverse", POD_MOTOR_REV[FL_POD], false);
-        pnh.param("frontright_pod_motor_reverse", POD_MOTOR_REV[FR_POD], false);
-        pnh.param("backright_pod_motor_reverse", POD_MOTOR_REV[BR_POD], false);
-        pnh.param("backleft_pod_motor_reverse", POD_MOTOR_REV[BL_POD], false);
-        pnh.param("pod_output_torque_per_amp", OUTPUT_TORQUE_PER_AMP, 1.0);
-        pnh.param("pod_motor_current_high_above", POD_MOTOR_CURRENT_HIGH_ABOVE, -1);
+        pnh.param<int>("frontleft_pod_position_index", POD_POSITION_INDEX[FL_POD], 0);
+        pnh.param<int>("frontright_pod_position_index", POD_POSITION_INDEX[FR_POD], 1);
+        pnh.param<int>("backright_pod_position_index", POD_POSITION_INDEX[BR_POD], 2);
+        pnh.param<int>("backleft_pod_position_index", POD_POSITION_INDEX[BL_POD], 3);
+        pnh.param<int>("frontleft_pod_channel", POD_CHANNEL[FL_POD], 1);
+        pnh.param<int>("frontright_pod_channel", POD_CHANNEL[FR_POD], 2);
+        pnh.param<int>("backright_pod_channel", POD_CHANNEL[BR_POD], 1);
+        pnh.param<int>("backleft_pod_channel", POD_CHANNEL[BL_POD], 2);
+        pnh.param<double>("frontleft_pod_neutral_position", POD_POSITION_NEUTRAL[FL_POD], 0.0);
+        pnh.param<double>("frontright_pod_neutral_position", POD_POSITION_NEUTRAL[FR_POD], 0.0);
+        pnh.param<double>("backright_pod_neutral_position", POD_POSITION_NEUTRAL[BR_POD], 0.0);
+        pnh.param<double>("backleft_pod_neutral_position", POD_POSITION_NEUTRAL[BL_POD], 0.0);
+        pnh.param<bool>("frontleft_pod_encoder_reverse", POD_ENCODER_REV[FL_POD], false);
+        pnh.param<bool>("frontright_pod_encoder_reverse", POD_ENCODER_REV[FR_POD], false);
+        pnh.param<bool>("backright_pod_encoder_reverse", POD_ENCODER_REV[BR_POD], false);
+        pnh.param<bool>("backleft_pod_encoder_reverse", POD_ENCODER_REV[BL_POD], false);
+        pnh.param<bool>("frontleft_pod_motor_reverse", POD_MOTOR_REV[FL_POD], false);
+        pnh.param<bool>("frontright_pod_motor_reverse", POD_MOTOR_REV[FR_POD], false);
+        pnh.param<bool>("backright_pod_motor_reverse", POD_MOTOR_REV[BR_POD], false);
+        pnh.param<bool>("backleft_pod_motor_reverse", POD_MOTOR_REV[BL_POD], false);
+        pnh.param<double>("pod_output_torque_per_amp", OUTPUT_TORQUE_PER_AMP, 1.0);
+        pnh.param<double>("pod_motor_current_high_above", POD_MOTOR_CURRENT_HIGH_ABOVE, -1);
         
         //Setup pod actuator interfaces
         hardware_interface::ActuatorStateHandle state_handleFL("walrus/front_left_pod_joint_actuator", &pod_position[FL_POD], &pod_velocity[FL_POD], &pod_effort[FL_POD]);
@@ -62,7 +63,7 @@ namespace walrus_pod_hw
         diagnostic_updater.add("Back Pod Controller", boost::bind(&WalrusPodHW::pod_control_diagnostic_callback, this, _1, BACK_CONTROLLER));
     }
     
-    WalrusPodHW::WalrusPodHW~()
+    WalrusPodHW::~WalrusPodHW()
     {
         delete controllers[0];
         delete controllers[1];
@@ -71,13 +72,13 @@ namespace walrus_pod_hw
     bool WalrusPodHW::init()
     {        
         //Setup publishers and subscribers to communicate with the embedded board
-        hs_feedback = nh_.subscribe("main_board/pod_motor_feedback", 1000, &WalrusPodHW::pm_feedback_callback, this);   
+        pm_feedback = nh_.subscribe("main_board/pod_motor_feedback", 1000, &WalrusPodHW::pm_feedback_callback, this);   
 
 	    registerInterface(&asi_);
 	    registerInterface(&aei_);
 	    
-	    controllers[FRONT_CONTROLLER]->open(front_controller_device);
-        controllers[BACK_CONTROLLER]->open(back_controller_device);
+	    controllers[FRONT_CONTROLLER]->open(controller_devices[FRONT_CONTROLLER]);
+        controllers[BACK_CONTROLLER]->open(controller_devices[BACK_CONTROLLER]);
 
 	    std::vector<std::string> actuator_names = boost::assign::list_of
 	      ("walrus/front_left_pod_joint_actuator")
@@ -101,13 +102,11 @@ namespace walrus_pod_hw
 	            pod_effort_cmd[l] = 1;
             controllers[l & CONTROLLER_MASK]->setPower(POD_CHANNEL[l], pod_effort_cmd[l] * (POD_MOTOR_REV[l] ? -1 : 1));
         }
-        
-        hs_control.publish(hs_control_msg);   
     }
     
     void WalrusPodHW::read(ros::Duration dt)
     {
-        boost::lock_guard<boost::mutex> lock(feedback_data_mutex);
+        boost::lock_guard<boost::mutex> lock(feedback_mutex);
        
         for (int l = 0; l < 4; l++)
         {
@@ -129,7 +128,7 @@ namespace walrus_pod_hw
             else  
                 pod_velocity[l] = delta/dt.toSec();
             pod_position[l] = position;        
-            controllers[l & CONTROLLER_MASK]->getCurrent(POD_CHANNEL[l], &pod_current[l])
+            controllers[l & CONTROLLER_MASK]->getCurrent(POD_CHANNEL[l], pod_current[l]);
             pod_effort[l] = pod_current[l] * OUTPUT_TORQUE_PER_AMP;
         }        
         
@@ -139,6 +138,13 @@ namespace walrus_pod_hw
     void WalrusPodHW::update_diagnostics()
     {
         diagnostic_updater.update();
+    }
+    
+    string WalrusPodHW::formatDouble(double value, int precision)
+    {
+        stringstream ss;
+        ss << std::fixed << std::setprecision(precision) << value;
+        return ss.str();
     }
     
     void WalrusPodHW::pm_feedback_callback(const walrus_firmware_msgs::MainBoardPodMotorFeedback& msg)
@@ -168,12 +174,13 @@ namespace walrus_pod_hw
             error = true;
             msg += "No current data. ";
         }
-        else if (POD_MOTOR_CURRENT_HIGH_ABOVE > 0 && pod_current[index] > POD_MOTOR_CURRENT_HIGH_ABOVE)
+        else if (POD_MOTOR_CURRENT_HIGH_ABOVE > 0 && pod_current[pod] > POD_MOTOR_CURRENT_HIGH_ABOVE)
         {
             warning = true;
             msg += "Motor current high. ";            
         }     
         
+        uint8_t level = diagnostic_msgs::DiagnosticStatus::OK;
         if (error)
             level = diagnostic_msgs::DiagnosticStatus::ERROR;
         else if (warning)
@@ -183,9 +190,9 @@ namespace walrus_pod_hw
         
         stat.summary(level, msg); 
         
-        stat.add("Velocity", position_valid ? formatDouble(pod_velocity[index], 0) + " rpm" : "No Position Data");
-        stat.add("Position", position valid ? formatDouble((pod_position[index]*180/M_PI), 2) + "\xc2\xb0" : "No Positon Data");
-        stat.add("Current", current_valid ? formatDouble(pod_current[index], 3) + " A" : "No Current Data");
+        stat.add("Velocity", position_valid ? formatDouble(pod_velocity[pod], 0) + " rpm" : "No Position Data");
+        stat.add("Position", position_valid ? formatDouble((pod_position[pod]*180/M_PI), 2) + "\xc2\xb0" : "No Positon Data");
+        stat.add("Current", current_valid ? formatDouble(pod_current[pod], 3) + " A" : "No Current Data");
     }
     
     void WalrusPodHW::roboteq_diagnostic_callback(diagnostic_updater::DiagnosticStatusWrapper &stat, int controller)
