@@ -11,13 +11,14 @@ find_package(catkin REQUIRED COMPONENTS
   transmission_interface
   controller_manager
   rosserial_server
+  roboteq_driver
 )
 
 ###################################
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-  CATKIN_DEPENDS walrus_firmware_msgs diagnostic_updater std_msgs walrus_base_hw hardware_interface transmission_interface controller_manager rosserial_server
+  CATKIN_DEPENDS walrus_firmware_msgs diagnostic_updater std_msgs walrus_base_hw hardware_interface transmission_interface controller_manager rosserial_server roboteq_driver
 )
 
 ###########
