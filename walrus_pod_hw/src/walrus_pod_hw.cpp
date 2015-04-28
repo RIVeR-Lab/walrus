@@ -3,11 +3,13 @@
 
 namespace walrus_pod_hw
 {
+  using namespace device_driver;
+
     WalrusPodHW::WalrusPodHW(ros::NodeHandle& nh, ros::NodeHandle& pnh, std::string front_controller_device, std::string back_controller_device) 
     : WalrusRobotBase(nh, pnh), diagnostic_updater(nh, pnh), FL_POD(0), BL_POD(1), FR_POD(2), BR_POD(3), CONTROLLER_MASK(1), FRONT_CONTROLLER(0), BACK_CONTROLLER(1), pm_feedback_timeout(0.25), last_pm_feedback(0,0)
     {    
         controllers[0] = new roboteq_driver::RoboteqMotorController(1000, 1000, 0, 0);
-        controllers[0] = new roboteq_driver::RoboteqMotorController(1000, 1000, 0, 0);
+        controllers[1] = new roboteq_driver::RoboteqMotorController(1000, 1000, 0, 0);
         
         controller_devices[FRONT_CONTROLLER] = front_controller_device;
         controller_devices[BACK_CONTROLLER] = back_controller_device;
@@ -35,6 +37,7 @@ namespace walrus_pod_hw
         pnh.param<bool>("backleft_pod_motor_reverse", POD_MOTOR_REV[BL_POD], false);
         pnh.param<double>("pod_output_torque_per_amp", OUTPUT_TORQUE_PER_AMP, 1.0);
         pnh.param<double>("pod_motor_current_high_above", POD_MOTOR_CURRENT_HIGH_ABOVE, -1);
+	pnh.param<double>("pod_motor_limit", POD_MOTOR_LIMIT, 1);
         
         //Setup pod actuator interfaces
         hardware_interface::ActuatorStateHandle state_handleFL("walrus/front_left_pod_joint_actuator", &pod_position[FL_POD], &pod_velocity[FL_POD], &pod_effort[FL_POD]);
@@ -72,13 +75,22 @@ namespace walrus_pod_hw
     bool WalrusPodHW::init()
     {        
         //Setup publishers and subscribers to communicate with the embedded board
-        pm_feedback = nh_.subscribe("main_board/pod_motor_feedback", 1000, &WalrusPodHW::pm_feedback_callback, this);   
+        pm_feedback = nh_.subscribe("main_board/pm_feedback", 1000, &WalrusPodHW::pm_feedback_callback, this);   
 
 	    registerInterface(&asi_);
 	    registerInterface(&aei_);
 	    
-	    controllers[FRONT_CONTROLLER]->open(controller_devices[FRONT_CONTROLLER]);
-        controllers[BACK_CONTROLLER]->open(controller_devices[BACK_CONTROLLER]);
+	    try {
+	      controllers[FRONT_CONTROLLER]->open(controller_devices[FRONT_CONTROLLER]);
+	    } catch (Exception& e) {
+	      ROS_ERROR_STREAM("Front Roboteq driver error: " << e.what());
+	    }
+	    try {
+	      controllers[BACK_CONTROLLER]->open(controller_devices[BACK_CONTROLLER]);
+	    } catch (Exception& e) {
+	      ROS_ERROR_STREAM("Back Roboteq driver error: " << e.what());
+	    }
+
 
 	    std::vector<std::string> actuator_names = boost::assign::list_of
 	      ("walrus/front_left_pod_joint_actuator")
@@ -100,7 +112,7 @@ namespace walrus_pod_hw
                 pod_effort_cmd[l] = -1;
             else if (pod_effort_cmd[l] > 1)
 	            pod_effort_cmd[l] = 1;
-            controllers[l & CONTROLLER_MASK]->setPower(POD_CHANNEL[l], pod_effort_cmd[l] * (POD_MOTOR_REV[l] ? -1 : 1));
+            controllers[l & CONTROLLER_MASK]->setPower(POD_CHANNEL[l], pod_effort_cmd[l] * POD_MOTOR_LIMIT * (POD_MOTOR_REV[l] ? -1 : 1));
         }
     }
     
