@@ -68,7 +68,7 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
   
   pnh.param<int>("axis_boom_pan", axis_boom_pan_, 4);
   pnh.param<int>("axis_boom_tilt", axis_boom_tilt_, 5);
-  pnh.param<int>("axis_boom_deploy", axis_boom_tilt_, 5);
+  pnh.param<int>("axis_boom_deploy", axis_boom_deploy_, 5);
   pnh.param<int>("button_boom_deploy_enable", button_boom_deploy_enable_, 3);
 
   tank_drive_pub_ = nh.advertise<walrus_drive_controller::TankDriveCommand>("tank_drive", 1);
@@ -173,7 +173,7 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
     
     //Boom Controls
     std_msgs::Float64 pan, deploy, tilt;
-    pan.data = joy_msg->axes[axis_boom_pan_];
+    pan.data = -1*joy_msg->axes[axis_boom_pan_];
     if (joy_msg->buttons[button_boom_deploy_enable_])
     {
         tilt.data = 0;
