@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="walrus_oryx_arm">
+        <xacro:include filename="$(find walrus_description)/urdf/kinectv2.urdf.xacro" />
+
+	<xacro:macro name="oryx_arm" params="parent tf_prefix robot_ns">
+		<!-- Arm base -->
+		<!-- Fixed base attached to the robot -->
+		<link name="${tf_prefix}base">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+			                <box size = "0.08 0.04 0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "0.08 0.04 0.02"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${tf_prefix}base_joint" type="fixed">
+			<parent link="${parent}"/>
+			<child link="${tf_prefix}base"/>
+			<origin xyz="0.5 0 0.03" rpy="0 0 0" />
+		</joint>
+
+		<!-- Shoulder -->
+		<link name="${tf_prefix}shoulder">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+			                <box size = "0.04 0.04 0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "0.04 0.04 0.02"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}pan_joint" type="revolute">
+			<parent link="${tf_prefix}base"/>
+			<child link="${tf_prefix}shoulder"/>
+			<origin xyz="-0.02 0 0.035" rpy="0 0 0" />
+			<axis xyz="0 0 1" rpy="0 0 0" />
+			<limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="2" velocity="0.5" />
+		</joint>
+		<transmission name="${tf_prefix}pan_joint_trans">
+			<type>transmission_interface/SimpleTransmission</type>
+			<joint name="${tf_prefix}pan_joint">
+				<hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="${tf_prefix}pan_actuator">
+				<mechanicalReduction>84</mechanicalReduction>
+			</actuator>
+		</transmission>
+
+		<!-- Extension -->
+		<link name="${tf_prefix}extension">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0.25" rpy="0 0 0" />
+				<geometry>
+			                <cylinder length="0.5" radius="0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0.25" rpy="0 0 0" />
+				<geometry>
+			                <cylinder length="0.5" radius="0.02"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}shoulder_joint" type="revolute">
+			<parent link="${tf_prefix}shoulder"/>
+			<child link="${tf_prefix}extension"/>
+			<origin xyz="0 0 0.012" rpy="0 0 0" />
+			<axis xyz="0 1 0" rpy="0 0 0" />
+			<limit lower="-2" upper="2" effort="2" velocity="0.5" />
+		</joint>
+		<transmission name="${tf_prefix}shoulder_joint_trans">
+			<type>transmission_interface/SimpleTransmission</type>
+			<joint name="${tf_prefix}shoulder_joint">
+				<hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="${tf_prefix}shoulder_actuator">
+				<mechanicalReduction>531</mechanicalReduction>
+			</actuator>
+		</transmission>
+
+		<!-- Scoop -->
+		<link name="${tf_prefix}scoop">
+			<inertial>
+				<mass value="0.1" />
+				<origin xyz="0 0 0" />
+				<inertia  ixx="1" ixy="0" ixz="0"
+					  iyy="1" iyz="0" izz="1" />
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0" />
+				<geometry>
+			                <box size = "0.04 0.1 0.02"/>
+				</geometry>
+				<material name="green">
+					<color rgba="0 0.8 0 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+			                <box size = "0.04 0.1 0.02"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${tf_prefix}scoop_joint" type="revolute">
+			<parent link="${tf_prefix}extension"/>
+			<child link="${tf_prefix}scoop"/>
+			<origin xyz="0 0 0.54" rpy="0 0 0" />
+			<axis xyz="0 1 0" rpy="0 0 0" />
+			<limit lower="${-M_PI/2}" upper="${M_PI/2}" effort="2" velocity="0.5" />
+		</joint>
+		<transmission name="${tf_prefix}scoop_joint_trans">
+			<type>transmission_interface/SimpleTransmission</type>
+			<joint name="${tf_prefix}scoop_joint">
+				<hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+			</joint>
+			<actuator name="${tf_prefix}scoop_actuator">
+				<mechanicalReduction>1</mechanicalReduction>
+			</actuator>
+		</transmission>
+
+  	</xacro:macro>
+</robot>

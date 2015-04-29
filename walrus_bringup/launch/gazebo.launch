@@ -24,6 +24,7 @@
 
   <include file="$(find walrus_bringup)/launch/includes/common.launch.xml">
     <arg name="have_boom" default="$(arg have_boom)" />
+    <arg name="have_oryx_arm" default="false" />
     <arg name="type" value="gazebo"/>
   </include>
 
