@@ -16,11 +16,11 @@ tilt_position_scale: 0.0
 tilt_motor_reverse: false
 tilt_potentiometer_reverse: false
 tilt_ouput_torque_per_amp: 1.0
-deploy_max_position: 4096
-deploy_min_position: 0
-deploy_neutral_position: 2048
-deploy_position_scale: 0.0
+deploy_max_position: 2180
+deploy_min_position: 180
+deploy_neutral_position: 1180
+deploy_position_scale: 0.00157079632
 deploy_motor_reverse: false
-deploy_potentiometer_reverse: false
+deploy_potentiometer_reverse: true
 motor_output_power_scale: 255
 motor_output_auto_enable: true
