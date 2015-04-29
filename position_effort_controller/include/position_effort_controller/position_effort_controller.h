@@ -21,8 +21,8 @@ class PositionEffortController
 public:
   PositionEffortController();
   bool init(hardware_interface::EffortJointInterface* hw,
-	    ros::NodeHandle& nh,
-	    ros::NodeHandle& pnh);
+	    ros::NodeHandle& root_nh,
+	    ros::NodeHandle& controller_nh);
   void update(const ros::Time& time, const ros::Duration& period);
   void starting(const ros::Time& time);
   void stopping(const ros::Time& time);

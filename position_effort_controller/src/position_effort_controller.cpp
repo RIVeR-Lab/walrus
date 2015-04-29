@@ -14,7 +14,7 @@ PositionEffortController::PositionEffortController()
 {
 }
 
-bool PositionEffortController::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& nh, ros::NodeHandle & pnh) 
+bool PositionEffortController::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh) 
 {	 
   std::string joint_name;
   
@@ -24,10 +24,10 @@ bool PositionEffortController::init(hardware_interface::EffortJointInterface* hw
     return false;
   }
   
-  nh.param("command_timeout", command_timeout_, command_timeout_);
+  controller_nh.param("command_timeout", command_timeout_, command_timeout_);
 
-  if (!nh.getParam("joint", joint_name)) {
-    ROS_ERROR("No joint given (namespace: %s)", nh.getNamespace().c_str());
+  if (!controller_nh.getParam("joint", joint_name)) {
+    ROS_ERROR("No joint given (namespace: %s)", controller_nh.getNamespace().c_str());
     return false;
   }
 
@@ -38,12 +38,12 @@ bool PositionEffortController::init(hardware_interface::EffortJointInterface* hw
     return false;
   }
 
-  if (!pid_controller_.init(ros::NodeHandle(nh, "pid")))
+  if (!pid_controller_.init(ros::NodeHandle(controller_nh, "pid")))
     return false;
 
-  controller_state_publisher_.reset(new realtime_tools::RealtimePublisher<control_msgs::JointControllerState>(nh, "state", 1));
+  controller_state_publisher_.reset(new realtime_tools::RealtimePublisher<control_msgs::JointControllerState>(controller_nh, "state", 1));
 
-  command_sub_ = nh.subscribe<position_effort_controller::PositionEffortCommand>("command", 1, &PositionEffortController::setCommandCallback, this);
+  command_sub_ = controller_nh.subscribe<position_effort_controller::PositionEffortCommand>("command", 1, &PositionEffortController::setCommandCallback, this);
 }
 
 void PositionEffortController::setCommandCallback(const position_effort_controller::PositionEffortCommandConstPtr& command) {
