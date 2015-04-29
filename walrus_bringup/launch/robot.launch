@@ -5,8 +5,6 @@
 
   <include file="$(find walrus_base_hw)/launch/walrus_base_hw.launch" />
 
-  <include file="$(find walrus_bringup)/launch/includes/oryx_arm.launch.xml" if="$(arg have_oryx_arm)"/>
-
   <node name="boom" pkg="walrus_boomboard_driver" type="walrus_boomboard_node" respawn="true" respawn_delay="5" if="$(arg have_boom)">
     <remap from="boom/joint_states" to="joint_states" />
     <param name="controller_rate" value="50.0" type="double" />

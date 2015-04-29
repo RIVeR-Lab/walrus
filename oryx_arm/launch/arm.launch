@@ -3,7 +3,7 @@
     <remap from="arm/joint_states" to="joint_states" />
     <param name="controller_rate" value="10.0" type="double" />
     <rosparam param="names">['arm_pan_actuator', 'arm_shoulder_actuator', 'arm_scoop_actuator']</rosparam>
-    <rosparam command="load" file="$(find walrus_bringup)/config/oryx_arm_epos_motors.yaml" />
+    <rosparam command="load" file="$(find oryx_arm)/config/oryx_arm_epos_motors.yaml" />
   </node>
   <rosparam param="arm">
     controllers: ['joint_state_controller', 'pan_controller', 'shoulder_controller', 'scoop_controller']
