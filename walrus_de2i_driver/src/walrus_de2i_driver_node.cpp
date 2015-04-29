@@ -10,7 +10,7 @@
 #include <sys/mman.h>
 #include <ros/ros.h>
 #include <std_msgs/UInt16.h>
-#include <std_msgs/UInt32.h>
+#include <std_msgs/Bool.h>
 
 // PCI CONSTANTS
 #define PCI_VENDOR_ID 0x1172
@@ -89,8 +89,9 @@ private:
 };
 
 
-void hexCallback(PciMemory* fpga_mem, const std_msgs::UInt32::ConstPtr data) {
-  fpga_mem->write32(PCI_HEXPORT, data->data);
+void sprayCallback(PciMemory* fpga_mem, const std_msgs::Bool::ConstPtr data) {
+  uint32_t raw = data->data?0x1:0x0;
+  fpga_mem->write32(PCI_HEXPORT, raw);
 }
 
 int main(int argc, char **argv) {
@@ -104,7 +105,7 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
 
   ros::Publisher input_pub = nh.advertise<std_msgs::UInt16>("switches", 1);
-  ros::Subscriber hex_sub = nh.subscribe<std_msgs::UInt32>("hex", 1, boost::bind(hexCallback, &fpga_mem, _1));
+  ros::Subscriber spray_sub = nh.subscribe<std_msgs::Bool>("spray", 1, boost::bind(sprayCallback, &fpga_mem, _1));
 
   ros::Rate rate(10);
   while(ros::ok()) {
