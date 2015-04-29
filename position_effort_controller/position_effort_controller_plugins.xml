@@ -1,0 +1,9 @@
+<library path="lib/libposition_effort_controller">
+
+  <class name="position_effort_controller/PositionEffortController" type="position_effort_controller::PositionEffortController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      The PositionEffortController implements a controller that accepts both effort and position commands. 
+    </description>
+  </class>
+
+</library>

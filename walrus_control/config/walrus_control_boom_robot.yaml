@@ -1,13 +1,13 @@
 boom:
   deploy_controller:
-    type: effort_controllers/JointEffortController
+    type: position_effort_controller/PositionEffortController
     joint: walrus/boom/deploy_joint
     pid: {p : 0.0, i : 0.0, d : 0.0}
   pan_controller:
-    type: effort_controllers/JointEffortController
+    type: position_effort_controller/PositionEffortController
     joint: walrus/boom/pan_joint
     pid: {p : 0.0, i : 0.0, d : 0.0}
   tilt_controller:
-    type: effort_controllers/JointEffortController
+    type: position_effort_controller/PositionEffortController
     joint: walrus/boom/tilt_joint
     pid: {p : 0.0, i : 0.0, d : 0.0}
