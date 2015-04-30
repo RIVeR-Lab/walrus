@@ -6,7 +6,7 @@ angular.module("app").controller("BoomControlToolCtrl",
     $scope.back_right = 0.0;
 });
 
-angular.module("app").directive("boomControlToolChannel", function() {
+angular.module("app").directive("positionEffortControlToolChannel", function() {
     // constants in position_effort_controller/PositionEffortCommand
     var PositionEffortCommand = {
 	DISABLED: 0,
