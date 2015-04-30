@@ -4,15 +4,15 @@ base:
     type: walrus_pod_controller/WalrusPodController
     front:
       joint: walrus/front_left_pod_joint
-      pid: {p : 0.0, i : 0.0, d : 0.0}
+      pid: {p : 5.0, i : 0.0, d : 0.0}
     back:
       joint: walrus/back_left_pod_joint
-      pid: {p : 0.0, i : 0.0, d : 0.0}
+      pid: {p : 5.0, i : 0.0, d : 0.0}
   right_pods_joint_controller:
     type: walrus_pod_controller/WalrusPodController
     front:
       joint: walrus/front_right_pod_joint
-      pid: {p : 0.0, i : 0.0, d : 0.0}
+      pid: {p : 5.0, i : 0.0, d : 0.0}
     back:
       joint: walrus/back_right_pod_joint
-      pid: {p : 0.0, i : 0.0, d : 0.0}
+      pid: {p : 5.0, i : 0.0, d : 0.0}
