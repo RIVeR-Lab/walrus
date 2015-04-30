@@ -3,10 +3,12 @@ project(walrus_joystick_controller)
 
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  std_msgs
   roscpp
   sensor_msgs
   walrus_pod_controller
   walrus_drive_controller
+  position_effort_controller
   message_generation
 )
 
@@ -18,7 +20,7 @@ add_message_files(
 generate_messages()
 
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs sensor_msgs walrus_pod_controller walrus_drive_controller message_runtime
+  CATKIN_DEPENDS geometry_msgs sensor_msgs walrus_pod_controller walrus_drive_controller position_effort_controller message_runtime std_msgs
 )
 
 ###########

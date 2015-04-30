@@ -20,6 +20,11 @@
     <param name="button_front_pods_down" value="6" />
     <param name="button_back_pods_up" value="5" />
     <param name="button_back_pods_down" value="7" />
+    
+    <param name="axis_boom_pan" value="4" />
+    <param name="axis_boom_tilt" value="5" />
+    <param name="axis_boom_deploy" value="5" />
+    <param name="button_boom_deploy_enable" value="3" />
 
     <param name="button_left_pods" value="0" />
     <param name="button_right_pods" value="2" />

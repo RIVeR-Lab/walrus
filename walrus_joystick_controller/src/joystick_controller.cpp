@@ -2,6 +2,7 @@
 #include "walrus_joystick_controller/JoystickControllerState.h"
 #include <walrus_pod_controller/PodCommand.h>
 #include <walrus_drive_controller/TankDriveCommand.h>
+#include <position_effort_controller/PositionEffortCommand.h>
 
 namespace walrus_joystick_controller {
 
@@ -65,8 +66,17 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
   pnh.param<int>("button_right_pods", button_right_pods_, 1);
 
   pnh.param<int>("button_toggle_speed", button_toggle_speed_, 2);
+  
+  pnh.param<int>("axis_boom_pan", axis_boom_pan_, 4);
+  pnh.param<int>("axis_boom_tilt", axis_boom_tilt_, 5);
+  pnh.param<int>("axis_boom_deploy", axis_boom_deploy_, 5);
+  pnh.param<int>("button_boom_deploy_enable", button_boom_deploy_enable_, 3);
 
   tank_drive_pub_ = nh.advertise<walrus_drive_controller::TankDriveCommand>("tank_drive", 1);
+  
+  boom_pan_effort = nh.advertise<position_effort_controller::PositionEffortCommand>("/boom/pan_controller/command", 1);
+  boom_tilt_effort = nh.advertise<position_effort_controller::PositionEffortCommand>("/boom/tilt_controller/command", 1);
+  boom_deploy_effort = nh.advertise<position_effort_controller::PositionEffortCommand>("/boom/deploy_controller/command", 1);
 
   state_pub_ = pnh.advertise<walrus_joystick_controller::JoystickControllerState>("state", 1, true);
   state_pub_timer_ = nh.createTimer(ros::Duration(1.0), boost::bind(&JoystickController::updateState, this, false));
@@ -161,6 +171,27 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
     back_right_pod_.publishEffortOrHold(back_effort * right_effort);
     front_left_pod_.publishEffortOrHold(front_effort * left_effort);
     front_right_pod_.publishEffortOrHold(front_effort * right_effort);
+    
+    //Boom Controls
+    position_effort_controller::PositionEffortCommand pan, deploy, tilt;
+    pan.mode = position_effort_controller::PositionEffortCommand::EFFORT;
+    deploy.mode = position_effort_controller::PositionEffortCommand::EFFORT;
+    tilt.mode = position_effort_controller::PositionEffortCommand::EFFORT;
+    
+    pan.set_point = -1*joy_msg->axes[axis_boom_pan_];
+    if (joy_msg->buttons[button_boom_deploy_enable_])
+    {
+        tilt.set_point  = 0;
+        deploy.set_point  = joy_msg->axes[axis_boom_deploy_];
+    }
+    else
+    {
+        tilt.set_point = joy_msg->axes[axis_boom_tilt_];
+        deploy.set_point = 0;
+    }
+    boom_deploy_effort.publish(deploy);
+    boom_pan_effort.publish(pan);
+    boom_tilt_effort.publish(tilt);
   }
 }
 

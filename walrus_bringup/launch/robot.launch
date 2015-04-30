@@ -7,6 +7,7 @@
   <node name="boom" pkg="walrus_boomboard_driver" type="walrus_boomboard_node" respawn="true" respawn_delay="5" if="$(arg have_boom)">
     <remap from="boom/joint_states" to="joint_states" />
     <param name="controller_rate" value="50.0" type="double" />
+    <rosparam command="load" file="$(find walrus_boomboard_driver)/config/boomboard_param.yaml" />
   </node>
 
   <!-- Kinect -->

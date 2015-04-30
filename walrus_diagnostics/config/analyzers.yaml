@@ -26,11 +26,22 @@ analyzers:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Resources
             find_and_remove_prefix: 'primary_computer_resource_monitor: '
+  environment:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: Environment
+    contains: [
+        'boom: CO Concentration',
+        'boom: CNG Concentration',
+        'boom: LPG Concentration',
+        'boom: H Concentration']
+    remove_prefix: 'boom: '              
   embedded:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Embedded Boards
     expected: [
-        'base: Main Control Board' ]
+        'base: Main Control Board']
+    contains: [
+        'boom: Boom Control Board']
     remove_prefix: 'base: '
   imu:
     type: diagnostic_aggregator/GenericAnalyzer
@@ -75,6 +86,14 @@ analyzers:
         'base: Battery 3',
         'base: Battery 4']
     remove_prefix: 'base: '
+  boom:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: Boom
+    contains: [
+        'boom: Pan Control',
+        'boom: Tilt Control',
+        'boom: Deploy Control']
+    remove_prefix: 'boom: '
   networking:
     type: diagnostic_aggregator/AnalyzerGroup
     path: Networking
