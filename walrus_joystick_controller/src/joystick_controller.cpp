@@ -203,10 +203,10 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
 	back_effort = 0.0;
       }
 
-      back_left_pod_.publishEffortOrHold(back_effort * left_effort);
-      back_right_pod_.publishEffortOrHold(back_effort * right_effort);
-      front_left_pod_.publishEffortOrHold(front_effort * left_effort);
-      front_right_pod_.publishEffortOrHold(front_effort * right_effort);
+      back_left_pod_.publishCommand(walrus_pod_controller::PodCommand::EFFORT, back_effort * left_effort);
+      back_right_pod_.publishCommand(walrus_pod_controller::PodCommand::EFFORT, back_effort * right_effort);
+      front_left_pod_.publishCommand(walrus_pod_controller::PodCommand::EFFORT, front_effort * left_effort);
+      front_right_pod_.publishCommand(walrus_pod_controller::PodCommand::EFFORT, front_effort * right_effort);
 
       //Boom Controls
       position_effort_controller::PositionEffortCommand pan, deploy, tilt;
