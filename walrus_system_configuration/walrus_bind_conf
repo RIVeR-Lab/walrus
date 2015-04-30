@@ -9,4 +9,5 @@ $TTL        604800
 @           IN      A       192.168.1.1
 @           IN      NS      walrus.
 bullet-ap   IN      A       192.168.1.20
+icc         IN      A       192.168.1.5
 robot       IN      CNAME   walrus.

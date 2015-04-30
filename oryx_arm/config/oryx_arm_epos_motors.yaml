@@ -1,0 +1,93 @@
+# Time in seconds
+# Current in amps
+# position, velocity, and acceleration in device units
+
+arm_pan_actuator: # Node 3
+  actuator_name: walrus/arm/pan_actuator
+  serial_number: '0x602083000642'
+
+  operation_mode: 'profile_velocity'
+  #torque_constant: 0.0263
+
+  motor:
+    type: 10
+    ec_motor:
+      nominal_current: 0.657
+      max_output_current: 1.940
+      thermal_time_constant: 1.84
+      number_of_pole_pairs: 1
+
+  sensor:
+    type: 1
+    incremental_encoder:
+      resolution: 512
+      inverted_polarity: false
+
+  safety:
+    max_following_error: 20000
+    max_profile_velocity: 6000
+    max_acceleration: 8000
+
+  velocity_profile:
+    acceleration: 8000
+    deceleration: 8000
+
+arm_shoulder_actuator: # Node 1
+  actuator_name: walrus/arm/shoulder_actuator
+  serial_number: '0x602083000640'
+
+  operation_mode: 'profile_velocity'
+  #torque_constant: 0.0263
+
+  motor:
+    type: 10
+    ec_motor:
+      nominal_current: 0.450
+      max_output_current: 0.500
+      thermal_time_constant: 1.98
+      number_of_pole_pairs: 1
+
+  sensor:
+    type: 1
+    incremental_encoder:
+      resolution: 500
+      inverted_polarity: false
+
+  safety:
+    max_following_error: 20000
+    max_profile_velocity: 8000
+    max_acceleration: 9000
+
+  velocity_profile:
+    acceleration: 8000
+    deceleration: 8000
+
+arm_scoop_actuator: # Node 2
+  actuator_name: walrus/arm/scoop_actuator
+  serial_number: '0x602083000587'
+
+  operation_mode: 'profile_velocity'
+  #torque_constant: 0.0263
+
+  motor:
+    type: 10
+    ec_motor:
+      nominal_current: 0.657
+      max_output_current: 1.940
+      thermal_time_constant: 1.84
+      number_of_pole_pairs: 1
+
+  sensor:
+    type: 1
+    incremental_encoder:
+      resolution: 512
+      inverted_polarity: false
+
+  safety:
+    max_following_error: 20000
+    max_profile_velocity: 8000
+    max_acceleration: 9000
+
+  velocity_profile:
+    acceleration: 8000
+    deceleration: 8000

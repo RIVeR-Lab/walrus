@@ -4,6 +4,7 @@
   <!-- Included URDF/XACRO Files -->
   <xacro:include filename="$(find walrus_description)/urdf/base.urdf.xacro" />
   <xacro:include filename="$(find walrus_description)/urdf/boom.urdf.xacro" />
+  <xacro:include filename="$(find walrus_description)/urdf/oryx_arm.urdf.xacro" />
 
   <property name="tf_prefix" value="$(arg tf_prefix)" />
   <property name="robot_ns" value="$(arg robot_ns)" />
@@ -34,6 +35,10 @@
 	<robotSimType>walrus_gazebo/WalrusBoomHWSim</robotSimType>
       </plugin>
     </gazebo>
+  </xacro:if>
+
+  <xacro:if value="$(arg have_oryx_arm)">
+    <xacro:oryx_arm parent="${tf_prefix}base_link" tf_prefix="${tf_prefix}arm/" robot_ns="${robot_ns}/arm"/>
   </xacro:if>
 
 </robot>

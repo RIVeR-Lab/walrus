@@ -2,6 +2,7 @@
 #include "std_msgs/Bool.h"
 #include "sensor_msgs/Joy.h"
 #include "std_msgs/Float64.h"
+#include "std_msgs/Bool.h"
 
 namespace walrus_joystick_controller {
 
@@ -14,6 +15,26 @@ public:
 private:
   ros::Publisher pub_;
 };
+
+template <class D, class M>
+class DataPublisher {
+public:
+  void advertise(ros::NodeHandle nh, const std::string& topic, int queue_size) {
+    pub_ = nh.advertise<M>(topic, queue_size);
+  }
+  void publish(const D& data) {
+    M msg;
+    msg.data = data;
+    pub_.publish(msg);
+  }
+private:
+  ros::Publisher pub_;
+};
+
+typedef DataPublisher<double, std_msgs::Float64> Float64Publisher;
+typedef DataPublisher<bool, std_msgs::Bool> BoolPublisher;
+
+
 
 class JoystickController {
  public:
@@ -30,8 +51,11 @@ class JoystickController {
   Pod back_right_pod_;
   Pod front_left_pod_;
   Pod front_right_pod_;
-  
+
   ros::Publisher boom_tilt_effort, boom_pan_effort, boom_deploy_effort;
+
+  Float64Publisher arm_tilt_pub, arm_pan_pub, arm_shoulder_pub;
+  BoolPublisher spray_pub;
 
   ros::Publisher state_pub_;
   ros::Timer state_pub_timer_;
@@ -49,11 +73,17 @@ class JoystickController {
 
   int button_left_pods_;
   int button_right_pods_;
-  
+
   int axis_boom_pan_;
   int axis_boom_tilt_;
   int axis_boom_deploy_;
   int button_boom_deploy_enable_;
+
+  int button_arm_enable_;
+  int button_arm_spray_;
+  int axis_arm_pan_;
+  int axis_arm_shoulder_;
+  int axis_arm_tilt_;
 
   int button_toggle_speed_;
   bool previous_button_toggle_speed_state_;

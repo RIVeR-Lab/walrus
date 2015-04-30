@@ -1,6 +1,7 @@
 <!-- Bringup file for the robot -->
 <launch>
   <arg name="have_boom" default="true"/>
+  <arg name="have_oryx_arm" default="true"/>
 
   <include file="$(find walrus_base_hw)/launch/walrus_base_hw.launch" />
 
@@ -52,6 +53,7 @@
 
   <include file="$(find walrus_bringup)/launch/includes/common.launch.xml">
     <arg name="have_boom" default="$(arg have_boom)" />
+    <arg name="have_oryx_arm" default="$(arg have_oryx_arm)" />
     <arg name="type" value="robot"/>
   </include>
 </launch>

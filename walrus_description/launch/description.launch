@@ -1,4 +1,5 @@
 <launch>
   <arg name="have_boom" default="true"/>
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find walrus_description)/robots/walrus.urdf.xacro' robot_ns:=/ tf_prefix:=walrus/ robot_name:=walrus have_boom:=$(arg have_boom)" />
+  <arg name="have_oryx_arm" default="true"/>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find walrus_description)/robots/walrus.urdf.xacro' robot_ns:=/ tf_prefix:=walrus/ robot_name:=walrus have_boom:=$(arg have_boom) have_oryx_arm:=$(arg have_oryx_arm)" />
 </launch>

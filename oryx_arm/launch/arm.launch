@@ -1,0 +1,24 @@
+<launch>
+  <node name="arm" pkg="walrus_base_hw" type="epos_hw_node" respawn="true" respawn_delay="5">
+    <remap from="arm/joint_states" to="joint_states" />
+    <param name="controller_rate" value="10.0" type="double" />
+    <rosparam param="names">['arm_pan_actuator', 'arm_shoulder_actuator', 'arm_scoop_actuator']</rosparam>
+    <rosparam command="load" file="$(find oryx_arm)/config/oryx_arm_epos_motors.yaml" />
+  </node>
+  <rosparam param="arm">
+    controllers: ['joint_state_controller', 'pan_controller', 'shoulder_controller', 'scoop_controller']
+    joint_state_controller:
+      type: joint_state_controller/JointStateController
+      publish_rate: 50
+    pan_controller:
+      type: velocity_controllers/JointVelocityController
+      joint: walrus/arm/pan_joint
+    shoulder_controller:
+      type: velocity_controllers/JointVelocityController
+      joint: walrus/arm/shoulder_joint
+    scoop_controller:
+      type: velocity_controllers/JointVelocityController
+      joint: walrus/arm/scoop_joint
+
+  </rosparam>
+</launch>

@@ -15,9 +15,10 @@ int main(int argc, char** argv) {
   double controller_rate;
   pnh.param<double>("controller_rate", controller_rate, 10);
 
+
   std::vector<std::string> epos_names;
-  epos_names.push_back("left_drive_actuator");
-  epos_names.push_back("right_drive_actuator");
+  pnh.getParam("names", epos_names);
+
   epos_hardware::EposHardware robot(nh, pnh, epos_names);
 
   ros::AsyncSpinner spinner(1);
