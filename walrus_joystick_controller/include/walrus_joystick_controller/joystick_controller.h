@@ -2,6 +2,7 @@
 #include "std_msgs/Bool.h"
 #include "sensor_msgs/Joy.h"
 #include "std_msgs/Float64.h"
+#include "std_msgs/Bool.h"
 
 namespace walrus_joystick_controller {
 
@@ -31,6 +32,7 @@ private:
 };
 
 typedef DataPublisher<double, std_msgs::Float64> Float64Publisher;
+typedef DataPublisher<bool, std_msgs::Bool> BoolPublisher;
 
 
 
@@ -53,6 +55,7 @@ class JoystickController {
   ros::Publisher boom_tilt_effort, boom_pan_effort, boom_deploy_effort;
 
   Float64Publisher arm_tilt_pub, arm_pan_pub, arm_shoulder_pub;
+  BoolPublisher spray_pub;
 
   ros::Publisher state_pub_;
   ros::Timer state_pub_timer_;
@@ -77,6 +80,7 @@ class JoystickController {
   int button_boom_deploy_enable_;
 
   int button_arm_enable_;
+  int button_arm_spray_;
   int axis_arm_pan_;
   int axis_arm_shoulder_;
   int axis_arm_tilt_;

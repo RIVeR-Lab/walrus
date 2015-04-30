@@ -72,9 +72,10 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
   pnh.param<int>("button_boom_deploy_enable", button_boom_deploy_enable_, 3);
 
   pnh.param<int>("button_arm_enable", button_arm_enable_, 1);
-  pnh.param<int>("axis_arm_pan", axis_arm_pan_, 4);
-  pnh.param<int>("axis_arm_shoulder", axis_arm_shoulder_, 5);
-  pnh.param<int>("axis_arm_tilt", axis_arm_tilt_, 1);
+  pnh.param<int>("button_arm_spray", button_arm_spray_, 10);
+  pnh.param<int>("axis_arm_pan", axis_arm_pan_, 0);
+  pnh.param<int>("axis_arm_shoulder", axis_arm_shoulder_, 1);
+  pnh.param<int>("axis_arm_tilt", axis_arm_tilt_, 5);
 
   tank_drive_pub_ = nh.advertise<walrus_drive_controller::TankDriveCommand>("tank_drive", 1);
   
@@ -84,7 +85,8 @@ JoystickController::JoystickController(ros::NodeHandle& nh, ros::NodeHandle& pnh
 
   arm_pan_pub.advertise(nh, "/arm/pan_controller/command", 1);
   arm_shoulder_pub.advertise(nh, "/arm/shoulder_controller/command", 1);
-  arm_tilt_pub.advertise(nh, "/arm/tilt_controller/command", 1);
+  arm_tilt_pub.advertise(nh, "/arm/scoop_controller/command", 1);
+  spray_pub.advertise(nh, "/arm/spray", 1);
 
 
   state_pub_ = pnh.advertise<walrus_joystick_controller::JoystickControllerState>("state", 1, true);
@@ -123,9 +125,10 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
 
 
     if (joy_msg->buttons[button_arm_enable_]) {
-      arm_pan_pub.publish(joy_msg->axes[axis_arm_pan_]);
-      arm_shoulder_pub.publish(joy_msg->axes[axis_arm_shoulder_]);
-      arm_tilt_pub.publish(joy_msg->axes[axis_arm_tilt_]);
+      arm_pan_pub.publish(6 * joy_msg->axes[axis_arm_pan_]);
+      arm_shoulder_pub.publish(-3 * joy_msg->axes[axis_arm_shoulder_]);
+      arm_tilt_pub.publish(3000 * joy_msg->axes[axis_arm_tilt_]);
+      spray_pub.publish(joy_msg->buttons[button_arm_spray_]);
 
       walrus_drive_controller::TankDriveCommand tank_drive_msg;
       tank_drive_msg.left_speed = 0.0;
@@ -229,6 +232,7 @@ void JoystickController::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
       arm_pan_pub.publish(0);
       arm_shoulder_pub.publish(0);
       arm_tilt_pub.publish(0);
+      spray_pub.publish(false);
     }
 
   }
@@ -249,6 +253,11 @@ void JoystickController::enableCallback(const std_msgs::Bool::ConstPtr& bool_msg
     back_right_pod_.publishHold();
     front_left_pod_.publishHold();
     front_right_pod_.publishHold();
+
+    arm_pan_pub.publish(0);
+    arm_shoulder_pub.publish(0);
+    arm_tilt_pub.publish(0);
+    spray_pub.publish(false);
   }
   updateState(true);
 }
