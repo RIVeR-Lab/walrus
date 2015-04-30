@@ -1,4 +1,6 @@
 <launch>
   <include file="$(find oryx_arm)/launch/arm.launch" />
-  <node ns="arm" name="sprayer" pkg="walrus_de2i_driver" type="walrus_de2i_driver_node" respawn="true" respawn_delay="5"></node>
+  <node ns="arm" name="sprayer" pkg="walrus_de2i_driver" type="walrus_de2i_driver_node" respawn="true" respawn_delay="5">
+    <param name="controller_rate" value="5.0" type="double" />
+  </node>
 </launch>
