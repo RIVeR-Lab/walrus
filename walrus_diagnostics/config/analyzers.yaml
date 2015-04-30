@@ -5,11 +5,11 @@ analyzers:
     path: Chassis
     contains: 'Water'
     expected: [
-        'base: Top Plate Temperature',
-        'base: Internal Temperature',
-        'base: Internal Humidity',
-        'base: Internal Pressure']
-    remove_prefix: 'base: '
+        'base_mainboard: Top Plate Temperature',
+        'base_mainboard: Internal Temperature',
+        'base_mainboard: Internal Humidity',
+        'base_mainboard: Internal Pressure']
+    remove_prefix: 'base_mainboard: '
   computers:
     type: diagnostic_aggregator/AnalyzerGroup
     path: Computers
@@ -30,19 +30,21 @@ analyzers:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Environment
     contains: [
+        'boom: Temperature',
+        'boom: Humidity',
         'boom: CO Concentration',
         'boom: CNG Concentration',
         'boom: LPG Concentration',
-        'boom: H Concentration']
+        'boom: Hydrogen Concentration']
     remove_prefix: 'boom: '              
   embedded:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Embedded Boards
     expected: [
-        'base: Main Control Board']
+        'base_mainboard: Main Control Board']
     contains: [
         'boom: Boom Control Board']
-    remove_prefix: 'base: '
+    remove_prefix: 'base_mainboard: '
   imu:
     type: diagnostic_aggregator/GenericAnalyzer
     path: IMU
@@ -55,37 +57,43 @@ analyzers:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Left Drive
             expected: [
-                'base: Left Drive Motor Temperature', 
+                'base_mainboard: Left Drive Motor Temperature', 
                 'base_epos: left_drive_actuator: Motor',
                 'base_epos: left_drive_actuator: Motor Output']
-            remove_prefix: 'base: '
+            remove_prefix: 'base_epos: '
         right_drive:
             type: diagnostic_aggregator/GenericAnalyzer
             path: Right Drive
             expected: [
-                'base: Right Drive Motor Temperature',
+                'base_mainboard: Right Drive Motor Temperature',
                 'base_epos: right_drive_actuator: Motor',
                 'base_epos: right_drive_actuator: Motor Output']
-            remove_prefix: 'base: '
+            remove_prefix: 'base_epos: '
   pods:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Pods
     expected: [
-        'base: Front Left Pod',
-        'base: Front Right Pod',
-        'base: Back Right Pod',
-        'base: Back Left Pod']
+        'base_mainboard: Front Left Pod Temperature',
+        'base_mainboard: Front Right Pod Temperature',
+        'base_mainboard: Back Right Pod Temperature',
+        'base_mainboard: Back Left Pod Temperature',
+        'base: Front Pod Controller',
+        'base: Back Pod Controller',
+        'base: Front Left Pod Control',
+        'base: Front Right Pod Control',
+        'base: Back Right Pod Control',
+        'base: Back Left Pod Control']
     remove_prefix: 'base: '
   power:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Power
     expected: [
-        'base: Power Systems',
-        'base: Battery 1',
-        'base: Battery 2',
-        'base: Battery 3',
-        'base: Battery 4']
-    remove_prefix: 'base: '
+        'base_mainboard: Power Systems',
+        'base_mainboard: Battery 1',
+        'base_mainboard: Battery 2',
+        'base_mainboard: Battery 3',
+        'base_mainboard: Battery 4']
+    remove_prefix: 'base_mainboard: '
   boom:
     type: diagnostic_aggregator/GenericAnalyzer
     path: Boom

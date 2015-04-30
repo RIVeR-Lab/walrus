@@ -6,7 +6,7 @@ namespace walrus_pod_hw
   using namespace device_driver;
 
     WalrusPodHW::WalrusPodHW(ros::NodeHandle& nh, ros::NodeHandle& pnh, std::string front_controller_device, std::string back_controller_device) 
-    : WalrusRobotBase(nh, pnh), diagnostic_updater(nh, pnh), FL_POD(0), BL_POD(1), FR_POD(2), BR_POD(3), CONTROLLER_MASK(1), FRONT_CONTROLLER(0), BACK_CONTROLLER(1), pm_feedback_timeout(0.25), last_pm_feedback(0,0)
+      : WalrusRobotBase(nh, pnh), diagnostic_updater(nh, pnh), FL_POD(0), BL_POD(1), FR_POD(2), BR_POD(3), CONTROLLER_MASK(1), FRONT_CONTROLLER(0), BACK_CONTROLLER(1), pm_feedback_timeout(0.25), last_pm_feedback(0,0), error_cnt(0)
     {    
         controllers[0] = new roboteq_driver::RoboteqMotorController(1000, 1000, 0, 0);
         controllers[1] = new roboteq_driver::RoboteqMotorController(1000, 1000, 0, 0);
@@ -62,8 +62,8 @@ namespace walrus_pod_hw
         diagnostic_updater.add("Front Right Pod Control", boost::bind(&WalrusPodHW::pod_control_diagnostic_callback, this, _1, FR_POD));
         diagnostic_updater.add("Back Left Pod Control", boost::bind(&WalrusPodHW::pod_control_diagnostic_callback, this, _1, BL_POD));
         diagnostic_updater.add("Back Right Pod Control", boost::bind(&WalrusPodHW::pod_control_diagnostic_callback, this, _1, BR_POD));
-        diagnostic_updater.add("Front Pod Controller", boost::bind(&WalrusPodHW::pod_control_diagnostic_callback, this, _1, FRONT_CONTROLLER));
-        diagnostic_updater.add("Back Pod Controller", boost::bind(&WalrusPodHW::pod_control_diagnostic_callback, this, _1, BACK_CONTROLLER));
+        diagnostic_updater.add("Front Pod Controller", boost::bind(&WalrusPodHW::roboteq_diagnostic_callback, this, _1, FRONT_CONTROLLER));
+        diagnostic_updater.add("Back Pod Controller", boost::bind(&WalrusPodHW::roboteq_diagnostic_callback, this, _1, BACK_CONTROLLER));
     }
     
     WalrusPodHW::~WalrusPodHW()
@@ -112,7 +112,13 @@ namespace walrus_pod_hw
                 pod_effort_cmd[l] = -1;
             else if (pod_effort_cmd[l] > 1)
 	            pod_effort_cmd[l] = 1;
-            controllers[l & CONTROLLER_MASK]->setPower(POD_CHANNEL[l], pod_effort_cmd[l] * POD_MOTOR_LIMIT * (POD_MOTOR_REV[l] ? -1 : 1));
+            
+	    try {
+	      controllers[l & CONTROLLER_MASK]->setPower(POD_CHANNEL[l], pod_effort_cmd[l] * POD_MOTOR_LIMIT * (POD_MOTOR_REV[l] ? -1 : 1));
+	    } catch (Exception& e) {
+	      error_cnt++;
+	      ROS_ERROR_STREAM("Back Roboteq driver error: " << e.what());
+	    }
         }
     }
     
@@ -140,11 +146,16 @@ namespace walrus_pod_hw
             else  
                 pod_velocity[l] = delta/dt.toSec();
             pod_position[l] = position;        
-            controllers[l & CONTROLLER_MASK]->getCurrent(POD_CHANNEL[l], pod_current[l]);
-            pod_effort[l] = pod_current[l] * OUTPUT_TORQUE_PER_AMP;
+            try {
+	      controllers[l & CONTROLLER_MASK]->getCurrent(POD_CHANNEL[l], pod_current[l]);
+            } catch (Exception& e) {
+	      error_cnt++;
+	      ROS_ERROR_STREAM("Back Roboteq driver error: " << e.what());
+	    }
+	    pod_effort[l] = pod_current[l] * OUTPUT_TORQUE_PER_AMP;
         }        
         
-	    robot_transmissions_.get<transmission_interface::ActuatorToJointStateInterface>()->propagate();
+	robot_transmissions_.get<transmission_interface::ActuatorToJointStateInterface>()->propagate();
     }
     
     void WalrusPodHW::update_diagnostics()
@@ -213,6 +224,7 @@ namespace walrus_pod_hw
             stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "OK");
         else
             stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Not Connected");
+	stat.add("Error Count", error_cnt);
     }
     
 

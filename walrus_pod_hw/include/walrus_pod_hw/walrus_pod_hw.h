@@ -25,7 +25,9 @@ namespace walrus_pod_hw
        void read(ros::Duration dt);
        void update_diagnostics();
      
-    private:  
+    private:
+       int error_cnt;
+  
        diagnostic_updater::Updater diagnostic_updater;
        
        hardware_interface::ActuatorStateInterface asi_;
