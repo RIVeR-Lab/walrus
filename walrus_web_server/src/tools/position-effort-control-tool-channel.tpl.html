@@ -1,0 +1,32 @@
+<md-card layout="column">
+  <md-card-content>
+    <div layout="row" class="flex-vcenter-row">
+      <h2>{{label}}:</h2>
+      <md-select ng-model="mode" style="margin-left:30px;">
+	<md-option value="position">Position</md-option>
+	<md-option value="effort">Effort</md-option>
+      </md-select>
+      <md-checkbox ng-model="enable">Enable</md-checkbox>
+    </div>
+    <div layout="row" class="flex-vcenter-row">
+      <md-slider min="{{min}}" max="{{max}}" step="0.01" ng-model="value" flex ng-disabled="!enable"></md-slider>
+      <input type="number" min="{{min}}" max="{{max}}" ng-model="value" ng-disabled="!enable">
+      <md-button class="md-primary md-raised" ng-click="zeroValue()" ng-disabled="!enable" ng-if="mode=='effort'">Zero</md-button>
+    </div>
+
+    <div layout="row" class="flex-vcenter-row">
+      <div flex>
+	<label>Commanded Effort: ({{command | number:2}})</label>
+	<md-progress-linear class="md-warn" value="{{Math.abs(command) * 100 / 10}}" md-mode="determinate" style="margin-top:10px;"></md-progress-linear>
+      </div>
+      <md-input-container flex="20" style="padding-bottom:0px;">
+	<label>Position</label>
+	<input ng-model="actual" readonly>
+      </md-input-container>
+      <md-input-container flex="20" style="padding-bottom:0px;">
+	<label>Position Set Point</label>
+	<input ng-model="set_point" readonly>
+      </md-input-container>
+    </div>
+  </md-card-content>
+</md-card>

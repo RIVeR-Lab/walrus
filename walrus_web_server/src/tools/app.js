@@ -7,7 +7,10 @@ var toolGroups = [
       tools: [
 	  {name: "Pod Control", path: "/pod-control",
 	  templateUrl: "/tools/pod-control-tool.tpl.html",
-	  controller: "PodControlToolCtrl"}
+	  controller: "PodControlToolCtrl"},
+	  {name: "Boom Control", path: "/boom-control",
+	  templateUrl: "/tools/boom-control-tool.tpl.html",
+	  controller: "BoomControlToolCtrl"}
       ]
     },
     { name: "ROS",
