@@ -12,8 +12,8 @@ void recv_msg(const walrus_firmware_msgs::DiagnosticScreen& msg);
 //ROS node handle
 ros::NodeHandle nh;
 //ROS Message publisher
-walrus_firmware_msgs::DiagnosticButton rx_msg;
-ros::Publisher rx("diagnostic_board/rx", &rx_msg);
+walrus_firmware_msgs::DiagnosticButton button_msg;
+ros::Publisher button("diagnostic_board/button", &button_msg);
 //ROS Message subscriber
 ros::Subscriber<walrus_firmware_msgs::DiagnosticScreen> tx("diagnostic_board/tx", &recv_msg);
 
@@ -44,7 +44,7 @@ void setup()
 {
 	//Initialize node, publishers and subscribers
 	nh.initNode();
-	nh.advertise(rx);	
+	nh.advertise(button);	
 	nh.subscribe(tx);
 
 	//Setup LED pins as outputs and set them high
@@ -175,29 +175,65 @@ void loop()
 	//If button is pressed, publish a message
 	if (up.fell())
 	{
-		rx_msg.button = 1;
-		rx.publish(&rx_msg);
+	    button_msg.event = walrus_firmware_msgs::DiagnosticButton::RELEASE;
+		button_msg.button = walrus_firmware_msgs::DiagnosticButton::UP;
+		button.publish(&button_msg);
+	}
+	else if (up.rose())
+	{
+	    button_msg.event = walrus_firmware_msgs::DiagnosticButton::PRESS;
+		button_msg.button = walrus_firmware_msgs::DiagnosticButton::UP;
+		button.publish(&button_msg);
 	}
 	if (right.fell())
 	{
-		rx_msg.button = 2;
-		rx.publish(&rx_msg);
+	    button_msg.event = walrus_firmware_msgs::DiagnosticButton::RELEASE;
+	    button_msg.button = walrus_firmware_msgs::DiagnosticButton::RIGHT;
+		button.publish(&button_msg);
+	}
+	else if (right.rose())
+	{
+	    button_msg.event = walrus_firmware_msgs::DiagnosticButton::PRESS;
+	    button_msg.button = walrus_firmware_msgs::DiagnosticButton::RIGHT;
+		button.publish(&button_msg);
 	}
 	if (down.fell())
 	{
-		rx_msg.button = 3;
-		rx.publish(&rx_msg);
+	    button_msg.event = walrus_firmware_msgs::DiagnosticButton::RELEASE;
+		button_msg.button = walrus_firmware_msgs::DiagnosticButton::DOWN;
+		button.publish(&button_msg);
+	}
+	else if (down.rose())
+	{
+	    button_msg.event = walrus_firmware_msgs::DiagnosticButton::PRESS;
+		button_msg.button = walrus_firmware_msgs::DiagnosticButton::DOWN;
+		button.publish(&button_msg);
 	}
 	if (left.fell())
 	{
-		rx_msg.button = 4;
-		rx.publish(&rx_msg);
+	    button_msg.event = walrus_firmware_msgs::DiagnosticButton::RELEASE;
+		button_msg.button = walrus_firmware_msgs::DiagnosticButton::LEFT;
+		button.publish(&button_msg);
+	}
+	else if (left.rose())
+	{
+	    button_msg.event = walrus_firmware_msgs::DiagnosticButton::PRESS;
+		button_msg.button = walrus_firmware_msgs::DiagnosticButton::LEFT;
+		button.publish(&button_msg);
 	}
 	if (cent.fell())
 	{
-		rx_msg.button = 5;
-		rx.publish(&rx_msg);
+	    button_msg.event = walrus_firmware_msgs::DiagnosticButton::RELEASE;
+		button_msg.button = walrus_firmware_msgs::DiagnosticButton::ENTER;
+		button.publish(&button_msg);
 	}
+	else if (cent.rose())
+	{
+	    button_msg.event = walrus_firmware_msgs::DiagnosticButton::PRESS;
+		button_msg.button = walrus_firmware_msgs::DiagnosticButton::ENTER;
+		button.publish(&button_msg);
+	}
+	
 	
 	//Check for ros updates
 	nh.spinOnce();

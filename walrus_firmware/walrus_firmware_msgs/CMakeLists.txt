@@ -12,24 +12,14 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-<<<<<<< HEAD
   BoomBoardHighSpeedControl.msg
   BoomBoardHighSpeedFeedback.msg
   BoomBoardLowSpeedData.msg
   BoomBoardControl.msg
-  DiagnosticRXMsg.msg
-  DiagnosticTXMsg.msg
   MainBoardPodMotorFeedback.msg
   MainBoardSensorData.msg
-=======
-  BoomBoardRXMsg.msg
-  BoomBoardTXMsg.msg
   DiagnosticScreen.msg
   DiagnosticButton.msg
-  MainBoardHighSpeedControl.msg
-  MainBoardHighSpeedFeedback.msg
-  MainBoardLowSpeedData.msg
->>>>>>> Renamed Diaggnostic board messages to be more descriptive, added non standard and custom characters as constants to DiagnosticScreen message
   MainBoardControl.msg
 )
 
