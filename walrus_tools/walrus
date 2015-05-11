@@ -47,9 +47,26 @@ def main():
     system_install_parser = system_subparsers.add_parser('install', help='Install the system configuratoin')
     system_install_parser.set_defaults(func=system_install)
 
+    start_parser = subparsers.add_parser('start', help='Brinup WALRUS ros service')
+    start_parser.set_defaults(func=start_ros)
+
+    restart_parser = subparsers.add_parser('restart', help='Restart WALRUS ros service')
+    restart_parser.set_defaults(func=restart_ros)
+
+    stop_parser = subparsers.add_parser('stop', help='Kill WALRUS ros service')
+    stop_parser.set_defaults(func=stop_ros)
+
     args = parser.parse_args()
     return args.func(args)
 
+def start_ros(args):
+    return subprocess.call(['sudo', 'start', 'ros'])
+
+def restart_ros(args):
+    return subprocess.call(['sudo', 'restart', 'ros'])
+
+def stop_ros(args):
+    return subprocess.call(['sudo', 'stop', 'ros'])
 
 def embedded_bootloader_upload(args):
     device = args.device
