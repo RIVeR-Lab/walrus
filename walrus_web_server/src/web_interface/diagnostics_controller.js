@@ -55,7 +55,7 @@ angular.module("app").controller("DiagnosticsCtrl",
 	for(var j = 0; j < drive_motor_names.length; ++j) {
 	    var motor_name = drive_motor_names[j];
 	    var path = "/Drive/"+(motor_name.charAt(0).toUpperCase() + motor_name.slice(1))+" Drive";
-	    var output_path = path+"/base_epos: "+motor_name+"_drive_actuator: Motor Output";
+	    var output_path = path+"/"+motor_name+"_drive_actuator: Motor Output";
 	    var output_current = diagnostics.value(output_path, "Current", current_regex);
 	    var nominal_current = diagnostics.value(output_path, "Nominal Current", current_regex);
 	    var max_current = diagnostics.value(output_path, "Max Current", current_regex);

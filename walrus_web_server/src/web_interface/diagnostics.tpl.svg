@@ -64,31 +64,35 @@
   <!-- Gas -->
   <rect x="750" y="10" width="70" height="70" style="fill:green;" rx="10" ry="10" />
   <text x="785" y="40" text-anchor="middle" font-weight="bolder" font-size="larger">CNG</text>
-  <text x="785" y="70" text-anchor="middle" font-weight="bolder">80 ppm</text>
+  <!--<text x="785" y="70" text-anchor="middle" font-weight="bolder">80 ppm</text>-->
 
-  <rect x="830" y="10" width="70" height="70" style="fill:red;" rx="10" ry="10" />
+  <rect x="830" y="10" width="70" height="70" style="fill:green;" rx="10" ry="10" />
   <text x="865" y="40" text-anchor="middle" font-weight="bolder" font-size="larger">LPG</text>
-  <text x="865" y="70" text-anchor="middle" font-weight="bolder">120 ppm</text>
+  <!--<text x="865" y="70" text-anchor="middle" font-weight="bolder">120 ppm</text>-->
 
   <rect x="750" y="90" width="70" height="70" style="fill:green;" rx="10" ry="10" />
   <text x="785" y="120" text-anchor="middle" font-weight="bolder" font-size="larger">CO</text>
-  <text x="785" y="150" text-anchor="middle" font-weight="bolder">30 ppm</text>
+  <!--<text x="785" y="150" text-anchor="middle" font-weight="bolder">30 ppm</text>-->
 
   <rect x="830" y="90" width="70" height="70" style="fill:green;" rx="10" ry="10" />
   <text x="865" y="120" text-anchor="middle" font-weight="bolder" font-size="larger">H</text>
-  <text x="865" y="150" text-anchor="middle" font-weight="bolder">10 ppm</text>
+  <!--<text x="865" y="150" text-anchor="middle" font-weight="bolder">10 ppm</text>-->
 
 
   <!-- Temperature -->
+  <!--
   <rect x="950" y="10" width="20" height="150" rx="10" ry="10" style="fill:lightgray;" />
   <circle cx="960" cy="150" r="20" style="fill:lightgray;" />
   <rect x="955" y="55" width="10" height="100" rx="5" ry="5" style="fill:red;" />
   <circle cx="960" cy="150" r="15" style="fill:red;" />
   <text x="960" y="190" text-anchor="middle" font-weight="bolder" style="fill:white;">70°C</text>
+  -->
 
   <!-- Humidity -->
+  <!--
   <circle cx="1050" cy="60" r="40" style="fill:rgb(0,191,255);" />
   <text x="1050" y="60" text-anchor="middle" alignment-baseline="middle" font-weight="900" font-size="30">%</text>
   <text x="1050" y="120" text-anchor="middle" font-weight="bolder" style="fill:white;">50%</text>
+  -->
 
 </svg>

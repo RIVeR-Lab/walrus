@@ -13,7 +13,7 @@
 //External LED pins (for analogWrite)
 #define P_EXT_LED_1 14 //MCU Pin: PC4; MCU Output Compare: OCR3C; Silkscreen: LED Board Control - 4 / J26; Schematic: LED1
 #define P_EXT_LED_2 15 //MCU Pin: PC5; MCU Output Compare: OCR3B; Silkscreen: LED Board Control - 5 / J29; Schematic: LED2
-#define P_EXT_LED_3 16 //MCU Pin: PB4; MCU Output Compare: OCR2A; Silkscreen: Pod Motor Control - 3 / J27; Schematic: POD_MOTOR1
+#define P_EXT_LED_3 24 //MCU Pin: PB4; MCU Output Compare: OCR2A; Silkscreen: Pod Motor Control - 3 / J27; Schematic: POD_MOTOR1
 
 //Encoder pins (analog)
 #define P_ENCODER_1 0
