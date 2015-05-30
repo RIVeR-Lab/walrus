@@ -55,7 +55,12 @@ rosModule
 			    gamepad.valid = false;
 			}
 			if(isDifferent(gamepadData)) {
-			    gamepad.lastRawData = angular.copy(gamepadData);
+			    gamepad.lastRawData = {
+				axes: gamepadData.axes,
+				buttons: gamepadData.buttons.map(function(b){ return {pressed: b.pressed}; }),
+				connected: gamepadData.connected,
+				timestamp: gamepadData.timestamp
+			    };
 			    processRawJoystick();
 			}
 		    }
