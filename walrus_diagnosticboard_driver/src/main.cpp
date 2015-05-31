@@ -1,5 +1,8 @@
 
 #include <ros/ros.h>
+#include <ros/spinner.h>
+#include <boost/asio.hpp>
+#include <rosserial_server/serial_session.h>
 #include <walrus_firmware_msgs/DiagnosticTXMsg.h>
 #include <walrus_firmware_msgs/DiagnosticRXMsg.h>
 #include <std_msgs/Empty.h>

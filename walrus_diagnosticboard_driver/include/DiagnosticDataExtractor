@@ -1,0 +1,12 @@
+#ifndef DIAGNOSTICDATAEXTRACTOR_H
+#define DIAGNOSTICDATAEXTRACTOR_H
+
+class DiagnosticDataExtractor
+{
+private:
+
+public:
+
+};
+
+#endif
